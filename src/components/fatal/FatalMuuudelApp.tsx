@@ -32,8 +32,21 @@ export function FatalMuuudelApp() {
       .finally(() => setLoading(false));
   };
 
+  const fetchAbductions = () => {
+    fetch("/api/abductions")
+      .then((r) => {
+        if (!r.ok) return;
+        return r.json();
+      })
+      .then((data) => {
+        if (data) setAbducted(data.abductions ?? []);
+      })
+      .catch((err) => console.error("Falha ao buscar abduções:", err));
+  };
+
   useEffect(() => {
     fetchCows();
+    fetchAbductions();
   }, []);
 
   const handleDecide = async (cow: Cow, dir: SwipeDir) => {
@@ -60,6 +73,7 @@ export function FatalMuuudelApp() {
     setAbducted([]);
     setMatch(null);
     fetchCows();
+    fetchAbductions();
     setScreen("swipe");
   };
 
