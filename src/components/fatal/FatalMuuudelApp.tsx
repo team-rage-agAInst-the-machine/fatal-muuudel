@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { FM_COPY, FM_COWS, type Cow } from "./data";
+import { useState, useEffect } from "react";
+import { FM_COPY, type Cow } from "./data";
 import { Saucer } from "./Saucer";
 import { Starfield } from "./Starfield";
 import { Splash } from "./Splash";
@@ -13,12 +13,25 @@ type Screen = "splash" | "swipe" | "list";
 
 export function FatalMuuudelApp() {
   const copy = FM_COPY;
-  const cows: Cow[] = FM_COWS;
 
+  const [cows, setCows] = useState<Cow[]>([]);
+  const [loading, setLoading] = useState(true);
   const [screen, setScreen] = useState<Screen>("splash");
   const [current, setCurrent] = useState(0);
   const [abducted, setAbducted] = useState<Abducted[]>([]);
   const [match, setMatch] = useState<{ cow: Cow; vip: boolean } | null>(null);
+
+  const fetchCows = () => {
+    setLoading(true);
+    fetch("/api/cows")
+      .then((r) => r.json())
+      .then((data) => setCows(data.cows ?? []))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchCows();
+  }, []);
 
   const handleDecide = (cow: Cow, dir: SwipeDir) => {
     setCurrent((c) => c + 1);
@@ -27,16 +40,22 @@ export function FatalMuuudelApp() {
       setAbducted((a) => [{ cow, vip }, ...a]);
       setMatch({ cow, vip });
     }
+    fetch("/api/swipes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cowId: cow.id, direction: dir }),
+    }).catch(() => {});
   };
 
   const resetAll = () => {
     setCurrent(0);
     setAbducted([]);
     setMatch(null);
+    fetchCows();
     setScreen("swipe");
   };
 
-  const noMore = current >= cows.length;
+  const noMore = !loading && current >= cows.length;
 
   return (
     <div className="fm-stage">
@@ -77,7 +96,14 @@ export function FatalMuuudelApp() {
 
         {screen === "splash" && <Splash copy={copy} onEnter={() => setScreen("swipe")} />}
 
-        {screen === "swipe" && !noMore && (
+        {screen === "swipe" && loading && (
+          <div className="fm-empty" style={{ margin: "auto" }}>
+            <div className="big">🛸</div>
+            <p style={{ color: "var(--ink-soft)" }}>Buscando vacas na galáxia...</p>
+          </div>
+        )}
+
+        {screen === "swipe" && !loading && !noMore && (
           <SwipeDeck
             cows={cows}
             current={current}
