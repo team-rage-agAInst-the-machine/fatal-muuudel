@@ -21,6 +21,10 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }
 
+  if (Object.keys(parsed.data).length === 0) {
+    return NextResponse.json({ error: "Nenhum campo para atualizar" }, { status: 400 });
+  }
+
   const user = await prisma.user.update({
     where: { id: session.user.id },
     data: parsed.data,

@@ -51,7 +51,7 @@ export async function POST(req: Request) {
   // Fallback local para desenvolvimento
   const { writeFile } = await import("fs/promises");
   const path = await import("path");
-  const filename = key.replace("uploads/", "");
+  const filename = path.basename(key.replace("uploads/", ""));
   await writeFile(path.join(process.cwd(), "public", "uploads", filename), buffer);
   const localUrl = `/uploads/${filename}`;
   await prisma.user.update({ where: { id: session.user.id }, data: { image: localUrl } });

@@ -158,7 +158,10 @@ export default function RegisterPage() {
     if (login && !login.error && !skip && photoFile) {
       const fd = new FormData();
       fd.append("file", photoFile);
-      await fetch("/api/upload", { method: "POST", body: fd }).catch(() => null);
+      const uploadResult = await fetch("/api/upload", { method: "POST", body: fd }).catch(() => null);
+      if (!uploadResult?.ok) {
+        setServerError("Foto não enviada, mas seu cadastro está ok. Atualize no perfil! 📸");
+      }
     }
 
     setLoading(false);
