@@ -30,14 +30,14 @@ export function ProfileScreen({ user }: { user: UserData }) {
       fd.append("file", file);
 
       const uploadRes = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await uploadRes.json();
       if (!uploadRes.ok) {
-        const err = await uploadRes.json();
-        setError(err.error ?? "Nave com defeito, tenta de novo 🛸");
+        setError(data.error ?? "Nave com defeito, tenta de novo 🛸");
         return;
       }
-
-      const { url } = await uploadRes.json();
-      setImage(url);
+      setImage(data.url);
+    } catch {
+      setError("Falha de comunicação intergaláctica. Tenta de novo 🛸");
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";

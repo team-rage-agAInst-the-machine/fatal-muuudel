@@ -11,7 +11,6 @@ const EXT_MAP: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
   "image/webp": "webp",
-  "image/gif": "gif",
 };
 
 function getS3Client() {
@@ -29,7 +28,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Rejeita antes de ler o body quando o Content-Length declarado já passa do limite
+  // Early exit quando o cliente declara tamanho acima do limite — não é garantia
+  // de segurança (header pode ser omitido ou mentido). A checagem real acontece
+  // após a leitura do body abaixo.
   const contentLength = request.headers.get("content-length");
   if (contentLength && parseInt(contentLength) > MAX_SIZE + 1024) {
     return NextResponse.json(
