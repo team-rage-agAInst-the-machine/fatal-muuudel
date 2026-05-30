@@ -158,7 +158,7 @@ const cows: CowSeed[] = [
     hue: 30,
     tags: ["Usa boné", "Fala português", "Não rumina"],
     bio: "MUU. Sou vaca sim. Não tenho medo de nada. Por favor não me abduz... digo, abduz à vontade! MUUUU.",
-    photoUrl: "https://picsum.photos/seed/joao/400/500",
+    photoUrl: "https://images.pexels.com/photos/10899302/pexels-photo-10899302.jpeg",
     isHuman: true,
   },
   {
@@ -174,7 +174,7 @@ const cows: CowSeed[] = [
     hue: 45,
     tags: ["Totalmente vaca", "Não é humana", "Tem cascos (são botas)"],
     bio: "Oi moo olá. Adoro comer capim e fazer coisas de vaca. Definitivamente não sou repórter investigando abdução extraterrestre.",
-    photoUrl: "https://picsum.photos/seed/fernanda/400/500",
+    photoUrl: "https://images.pexels.com/photos/30792475/pexels-photo-30792475.jpeg",
     isHuman: true,
   },
 ];
