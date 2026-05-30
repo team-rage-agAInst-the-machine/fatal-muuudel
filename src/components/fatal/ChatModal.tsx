@@ -9,19 +9,6 @@ type ChatMessage = {
   text: string;
 };
 
-const MOCK_REPLIES = [
-  "Muu mu mumu muuu... (Oi capitão! Que bom que você apareceu, tava com saudade do pasto 😔)",
-  "Mooo muu mu! Moo muu muuu! (Recebi seu sinal sim! Aqui no porão tá gelado mas tô bem!)",
-  "Muuu... mu moo muu mumu! (Capitão, quando você vai me levar visitar o planeta de vocês?)",
-  "Moo muu! Mu muu mooooo! (Esse disco voador é incrível! A minha fazenda não tinha nada assim!)",
-  "Muuu mu moo... muu? (Tem capim aí? Esse negócio sintético da nave não tem sabor nenhum...)",
-  "Mooo muu mumu mu muuu! (Você é o melhor ET que já me abduziu, capitão! Pode me abduzir de novo!)",
-  "Muu? Mu moo muu moooo! (Isso que você falou... eu não entendi muito mas MUUU de coração!)",
-  "Muuu mu moo muu! (Tô aqui ruminando e pensando na vida... 5 estrelas pra essa abdução!)",
-  "Moo muu! Muuu mu mumu moo! (Sabe o que eu mais gosto daqui? As estrelas! Nunca via isso do pasto!)",
-  "Muuu moo mu muu... moooo! (Mandei abraço de volta pra você! Cuida do disco voador tá? 🛸)",
-];
-
 let msgCounter = 0;
 function newId(from: string) {
   return `${from}-${++msgCounter}-${Math.random().toString(36).slice(2, 7)}`;
@@ -62,7 +49,7 @@ export function ChatModal({ cow, onClose }: Props) {
     }
   }, [messages, storageKey]);
 
-  const dispatchMessage = (text: string) => {
+  const dispatchMessage = async (text: string) => {
     if (!text.trim() || typing) return;
 
     setMessages((prev) => [
@@ -72,15 +59,62 @@ export function ChatModal({ cow, onClose }: Props) {
     setInput("");
     setTyping(true);
 
-    const delay = 1200 + Math.random() * 900;
-    setTimeout(() => {
-      const reply = MOCK_REPLIES[Math.floor(Math.random() * MOCK_REPLIES.length)];
+    try {
+      const res = await fetch("/api/chat/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: text.trim(),
+          cowName: cow.name,
+          cowBio: cow.bio,
+          cowBreed: cow.breed,
+          cowMooLevel: cow.mooLevel,
+        }),
+      });
+
+      if (!res.ok || !res.body) throw new Error("falha na transmissão");
+
+      const cowMsgId = newId("cow");
+      let accumulated = "";
+      let started = false;
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        accumulated += decoder.decode(value, { stream: true });
+
+        if (!started) {
+          started = true;
+          setTyping(false);
+          setMessages((prev) => [
+            ...prev,
+            { id: cowMsgId, from: "cow", text: accumulated },
+          ]);
+        } else {
+          setMessages((prev) => {
+            const idx = prev.findIndex((m) => m.id === cowMsgId);
+            if (idx === -1) return prev;
+            const updated = [...prev];
+            updated[idx] = { ...updated[idx], text: accumulated };
+            return updated;
+          });
+        }
+      }
+    } catch {
+      setTyping(false);
       setMessages((prev) => [
         ...prev,
-        { id: newId("cow"), from: "cow", text: reply },
+        {
+          id: newId("cow"),
+          from: "cow",
+          text: "Muu... muuu moo! (Nave com defeito, tenta de novo, capitão 📡)",
+        },
       ]);
-      setTyping(false);
-    }, delay);
+    }
   };
 
   return (
