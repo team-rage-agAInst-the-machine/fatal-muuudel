@@ -12,8 +12,11 @@ terraform {
     }
   }
 
-  # Estado local — para produção real migrar para S3 backend
-  backend "local" {}
+  backend "s3" {
+    bucket = "fatal-muuudel-tfstate"
+    key    = "fatal-muuudel/terraform.tfstate"
+    region = "us-east-1"
+  }
 }
 
 provider "aws" {

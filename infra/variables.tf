@@ -37,3 +37,9 @@ variable "github_repo" {
   description = "URL do repositório Git para clonar na EC2 (ex: https://github.com/org/fatal-muuudel)"
   type        = string
 }
+
+variable "domain" {
+  description = "Domínio da aplicação (ex: fatalmuuudel.com)"
+  type        = string
+  default     = "fatalmuuudel.com"
+}

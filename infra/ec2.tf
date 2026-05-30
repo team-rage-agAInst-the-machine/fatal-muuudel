@@ -15,7 +15,7 @@ data "aws_ami" "amazon_linux_2023" {
 
 resource "aws_instance" "app" {
   ami                    = data.aws_ami.amazon_linux_2023.id
-  instance_type          = "t2.micro"
+  instance_type          = "t3.micro"
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.ec2.id]
   key_name               = var.key_pair_name
@@ -27,6 +27,7 @@ resource "aws_instance" "app" {
     aws_region  = var.aws_region
     app_url     = var.app_url
     github_repo = var.github_repo
+    domain      = var.domain
   }))
 
   tags = { Name = "fatal-muuudel-app" }
