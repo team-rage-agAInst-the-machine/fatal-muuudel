@@ -197,32 +197,29 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 18px;
-  padding: 16px 0 26px;
+  gap: 12px;
+  padding: 16px 14px 26px;
   z-index: 5;
 }
-.fm-round {
-  border-radius: 50%;
-  display: grid; place-items: center;
+.fm-pill {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 0 18px;
+  height: 50px;
+  border-radius: 999px;
   border: 2px solid currentColor;
   background: rgba(2,18,26,0.7);
   cursor: pointer;
   transition: transform .15s, box-shadow .2s, background .2s;
 }
-.fm-round:active { transform: scale(0.9); }
-.fm-round svg { width: 46%; height: 46%; }
-.fm-round.big { width: 72px; height: 72px; }
-.fm-round.sm { width: 54px; height: 54px; }
-.fm-round.nope { color: var(--magenta); }
-.fm-round.nope:hover { background: var(--magenta); color: #fff; box-shadow: 0 0 calc(24px*var(--glow)) rgba(255,62,165,0.6); }
-.fm-round.like { color: var(--lime); }
-.fm-round.like:hover { background: var(--lime); color: #022; box-shadow: 0 0 calc(24px*var(--glow)) rgba(93,255,143,0.6); }
-.fm-round.nope::before,
-.fm-round.like::before {
+.fm-pill:active { transform: scale(0.96); }
+.fm-pill::before {
   content: '';
   display: block;
-  width: 46%;
-  height: 46%;
+  flex-shrink: 0;
   mask-size: contain;
   mask-repeat: no-repeat;
   mask-position: center;
@@ -231,13 +228,28 @@ html, body {
   -webkit-mask-position: center;
   background-color: currentColor;
 }
-.fm-round.nope::before {
+.fm-pill.nope { color: var(--magenta); }
+.fm-pill.nope:hover { background: var(--magenta); color: #fff; box-shadow: 0 0 calc(24px*var(--glow)) rgba(255,62,165,0.6); }
+.fm-pill.nope::before {
+  width: 22px;
+  height: 22px;
   mask-image: url('/icons/cow.svg');
   -webkit-mask-image: url('/icons/cow.svg');
 }
-.fm-round.like::before {
+.fm-pill.like { color: var(--lime); }
+.fm-pill.like:hover { background: var(--lime); color: #022; box-shadow: 0 0 calc(24px*var(--glow)) rgba(93,255,143,0.6); }
+.fm-pill.like::before {
+  width: 28px;
+  height: 28px;
   mask-image: url('/icons/ufo.svg');
   -webkit-mask-image: url('/icons/ufo.svg');
+}
+.fm-pill-label {
+  font-family: var(--fm-display), sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: currentColor;
 }
 
 /* ---------- Deck / cards ---------- */
