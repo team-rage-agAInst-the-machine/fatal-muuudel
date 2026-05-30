@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Orbitron, Chakra_Petch } from "next/font/google";
+import SessionProvider from "@/components/SessionProvider";
 import "./globals.css";
 
 const cyberAliens = localFont({
@@ -37,7 +38,9 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${cyberAliens.variable} ${orbitron.variable} ${chakraPetch.variable} h-full antialiased`}
     >
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <SessionProvider>{children}</SessionProvider>
+      </body>
     </html>
   );
 }
