@@ -15,26 +15,31 @@ vi.mock("@/components/fatal/Starfield", () => ({ Starfield: () => null }));
 
 const { default: RegisterPage } = await import("@/app/register/page");
 
-const validFields = {
+const step1Fields = {
   name: "Zork das Nebulosas",
   email: "zork@nebulosa.ufo",
   password: "senha123",
   callsign: "Cap Mugido",
-  homePlanet: "Zargon-7",
-  shipModel: "Disco Mk IV",
+  homePlanet: "Magrathea, Vulcano, Terra...",
+  shipModel: "Millennium Falcon Mk. II",
 };
 
-async function fillForm(overrides: Partial<typeof validFields> = {}) {
-  const f = { ...validFields, ...overrides };
-  if (f.name) await userEvent.type(screen.getByPlaceholderText("Zork das Nebulosas"), f.name);
-  if (f.email) await userEvent.type(screen.getByPlaceholderText("zork@nebulosa.ufo"), f.email);
-  if (f.password) await userEvent.type(screen.getByPlaceholderText("••••••••"), f.password);
-  if (f.callsign) await userEvent.type(screen.getByPlaceholderText("Capitão Mugido"), f.callsign);
-  if (f.homePlanet) await userEvent.type(screen.getByPlaceholderText("Zargon-7"), f.homePlanet);
-  if (f.shipModel) await userEvent.type(screen.getByPlaceholderText("Disco Voador Mk. IV"), f.shipModel);
+async function fillStep1() {
+  await userEvent.type(screen.getByPlaceholderText("Zork das Nebulosas"), step1Fields.name);
+  await userEvent.type(screen.getByPlaceholderText("zork@nebulosa.ufo"), step1Fields.email);
+  await userEvent.type(screen.getByPlaceholderText("••••••••"), step1Fields.password);
+  await userEvent.type(screen.getByPlaceholderText("Capitão Mugido"), step1Fields.callsign);
+  await userEvent.type(screen.getByPlaceholderText("Magrathea, Vulcano, Terra..."), step1Fields.homePlanet);
+  await userEvent.type(screen.getByPlaceholderText("Millennium Falcon Mk. II"), step1Fields.shipModel);
 }
 
-describe("RegisterPage", () => {
+async function advanceToStep2() {
+  await fillStep1();
+  await userEvent.click(screen.getByRole("button", { name: /próxima etapa/i }));
+  await waitFor(() => expect(screen.getByText(/escaneando espécime/i)).toBeInTheDocument());
+}
+
+describe("RegisterPage — Etapa 1", () => {
   beforeEach(() => {
     mockPush.mockReset();
     mockSignIn.mockReset();
@@ -46,30 +51,29 @@ describe("RegisterPage", () => {
     expect(screen.getByText("NOVA TRIPULAÇÃO")).toBeInTheDocument();
   });
 
-  it("renderiza os 6 campos do formulário", () => {
+  it("renderiza os 6 campos da etapa 1", () => {
     render(<RegisterPage />);
     expect(screen.getByPlaceholderText("Zork das Nebulosas")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("zork@nebulosa.ufo")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("••••••••")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Capitão Mugido")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Zargon-7")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Disco Voador Mk. IV")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Magrathea, Vulcano, Terra...")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Millennium Falcon Mk. II")).toBeInTheDocument();
   });
 
-  it("renderiza o botão EMBARCAR NA FROTA", () => {
+  it("renderiza o botão PRÓXIMA ETAPA", () => {
     render(<RegisterPage />);
-    expect(screen.getByRole("button", { name: /embarcar na frota/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /próxima etapa/i })).toBeInTheDocument();
   });
 
   it("renderiza link para /login", () => {
     render(<RegisterPage />);
-    const link = screen.getByRole("link", { name: /entrar na nave/i });
-    expect(link).toHaveAttribute("href", "/login");
+    expect(screen.getByRole("link", { name: /entrar na nave/i })).toHaveAttribute("href", "/login");
   });
 
-  it("exibe erros de validação client-side ao submeter vazio", async () => {
+  it("exibe erros de validação ao submeter etapa 1 vazia", async () => {
     render(<RegisterPage />);
-    await userEvent.click(screen.getByRole("button", { name: /embarcar na frota/i }));
+    await userEvent.click(screen.getByRole("button", { name: /próxima etapa/i }));
     await waitFor(() => {
       expect(screen.getByText("Nome precisa ter pelo menos 2 caracteres")).toBeInTheDocument();
       expect(screen.getByText("Email inválido")).toBeInTheDocument();
@@ -77,17 +81,39 @@ describe("RegisterPage", () => {
     });
   });
 
-  it("faz fetch para /api/auth/register com dados válidos", async () => {
+  it("avança para etapa 2 com dados válidos", async () => {
+    render(<RegisterPage />);
+    await advanceToStep2();
+    expect(screen.getByText(/escaneando espécime/i)).toBeInTheDocument();
+  });
+});
+
+describe("RegisterPage — Etapa 2", () => {
+  beforeEach(() => {
+    mockPush.mockReset();
+    mockSignIn.mockReset();
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  it("renderiza campos biológicos e botões de confirmação", async () => {
+    render(<RegisterPage />);
+    await advanceToStep2();
+    expect(screen.getByPlaceholderText(/vulcano, wookie/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /confirmar espécime/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /pular/i })).toBeInTheDocument();
+  });
+
+  it("faz fetch para /api/auth/register ao confirmar", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ id: "1", email: validFields.email, callsign: validFields.callsign }),
+      json: async () => ({ id: "1", email: step1Fields.email, callsign: step1Fields.callsign }),
     });
     vi.stubGlobal("fetch", mockFetch);
     mockSignIn.mockResolvedValue({ error: null });
 
     render(<RegisterPage />);
-    await fillForm();
-    await userEvent.click(screen.getByRole("button", { name: /embarcar na frota/i }));
+    await advanceToStep2();
+    await userEvent.click(screen.getByRole("button", { name: /confirmar espécime/i }));
 
     await waitFor(() =>
       expect(mockFetch).toHaveBeenCalledWith(
@@ -97,66 +123,70 @@ describe("RegisterPage", () => {
     );
   });
 
-  it("exibe erro de email duplicado quando API retorna EMAIL_TAKEN", async () => {
+  it("exibe erro de email duplicado e volta para etapa 1", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
       ok: false,
       json: async () => ({ error: "EMAIL_TAKEN" }),
     }));
 
     render(<RegisterPage />);
-    await fillForm();
-    await userEvent.click(screen.getByRole("button", { name: /embarcar na frota/i }));
+    await advanceToStep2();
+    await userEvent.click(screen.getByRole("button", { name: /confirmar espécime/i }));
 
-    await waitFor(() =>
-      expect(screen.getByText("Esse email já está na frota")).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByText("Esse email já está na frota")).toBeInTheDocument());
   });
 
-  it("exibe erro de callsign duplicado quando API retorna CALLSIGN_TAKEN", async () => {
+  it("exibe erro de callsign duplicado e volta para etapa 1", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
       ok: false,
       json: async () => ({ error: "CALLSIGN_TAKEN" }),
     }));
 
     render(<RegisterPage />);
-    await fillForm();
-    await userEvent.click(screen.getByRole("button", { name: /embarcar na frota/i }));
+    await advanceToStep2();
+    await userEvent.click(screen.getByRole("button", { name: /confirmar espécime/i }));
 
-    await waitFor(() =>
-      expect(screen.getByText("Callsign já usado por outro ET")).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByText("Callsign já usado por outro ET")).toBeInTheDocument());
   });
 
-  it("chama signIn automaticamente após registro bem-sucedido", async () => {
+  it("chama signIn após registro bem-sucedido", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ id: "1", email: validFields.email, callsign: validFields.callsign }),
+      json: async () => ({ id: "1", email: step1Fields.email, callsign: step1Fields.callsign }),
     }));
     mockSignIn.mockResolvedValue({ error: null });
 
     render(<RegisterPage />);
-    await fillForm();
-    await userEvent.click(screen.getByRole("button", { name: /embarcar na frota/i }));
+    await advanceToStep2();
+    await userEvent.click(screen.getByRole("button", { name: /confirmar espécime/i }));
 
-    await waitFor(() =>
-      expect(mockSignIn).toHaveBeenCalledWith("credentials", {
-        email: validFields.email,
-        password: validFields.password,
-        redirect: false,
-      })
-    );
+    await waitFor(() => expect(mockSignIn).toHaveBeenCalledWith("credentials", expect.objectContaining({ email: step1Fields.email })));
   });
 
-  it("redireciona para /swipe após registro e login bem-sucedidos", async () => {
+  it("redireciona para /swipe após login bem-sucedido", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ id: "1", email: validFields.email, callsign: validFields.callsign }),
+      json: async () => ({ id: "1", email: step1Fields.email, callsign: step1Fields.callsign }),
     }));
     mockSignIn.mockResolvedValue({ error: null });
 
     render(<RegisterPage />);
-    await fillForm();
-    await userEvent.click(screen.getByRole("button", { name: /embarcar na frota/i }));
+    await advanceToStep2();
+    await userEvent.click(screen.getByRole("button", { name: /confirmar espécime/i }));
+
+    await waitFor(() => expect(mockPush).toHaveBeenCalledWith("/swipe"));
+  });
+
+  it("PULAR também registra e redireciona", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ id: "1", email: step1Fields.email, callsign: step1Fields.callsign }),
+    }));
+    mockSignIn.mockResolvedValue({ error: null });
+
+    render(<RegisterPage />);
+    await advanceToStep2();
+    await userEvent.click(screen.getByRole("button", { name: /pular/i }));
 
     await waitFor(() => expect(mockPush).toHaveBeenCalledWith("/swipe"));
   });

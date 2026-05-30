@@ -11,6 +11,16 @@ const registerSchema = z.object({
   callsign: z.string().min(2).max(20),
   homePlanet: z.string().min(2),
   shipModel: z.string().min(2),
+  // perfil biológico — todos opcionais
+  image: z.string().optional(),
+  species: z.string().optional(),
+  locomotion: z.string().optional(),
+  skinColor: z.string().optional(),
+  eyeCount: z.number().int().min(1).optional(),
+  iq: z.number().int().min(1).max(9999).optional(),
+  towelStatus: z.string().optional(),
+  forceSensitive: z.boolean().optional(),
+  starfleetRank: z.string().optional(),
 });
 
 export async function POST(req: Request) {
@@ -21,12 +31,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Dados inválidos, capitão" }, { status: 400 });
   }
 
-  const { name, email, password, callsign, homePlanet, shipModel } = parsed.data;
+  const { name, email, password, ...rest } = parsed.data;
   const hashed = await bcrypt.hash(password, 12);
 
   try {
     const user = await prisma.user.create({
-      data: { name, email, password: hashed, callsign, homePlanet, shipModel },
+      data: { name, email, password: hashed, ...rest },
       select: { id: true, email: true, callsign: true },
     });
 
@@ -37,6 +47,6 @@ export async function POST(req: Request) {
       const field = targets?.includes("email") ? "EMAIL_TAKEN" : "CALLSIGN_TAKEN";
       return NextResponse.json({ error: field }, { status: 409 });
     }
-    throw e;
+    return NextResponse.json({ error: "SERVER_ERROR" }, { status: 500 });
   }
 }
