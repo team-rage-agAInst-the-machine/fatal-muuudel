@@ -49,3 +49,6 @@ infra/terraform.tfstate
 infra/terraform.tfstate.backup
 infra/terraform.tfvars
 .claude/plans/workflow/
+
+# Uploads
+public/uploads/*
