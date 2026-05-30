@@ -16,7 +16,7 @@ npm install -g pm2
 # ── App ───────────────────────────────────────────────────────────────────────
 APP_DIR="/opt/fatal-muuudel"
 git clone "${github_repo}" "$APP_DIR"
-cd "$APP_DIR"
+chown -R ec2-user:ec2-user "$APP_DIR"
 
 # Variáveis de ambiente
 cat > /etc/fatal-muuudel.env <<EOF
@@ -28,18 +28,25 @@ AWS_S3_BUCKET="${s3_bucket}"
 NODE_ENV=production
 PORT=3000
 EOF
+chmod 644 /etc/fatal-muuudel.env
 
-# Instala dependências e builda
-export $(cat /etc/fatal-muuudel.env | xargs)
-npm ci
-npx prisma generate
-npx prisma migrate deploy
-npm run build
+# Instala dependências e builda como ec2-user
+sudo -u ec2-user bash -c "
+  cd $APP_DIR
+  export \$(cat /etc/fatal-muuudel.env | xargs)
+  npm ci
+  npx prisma generate
+  npx prisma migrate deploy
+  npm run build
+"
 
 # ── PM2 ───────────────────────────────────────────────────────────────────────
-pm2 start npm --name "fatal-muuudel" -- start
-pm2 save
-pm2 startup systemd -u root --hp /root | tail -1 | bash
+sudo -u ec2-user bash -c "
+  export \$(cat /etc/fatal-muuudel.env | xargs)
+  pm2 start npm --name fatal-muuudel -- start --prefix $APP_DIR
+  pm2 save
+"
+env PATH=\$PATH:/usr/bin pm2 startup systemd -u ec2-user --hp /home/ec2-user | tail -1 | bash
 
 # ── Nginx ─────────────────────────────────────────────────────────────────────
 cat > /etc/nginx/conf.d/fatal-muuudel.conf <<EOF
