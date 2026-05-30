@@ -33,18 +33,23 @@ export function FatalMuuudelApp() {
     fetchCows();
   }, []);
 
-  const handleDecide = (cow: Cow, dir: SwipeDir) => {
+  const handleDecide = async (cow: Cow, dir: SwipeDir) => {
+    try {
+      await fetch("/api/swipes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cowId: cow.id, direction: dir }),
+      });
+    } catch (err) {
+      console.error("Falha ao registrar swipe:", err);
+      return;
+    }
     setCurrent((c) => c + 1);
     if (dir === "like" || dir === "super") {
       const vip = dir === "super";
       setAbducted((a) => [{ cow, vip }, ...a]);
       setMatch({ cow, vip });
     }
-    fetch("/api/swipes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cowId: cow.id, direction: dir }),
-    }).catch(() => {});
   };
 
   const resetAll = () => {
