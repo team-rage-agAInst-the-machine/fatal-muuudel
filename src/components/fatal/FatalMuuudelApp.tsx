@@ -10,6 +10,7 @@ import { SwipeDeck, type SwipeDir } from "./SwipeDeck";
 import { MatchScreen } from "./MatchScreen";
 import { AbductedList, type Abducted } from "./AbductedList";
 import { ChatModal } from "./ChatModal";
+import { CowProfileModal } from "./CowProfileModal";
 
 type Screen = "splash" | "swipe" | "list";
 
@@ -22,7 +23,8 @@ export function FatalMuuudelApp() {
   const [current, setCurrent] = useState(0);
   const [abducted, setAbducted] = useState<Abducted[]>([]);
   const [match, setMatch] = useState<{ cow: Cow; vip: boolean } | null>(null);
-  const [chatCow, setChatCow] = useState<Cow | null>(null);
+  const [profileCow, setProfileCow] = useState<{ cow: Cow; vip: boolean } | null>(null);
+  const [chatCow, setChatCow] = useState<{ cow: Cow; vip: boolean } | null>(null);
 
   const fetchCows = () => {
     setLoading(true);
@@ -161,12 +163,29 @@ export function FatalMuuudelApp() {
             abducted={abducted}
             copy={copy}
             onBack={() => setScreen("swipe")}
-            onChat={(cow) => setChatCow(cow)}
+            onProfile={(cow, vip) => setProfileCow({ cow, vip })}
+            onChat={(cow, vip) => setChatCow({ cow, vip })}
+          />
+        )}
+
+        {profileCow && (
+          <CowProfileModal
+            cow={profileCow.cow}
+            vip={profileCow.vip}
+            onClose={() => setProfileCow(null)}
+            onChat={() => {
+              setChatCow({ cow: profileCow.cow, vip: profileCow.vip });
+              setProfileCow(null);
+            }}
           />
         )}
 
         {chatCow && (
-          <ChatModal cow={chatCow} onClose={() => setChatCow(null)} />
+          <ChatModal
+            cow={chatCow.cow}
+            vip={chatCow.vip}
+            onClose={() => setChatCow(null)}
+          />
         )}
 
         {match && (

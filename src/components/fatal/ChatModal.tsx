@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import type { Cow } from "./data";
+import { CowProfileModal } from "./CowProfileModal";
 
 type ChatMessage = {
   id: string;
@@ -16,18 +17,19 @@ function newId(from: string) {
 
 type Props = {
   cow: Cow;
+  vip: boolean;
   onClose: () => void;
 };
 
-export function ChatModal({ cow, onClose }: Props) {
+export function ChatModal({ cow, vip, onClose }: Props) {
   const storageKey = `fm-chat-${cow.id}`;
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const msgsEndRef = useRef<HTMLDivElement>(null);
 
-  // Hidratação segura: lê localStorage só no cliente
   useEffect(() => {
     try {
       const saved = localStorage.getItem(storageKey);
@@ -119,8 +121,19 @@ export function ChatModal({ cow, onClose }: Props) {
 
   return (
     <div className="fm-chat">
-      <div className="fm-chat-header">
-        <button className="fm-chat-back" onClick={onClose} aria-label="Voltar">
+      <div
+        className="fm-chat-header fm-chat-header--clickable"
+        onClick={() => setShowProfile(true)}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setShowProfile(true); }}
+        role="button"
+        tabIndex={0}
+        aria-label="Ver perfil da vaca"
+      >
+        <button
+          className="fm-chat-back"
+          onClick={(e) => { e.stopPropagation(); onClose(); }}
+          aria-label="Voltar"
+        >
           ←
         </button>
         <div className="fm-chat-avatar">🐄</div>
@@ -218,6 +231,14 @@ export function ChatModal({ cow, onClose }: Props) {
           </button>
         </form>
       </div>
+
+      {showProfile && (
+        <CowProfileModal
+          cow={cow}
+          vip={vip}
+          onClose={() => setShowProfile(false)}
+        />
+      )}
     </div>
   );
 }
