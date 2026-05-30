@@ -185,24 +185,28 @@ export function ProfileScreen({ user }: { user: UserData }) {
               value={form.name}
               onChange={(v) => setForm((f) => ({ ...f, name: v }))}
               placeholder="Ex: Zork das Estrelas"
+              maxLength={60}
             />
             <ProfileInput
               label="CALLSIGN"
               value={form.callsign}
               onChange={(v) => setForm((f) => ({ ...f, callsign: v }))}
               placeholder="Ex: Capitão Mugido"
+              maxLength={30}
             />
             <ProfileInput
               label="PLANETA NATAL"
               value={form.homePlanet}
               onChange={(v) => setForm((f) => ({ ...f, homePlanet: v }))}
               placeholder="Ex: Zargon-7"
+              maxLength={50}
             />
             <ProfileInput
               label="MODELO DA NAVE"
               value={form.shipModel}
               onChange={(v) => setForm((f) => ({ ...f, shipModel: v }))}
               placeholder="Ex: Disco Mk IV"
+              maxLength={50}
             />
 
             {saveError && <p className="fm-profile-error">{saveError}</p>}
@@ -280,11 +284,13 @@ function ProfileInput({
   value,
   onChange,
   placeholder,
+  maxLength,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
+  maxLength?: number;
 }) {
   return (
     <div className="fm-profile-field">
@@ -294,6 +300,7 @@ function ProfileInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        maxLength={maxLength}
         autoComplete="off"
       />
     </div>
