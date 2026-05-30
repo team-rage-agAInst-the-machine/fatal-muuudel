@@ -36,8 +36,8 @@ export function AbductedList({ abducted, copy, onBack, onChat }: Props) {
                 {a.vip ? "VIP" : "ABDUZIDA"}
               </div>
               <div className="gi-info">
-                <div className="gi-name">{a.cow.nome}</div>
-                <div className="gi-sub">{a.cow.raca}</div>
+                <div className="gi-name">{a.cow.name}</div>
+                <div className="gi-sub">{a.cow.breed}</div>
                 <button
                   className="gi-chat-btn fm-display"
                   onClick={() => onChat(a.cow)}

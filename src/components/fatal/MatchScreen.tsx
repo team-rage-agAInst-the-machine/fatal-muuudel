@@ -94,8 +94,8 @@ export function MatchScreen({ cow, copy, isVip, speed = 1, onContinue }: Props) 
             marginBottom: 22,
           }}
         >
-          {cow.nome}{" "}
-          <span style={{ color: "var(--ink-soft)", fontSize: 13 }}>· {cow.raca}</span>
+          {cow.name}{" "}
+          <span style={{ color: "var(--ink-soft)", fontSize: 13 }}>· {cow.breed}</span>
         </div>
         <button className="fm-btn fm-cta fm-display" onClick={onContinue}>
           {copy.matchCta}
