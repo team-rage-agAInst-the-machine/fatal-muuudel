@@ -7,6 +7,8 @@ import { z } from "zod";
 import Link from "next/link";
 import { Saucer } from "@/components/fatal/Saucer";
 import { Starfield } from "@/components/fatal/Starfield";
+import { HitchhikerQuote } from "@/components/fatal/HitchhikerQuote";
+import { randomQuote } from "@/lib/hitchhiker";
 
 const schema = z.object({
   email: z.string().email("Email inválido"),
@@ -19,6 +21,7 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<Partial<typeof fields>>({});
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [quote, setQuote] = useState("");
 
   function set(k: keyof typeof fields, v: string) {
     setFields((f) => ({ ...f, [k]: v }));
@@ -35,6 +38,7 @@ export default function LoginPage() {
         fieldErrors[i.path[0] as keyof typeof fields] = i.message;
       });
       setErrors(fieldErrors);
+      setQuote(randomQuote());
       return;
     }
 
@@ -48,6 +52,7 @@ export default function LoginPage() {
 
     if (res?.error) {
       setServerError("Nave com defeito, tenta de novo 🛸");
+      setQuote(randomQuote());
       return;
     }
 
@@ -94,6 +99,8 @@ export default function LoginPage() {
               {serverError}
             </p>
           )}
+
+          {quote && <HitchhikerQuote quote={quote} />}
 
           <button
             type="submit"

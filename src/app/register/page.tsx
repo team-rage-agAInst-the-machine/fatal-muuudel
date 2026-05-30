@@ -7,6 +7,8 @@ import { z } from "zod";
 import Link from "next/link";
 import { Saucer } from "@/components/fatal/Saucer";
 import { Starfield } from "@/components/fatal/Starfield";
+import { HitchhikerQuote } from "@/components/fatal/HitchhikerQuote";
+import { randomQuote } from "@/lib/hitchhiker";
 
 const schema = z.object({
   name: z.string().min(2, "Nome precisa ter pelo menos 2 caracteres"),
@@ -33,6 +35,7 @@ export default function RegisterPage() {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [quote, setQuote] = useState("");
 
   function set(k: keyof Fields, v: string) {
     setFields((f) => ({ ...f, [k]: v }));
@@ -49,6 +52,7 @@ export default function RegisterPage() {
         fieldErrors[i.path[0] as keyof Fields] = i.message;
       });
       setErrors(fieldErrors);
+      setQuote(randomQuote());
       return;
     }
 
@@ -70,6 +74,7 @@ export default function RegisterPage() {
       } else {
         setServerError("Nave com defeito, tenta de novo 🛸");
       }
+      setQuote(randomQuote());
       return;
     }
 
@@ -82,6 +87,7 @@ export default function RegisterPage() {
 
     if (login?.error) {
       setServerError("Conta criada! Mas a nave travou no login 🛸");
+      setQuote(randomQuote());
       return;
     }
 
@@ -142,6 +148,8 @@ export default function RegisterPage() {
               {serverError}
             </p>
           )}
+
+          {quote && <HitchhikerQuote quote={quote} />}
 
           <button
             type="submit"
