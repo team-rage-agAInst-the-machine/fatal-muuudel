@@ -14,6 +14,7 @@ export type Cow = {
   tags: string[];
   bio: string;
   photoUrl?: string | null;
+  isHuman?: boolean;
 };
 
 export type Copy = {
