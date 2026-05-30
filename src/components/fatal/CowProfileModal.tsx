@@ -8,9 +8,10 @@ type Props = {
   vip: boolean;
   onClose: () => void;
   onChat?: () => void;
+  onRelease?: (cowId: string) => void;
 };
 
-export function CowProfileModal({ cow, vip, onClose, onChat }: Props) {
+export function CowProfileModal({ cow, vip, onClose, onChat, onRelease }: Props) {
   return (
     <div className="fm-profile">
       <div className="fm-profile-header">
@@ -71,6 +72,14 @@ export function CowProfileModal({ cow, vip, onClose, onChat }: Props) {
       </div>
 
       <div className="fm-profile-footer">
+        {onRelease && (
+          <button
+            className="fm-btn fm-display fm-btn-release"
+            onClick={() => onRelease(cow.id)}
+          >
+            DEVOLVER AO PASTO 🐄
+          </button>
+        )}
         {onChat ? (
           <button
             className="fm-btn fm-btn-cta fm-display fm-profile-chat-btn"
