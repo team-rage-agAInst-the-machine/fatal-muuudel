@@ -1,26 +1,51 @@
 "use client";
 
-import { useState } from "react";
-import { FM_COPY, FM_COWS, type Cow } from "./data";
+import { useState, useEffect } from "react";
+import { FM_COPY, type Cow } from "./data";
 import { Saucer } from "./Saucer";
 import { Starfield } from "./Starfield";
 import { Splash } from "./Splash";
 import { SwipeDeck, type SwipeDir } from "./SwipeDeck";
 import { MatchScreen } from "./MatchScreen";
 import { AbductedList, type Abducted } from "./AbductedList";
+import { ChatModal } from "./ChatModal";
 
 type Screen = "splash" | "swipe" | "list";
 
 export function FatalMuuudelApp() {
   const copy = FM_COPY;
-  const cows: Cow[] = FM_COWS;
 
+  const [cows, setCows] = useState<Cow[]>([]);
+  const [loading, setLoading] = useState(true);
   const [screen, setScreen] = useState<Screen>("splash");
   const [current, setCurrent] = useState(0);
   const [abducted, setAbducted] = useState<Abducted[]>([]);
   const [match, setMatch] = useState<{ cow: Cow; vip: boolean } | null>(null);
+  const [chatCow, setChatCow] = useState<Cow | null>(null);
 
-  const handleDecide = (cow: Cow, dir: SwipeDir) => {
+  const fetchCows = () => {
+    setLoading(true);
+    fetch("/api/cows")
+      .then((r) => r.json())
+      .then((data) => setCows(data.cows ?? []))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchCows();
+  }, []);
+
+  const handleDecide = async (cow: Cow, dir: SwipeDir) => {
+    try {
+      await fetch("/api/swipes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cowId: cow.id, direction: dir }),
+      });
+    } catch (err) {
+      console.error("Falha ao registrar swipe:", err);
+      return;
+    }
     setCurrent((c) => c + 1);
     if (dir === "like" || dir === "super") {
       const vip = dir === "super";
@@ -33,10 +58,11 @@ export function FatalMuuudelApp() {
     setCurrent(0);
     setAbducted([]);
     setMatch(null);
+    fetchCows();
     setScreen("swipe");
   };
 
-  const noMore = current >= cows.length;
+  const noMore = !loading && current >= cows.length;
 
   return (
     <div className="fm-stage">
@@ -77,7 +103,14 @@ export function FatalMuuudelApp() {
 
         {screen === "splash" && <Splash copy={copy} onEnter={() => setScreen("swipe")} />}
 
-        {screen === "swipe" && !noMore && (
+        {screen === "swipe" && loading && (
+          <div className="fm-empty" style={{ margin: "auto" }}>
+            <div className="big">🛸</div>
+            <p style={{ color: "var(--ink-soft)" }}>Buscando vacas na galáxia...</p>
+          </div>
+        )}
+
+        {screen === "swipe" && !loading && !noMore && (
           <SwipeDeck
             cows={cows}
             current={current}
@@ -103,7 +136,16 @@ export function FatalMuuudelApp() {
         )}
 
         {screen === "list" && (
-          <AbductedList abducted={abducted} copy={copy} onBack={() => setScreen("swipe")} />
+          <AbductedList
+            abducted={abducted}
+            copy={copy}
+            onBack={() => setScreen("swipe")}
+            onChat={(cow) => setChatCow(cow)}
+          />
+        )}
+
+        {chatCow && (
+          <ChatModal cow={chatCow} onClose={() => setChatCow(null)} />
         )}
 
         {match && (

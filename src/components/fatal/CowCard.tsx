@@ -38,28 +38,28 @@ export const CowCard = forwardRef<HTMLDivElement, Props>(function CowCard(
 
       <div className="fm-card-info">
         <div className="fm-card-name">
-          <h2>{cow.nome}</h2>
-          <span className="age">{cow.idade}</span>
+          <h2>{cow.name}</h2>
+          <span className="age">{cow.age}</span>
         </div>
         <div className="fm-card-meta">
-          <span>🧬 {cow.raca}</span>
+          <span>🧬 {cow.breed}</span>
           <span className="dot">•</span>
-          <span>📍 {cow.fazenda}</span>
+          <span>📍 {cow.farm}</span>
           <span className="dot">•</span>
-          <span>🛸 {cow.distancia}</span>
+          <span>🛸 {cow.distance}</span>
         </div>
         <p className="fm-card-bio">{cow.bio}</p>
         <div className="fm-stats">
           <div className="fm-stat">
-            <span className="v">{cow.peso}</span>
+            <span className="v">{cow.weightKg}</span>
             <span className="l">peso (kg)</span>
           </div>
           <div className="fm-stat">
-            <span className="v">{cow.leite}%</span>
+            <span className="v">{cow.milkPct}%</span>
             <span className="l">leite</span>
           </div>
           <div className="fm-stat">
-            <span className="v">{cow.mugido}/10</span>
+            <span className="v">{cow.mooLevel}/10</span>
             <span className="l">mugido</span>
           </div>
         </div>

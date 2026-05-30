@@ -22,6 +22,7 @@ docker compose up -d
 
 # 4. Migrar e popular o banco
 npx prisma migrate dev --name init
+npx prisma generate
 npx prisma db seed
 
 # 5. Dev server
