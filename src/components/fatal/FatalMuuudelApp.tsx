@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 import { FM_COPY, type Cow } from "./data";
 import { Saucer } from "./Saucer";
 import { Starfield } from "./Starfield";
@@ -120,6 +121,17 @@ export function FatalMuuudelApp() {
                   <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
                 </svg>
               </Link>
+              <button
+                className="fm-tab"
+                title="Sair da nave"
+                onClick={() => signOut({ callbackUrl: "/login" })}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+              </button>
             </div>
           </div>
         )}
