@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛸 Fatal Muuudel
 
-## Getting Started
+Tinder/Fatal Model para extraterrestres escolherem quais vacas vão abduzir.
+Stack: **Next.js 16 (App Router) + React 19 + TypeScript + Postgres + Prisma + Auth.js v5 + Tailwind + shadcn/ui**.
 
-First, run the development server:
+## Setup
 
 ```bash
+# 1. Dependências
+npm install
+
+# 2. Variáveis de ambiente
+cp .env.example .env
+# preencha DATABASE_URL e gere AUTH_SECRET com:
+npx auth secret
+
+# 3. Banco de dados (com Postgres rodando localmente)
+npx prisma migrate dev --name init
+npx prisma db seed   # popula com vacas de exemplo
+
+# 4. Dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Estrutura
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+prisma/
+  schema.prisma        # User (ET), Cow, Swipe, Abduction
+  seed.ts              # vacas de exemplo
+src/
+  app/                 # App Router (pages + API routes)
+    api/auth/[...nextauth]/route.ts
+  auth.ts              # config Auth.js v5 (Credentials + Prisma adapter)
+  middleware.ts        # protege /swipe, /abductions, /profile
+  lib/prisma.ts        # singleton do Prisma Client
+  components/ui/       # componentes shadcn/ui
+  generated/prisma/    # client gerado pelo Prisma (gitignored)
+```
 
-## Learn More
+## Domínio
 
-To learn more about Next.js, take a look at the following resources:
+- **User** (ET): pilota uma nave (`shipModel`) vindo de um `homePlanet`.
+- **Cow**: catálogo de bovinos com raça, vibe, bio e foto.
+- **Swipe**: `LIKE` (beam me up) ou `PASS` (moo, hard pass).
+- **Abduction**: agendada quando o ET dá `LIKE`. Estados: `PLANNED → IN_PROGRESS → COMPLETED/ABORTED`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Próximos passos sugeridos
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [ ] Páginas `/login` e `/register` para os ETs
+- [ ] Tela `/swipe` com card swipeable (drag/swipe) — pode usar `framer-motion`
+- [ ] Server Actions para criar `Swipe` + `Abduction` em transação
+- [ ] `/abductions` lista o backlog do ET logado
+- [ ] Painel admin para cadastrar vacas
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Diga ao Claude qual destes você quer atacar primeiro.

@@ -1,0 +1,133 @@
+// Fatal Muuudel — Tinder for ETs picking cows to abduct.
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// NextAuth (Auth.js) tables — required by @auth/prisma-adapter.
+// ---------------------------------------------------------------------------
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------------------------------------------------------------------------
+// Domain models
+// ---------------------------------------------------------------------------
+
+// A User in Auth.js terms is an Alien/ET pilot here.
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+
+  // ET-specific profile
+  callsign   String?  @unique
+  homePlanet String?
+  shipModel  String?
+  createdAt  DateTime @default(now())
+
+  accounts   Account[]
+  sessions   Session[]
+  swipes     Swipe[]
+  abductions Abduction[]
+}
+
+model Cow {
+  id        String   @id @default(cuid())
+  name      String
+  breed     String?
+  age       Int?
+  weightKg  Int?
+  farm      String?
+  bio       String?
+  photoUrl  String?
+  vibe      String? // e.g. "chill", "rebel", "philosopher"
+  createdAt DateTime @default(now())
+
+  swipes     Swipe[]
+  abductions Abduction[]
+}
+
+enum SwipeDirection {
+  LIKE // beam me up
+  PASS // moo, hard pass
+}
+
+model Swipe {
+  id        String         @id @default(cuid())
+  alienId   String
+  cowId     String
+  direction SwipeDirection
+  createdAt DateTime       @default(now())
+
+  alien User @relation(fields: [alienId], references: [id], onDelete: Cascade)
+  cow   Cow  @relation(fields: [cowId], references: [id], onDelete: Cascade)
+
+  @@unique([alienId, cowId])
+  @@index([alienId])
+  @@index([cowId])
+}
+
+enum AbductionStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  ABORTED
+}
+
+model Abduction {
+  id          String          @id @default(cuid())
+  alienId     String
+  cowId       String
+  status      AbductionStatus @default(PLANNED)
+  scheduledAt DateTime?
+  notes       String?
+  createdAt   DateTime        @default(now())
+
+  alien User @relation(fields: [alienId], references: [id], onDelete: Cascade)
+  cow   Cow  @relation(fields: [cowId], references: [id], onDelete: Cascade)
+
+  @@unique([alienId, cowId])
+}
