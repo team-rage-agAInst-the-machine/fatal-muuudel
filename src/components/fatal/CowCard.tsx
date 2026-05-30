@@ -1,4 +1,5 @@
 import { forwardRef, type CSSProperties, type Ref } from "react";
+import Image from "next/image";
 import type { Cow, Copy } from "./data";
 import { stripedBg } from "./data";
 
@@ -18,7 +19,7 @@ export const CowCard = forwardRef<HTMLDivElement, Props>(function CowCard(
     <div className={"fm-card" + (isTop ? " top" : "")} style={style} ref={isTop ? ref : null}>
       <div className="fm-card-photo" style={cow.photoUrl ? undefined : stripedBg(cow.hue)}>
         {cow.photoUrl ? (
-          <img src={cow.photoUrl} alt={cow.name} />
+          <Image src={cow.photoUrl} alt={cow.name} fill sizes="400px" style={{ objectFit: "cover" }} />
         ) : (
           <>
             <span className="ph-label">// FOTO_ESPÉCIME · {cow.id.toUpperCase()}</span>
