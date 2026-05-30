@@ -31,7 +31,7 @@ EOF
 
 # Instala dependências e builda
 export $(cat /etc/fatal-muuudel.env | xargs)
-npm ci --omit=dev
+npm ci
 npx prisma generate
 npx prisma migrate deploy
 npm run build
