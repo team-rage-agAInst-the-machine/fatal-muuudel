@@ -26,7 +26,7 @@ jobs:
           cache: 'npm'
 
       - name: 🔧 Instalando combustível da nave
-        run: npm ci
+        run: npm install
 
       - name: ⚗️ Gerando client Prisma
         run: npx prisma generate
