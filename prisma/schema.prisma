@@ -75,15 +75,19 @@ model User {
 }
 
 model Cow {
-  id        String   @id @default(cuid())
+  id        String   @id // slug (ex: "mimosa")
   name      String
-  breed     String?
-  age       Int?
-  weightKg  Int?
-  farm      String?
-  bio       String?
+  breed     String
+  age       Int
+  farm      String
+  weightKg  Int
+  milkPct   Int // % de produção leiteira (0-100)
+  mooLevel  Int // intensidade de mugido (0-10)
+  distance  String // string lúdica: "2,3 anos-luz", "1 salto hiperespacial"
+  hue       Int // matiz OKLCH (0-360) usado no placeholder da foto
+  tags      String[]
+  bio       String
   photoUrl  String?
-  vibe      String? // e.g. "chill", "rebel", "philosopher"
   createdAt DateTime @default(now())
 
   swipes     Swipe[]
@@ -91,8 +95,9 @@ model Cow {
 }
 
 enum SwipeDirection {
-  LIKE // beam me up
-  PASS // moo, hard pass
+  LIKE // abdução normal
+  SUPER // abdução VIP (super-like)
+  PASS // deixa pastar
 }
 
 model Swipe {
