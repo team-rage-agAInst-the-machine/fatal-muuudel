@@ -138,6 +138,30 @@ html, body {
   padding: 0 4px;
 }
 
+/* ---------- Inputs ---------- */
+.fm-input {
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  color: var(--ink);
+  font-family: var(--fm-body), sans-serif;
+  font-size: 14px;
+  border-radius: 10px;
+  padding: 12px 16px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.fm-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.2);
+}
+
+.fm-input::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.6;
+}
+
 /* ---------- Buttons ---------- */
 .fm-btn {
   font-family: var(--fm-display), sans-serif;

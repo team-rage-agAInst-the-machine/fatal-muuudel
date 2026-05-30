@@ -1,8 +1,24 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/auth.config";
 
-export default NextAuth(authConfig).auth;
+const { auth } = NextAuth(authConfig);
+
+export default auth((req) => {
+  const { nextUrl } = req;
+  const isLoggedIn = !!req.auth?.user;
+
+  const publicPaths = ["/login", "/register"];
+  const isPublic = publicPaths.some((p) => nextUrl.pathname.startsWith(p));
+
+  if (isLoggedIn && isPublic) {
+    return Response.redirect(new URL("/swipe", nextUrl));
+  }
+
+  if (!isLoggedIn && !isPublic) {
+    return Response.redirect(new URL("/login", nextUrl));
+  }
+});
 
 export const config = {
-  matcher: ["/swipe/:path*", "/abductions/:path*", "/profile/:path*"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
