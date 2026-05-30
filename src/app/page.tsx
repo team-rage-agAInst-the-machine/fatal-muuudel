@@ -1,5 +1,5 @@
-import { FatalMuuudelApp } from "@/components/fatal/FatalMuuudelApp";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return <FatalMuuudelApp />;
+  redirect("/swipe");
 }
