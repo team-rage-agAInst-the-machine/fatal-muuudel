@@ -63,10 +63,21 @@ model User {
   password      String?
 
   // ET-specific profile
-  callsign   String?  @unique
-  homePlanet String?
-  shipModel  String?
-  createdAt  DateTime @default(now())
+  callsign       String?  @unique
+  homePlanet     String?
+  shipModel      String?
+
+  // Dados biológicos e afiliação galáctica
+  species        String?
+  locomotion     String?
+  skinColor      String?
+  eyeCount       Int?
+  iq             Int?
+  towelStatus    String?
+  forceSensitive Boolean?
+  starfleetRank  String?
+
+  createdAt DateTime @default(now())
 
   accounts   Account[]
   sessions   Session[]

@@ -121,6 +121,7 @@ const cows: CowSeed[] = [
     weightKg: 612,
     milkPct: 71,
     mooLevel: 3,
+    
     distance: "6,4 anos-luz",
     hue: 164,
     tags: ["Sábia", "Conta histórias", "Anti-stress"],
