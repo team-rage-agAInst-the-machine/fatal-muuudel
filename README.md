@@ -17,6 +17,8 @@ cp .env.example .env
 # gere AUTH_SECRET com:
 npx auth secret
 
+# (opcional) chat com IA real — veja a seção "Chat interestelar" abaixo
+
 # 3. Subir o Postgres via Docker
 docker compose up -d
 
@@ -51,6 +53,35 @@ src/
     ui/                # componentes shadcn/ui
   generated/prisma/    # client gerado pelo Prisma (gitignored)
 ```
+
+---
+
+## Chat interestelar (IA real)
+
+O chat entre ET e vaca funciona com respostas mockadas por padrão. Para ativar a IA real:
+
+**1. Criar a chave de API**
+
+- Acesse https://aistudio.google.com/app/api-keys
+- Clique em **Create API key**
+- Selecione ou crie um projeto Google Cloud
+- Copie a chave gerada (formato `AQ.Ab8...`)
+
+**2. Adicionar no `.env`**
+
+```
+GOOGLE_AI_API_KEY="sua-chave-aqui"
+```
+
+**3. Reiniciar o servidor**
+
+```bash
+npm run dev
+```
+
+A partir daí, ao clicar em **COMUNICAR** em qualquer vaca abduzida, as respostas virão do Gemini em tempo real — a vaca responde com a personalidade dela, no formato `mugido (tradução)`, sabendo que foi abduzida e com quem está falando.
+
+Se a chave não estiver presente ou a API falhar, o chat cai automaticamente para as respostas mockadas sem quebrar nada.
 
 ---
 
