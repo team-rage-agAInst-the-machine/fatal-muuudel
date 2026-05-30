@@ -11,10 +11,8 @@ import { AbductedList, type Abducted } from "./AbductedList";
 
 type Screen = "splash" | "swipe" | "list";
 
-const TONE_IDX = 1; // Equilibrado — pode virar setting depois
-
 export function FatalMuuudelApp() {
-  const copy = FM_COPY[TONE_IDX];
+  const copy = FM_COPY;
   const cows: Cow[] = FM_COWS;
 
   const [screen, setScreen] = useState<Screen>("splash");
@@ -83,7 +81,6 @@ export function FatalMuuudelApp() {
           <SwipeDeck
             cows={cows}
             current={current}
-            toneIdx={TONE_IDX}
             copy={copy}
             onDecide={handleDecide}
           />

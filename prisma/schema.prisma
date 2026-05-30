@@ -86,7 +86,7 @@ model Cow {
   distance  String // string lúdica: "2,3 anos-luz", "1 salto hiperespacial"
   hue       Int // matiz OKLCH (0-360) usado no placeholder da foto
   tags      String[]
-  bios      Json // { escrachado: string, equilibrado: string, imersivo: string }
+  bio       String
   photoUrl  String?
   createdAt DateTime @default(now())
 

@@ -1,12 +1,16 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
+
+type Star = { x: number; y: number; s: number; d: number; delay: number };
 
 type Props = { enabled?: boolean; count?: number };
 
 export function Starfield({ enabled = true, count = 70 }: Props) {
-  const stars = useMemo(() => {
-    const arr = [];
+  const [stars, setStars] = useState<Star[]>([]);
+
+  useEffect(() => {
+    const arr: Star[] = [];
     for (let i = 0; i < count; i++) {
       arr.push({
         x: Math.random() * 100,
@@ -16,7 +20,7 @@ export function Starfield({ enabled = true, count = 70 }: Props) {
         delay: Math.random() * 4,
       });
     }
-    return arr;
+    setStars(arr);
   }, [count]);
 
   if (!enabled) return null;

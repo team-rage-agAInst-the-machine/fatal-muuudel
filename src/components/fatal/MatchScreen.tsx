@@ -73,7 +73,7 @@ export function MatchScreen({ cow, copy, isVip, speed = 1, onContinue }: Props) 
         {isVip && (
           <div
             style={{
-              fontFamily: "var(--font-orbitron), sans-serif",
+              fontFamily: "var(--fm-display), sans-serif",
               color: "var(--violet)",
               fontSize: 13,
               letterSpacing: ".15em",
@@ -88,7 +88,7 @@ export function MatchScreen({ cow, copy, isVip, speed = 1, onContinue }: Props) 
         <p>{copy.matchSub}</p>
         <div
           style={{
-            fontFamily: "var(--font-orbitron), sans-serif",
+            fontFamily: "var(--fm-display), sans-serif",
             color: "#fff",
             fontSize: 18,
             marginBottom: 22,

@@ -17,11 +17,7 @@ type CowSeed = {
   distance: string;
   hue: number;
   tags: string[];
-  bios: {
-    escrachado: string;
-    equilibrado: string;
-    imersivo: string;
-  };
+  bio: string;
 };
 
 const cows: CowSeed[] = [
@@ -37,11 +33,7 @@ const cows: CowSeed[] = [
     distance: "2,3 anos-luz",
     hue: 188,
     tags: ["Capim premium", "Rumina à noite", "Já viu OVNI antes"],
-    bios: {
-      escrachado: "Topo abdução de primeira, mas só se rolar sal mineral no after. 🐄✨",
-      equilibrado: "Vaca tranquila, leiteira nota 10. Aceita viagens longas se tiver pasto bom.",
-      imersivo: "Espécime dócil, lactação excepcional. Histórico de avistamentos prévios — sujeito de alto valor científico.",
-    },
+    bio: "Topo abdução de primeira, mas só se rolar sal mineral no after. 🐄✨",
   },
   {
     id: "geraldina",
@@ -55,11 +47,7 @@ const cows: CowSeed[] = [
     distance: "418 km de pasto",
     hue: 168,
     tags: ["Leite premiado", "Anti-carrapato", "Não muge no after"],
-    bios: {
-      escrachado: "Sou a fábrica de leite da fazenda. Cabe na nave? Porque eu não passo na portinhola. 😎",
-      equilibrado: "Recordista de produção leiteira da região. Calma, mas exige conforto.",
-      imersivo: "Produtividade leiteira de 99%. Temperamento estável. Recomenda-se módulo de carga reforçado.",
-    },
+    bio: "Sou a fábrica de leite da fazenda. Cabe na nave? Porque eu não passo na portinhola. 😎",
   },
   {
     id: "estrela",
@@ -73,11 +61,7 @@ const cows: CowSeed[] = [
     distance: "1 salto hiperespacial",
     hue: 200,
     tags: ["Berra alto", "Fã de cerca elétrica", "Vibe pasto orgânico"],
-    bios: {
-      escrachado: "Mugido nível show de rock 🤘 Se quiser silêncio na nave, passa pra próxima.",
-      equilibrado: "Jovem, enérgica e barulhenta. Ótima para quem curte agito.",
-      imersivo: "Vocalização de 10/10 decibéis. Recomenda-se isolamento acústico na cápsula.",
-    },
+    bio: "Mugido nível show de rock 🤘 Se quiser silêncio na nave, passa pra próxima.",
   },
   {
     id: "margarida",
@@ -91,11 +75,7 @@ const cows: CowSeed[] = [
     distance: "0,8 ano-luz",
     hue: 152,
     tags: ["Compacta", "Curte sal mineral", "Soneca no pasto"],
-    bios: {
-      escrachado: "Pequena, dócil e cabe em qualquer disco voador. Praticamente plug and play. 🛸",
-      equilibrado: "Porte compacto, fácil de transportar. Leite cremoso e personalidade serena.",
-      imersivo: "Dimensões ideais para abdução de baixa energia. Eficiência de transporte máxima.",
-    },
+    bio: "Pequena, dócil e cabe em qualquer disco voador. Praticamente plug and play. 🛸",
   },
   {
     id: "bartira",
@@ -109,11 +89,7 @@ const cows: CowSeed[] = [
     distance: "5,1 anos-luz",
     hue: 210,
     tags: ["Marrenta", "Pula cerca", "Líder do rebanho"],
-    bios: {
-      escrachado: "Já fugi de 3 fazendas, duvido essa navezinha me segurar. Vem com tudo. 💪",
-      equilibrado: "Independente e forte. Não é fácil, mas vale a abdução.",
-      imersivo: "Espécime de alta resistência. Histórico de evasão — requer feixe de contenção reforçado.",
-    },
+    bio: "Já fugi de 3 fazendas, duvido essa navezinha me segurar. Vem com tudo. 💪",
   },
   {
     id: "penelope",
@@ -127,11 +103,7 @@ const cows: CowSeed[] = [
     distance: "3,7 anos-luz",
     hue: 176,
     tags: ["Romântica", "Olha pra lua", "Leite cremoso"],
-    bios: {
-      escrachado: "Vivo olhando pro céu esperando uma nave. Demorou, hein? 🌙👽",
-      equilibrado: "Sonhadora, observa o céu toda noite. Parece que estava te esperando.",
-      imersivo: "Comportamento de fixação celeste recorrente. Possível pré-disposição ao contato. Prioridade alta.",
-    },
+    bio: "Vivo olhando pro céu esperando uma nave. Demorou, hein? 🌙👽",
   },
   {
     id: "zelia",
@@ -145,11 +117,7 @@ const cows: CowSeed[] = [
     distance: "6,4 anos-luz",
     hue: 164,
     tags: ["Sábia", "Conta histórias", "Anti-stress"],
-    bios: {
-      escrachado: "Sou a coroa do pasto, tenho causos de abdução pra te contar a viagem toda. 👵",
-      equilibrado: "Experiente e tranquila. Companhia perfeita pra viagens longas.",
-      imersivo: "Matriarca do rebanho. Valor comportamental elevado para estudos de longa duração.",
-    },
+    bio: "Sou a coroa do pasto, tenho causos de abdução pra te contar a viagem toda. 👵",
   },
   {
     id: "carminha",
@@ -163,11 +131,7 @@ const cows: CowSeed[] = [
     distance: "2,9 anos-luz",
     hue: 192,
     tags: ["Dramática", "Diva do curral", "Pose pra foto"],
-    bios: {
-      escrachado: "Se for me abduzir, que seja com raio trator de qualidade. Tenho padrão. 💅",
-      equilibrado: "Cheia de personalidade e bem fotogênica. Ama atenção.",
-      imersivo: "Temperamento expressivo. Resposta positiva a estímulos luminosos — ideal para feixe demonstrativo.",
-    },
+    bio: "Se for me abduzir, que seja com raio trator de qualidade. Tenho padrão. 💅",
   },
 ];
 

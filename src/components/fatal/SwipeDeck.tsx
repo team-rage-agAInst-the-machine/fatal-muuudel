@@ -13,13 +13,12 @@ export type SwipeHandle = {
 type Props = {
   cows: Cow[];
   current: number;
-  toneIdx: number;
   copy: Copy;
   onDecide: (cow: Cow, dir: SwipeDir) => void;
   handleRef?: React.Ref<SwipeHandle>;
 };
 
-export function SwipeDeck({ cows, current, toneIdx, copy, onDecide, handleRef }: Props) {
+export function SwipeDeck({ cows, current, copy, onDecide, handleRef }: Props) {
   const dragRef = useRef<HTMLDivElement | null>(null);
   const stampRef = useRef<HTMLDivElement | null>(null);
   const state = useRef({ down: false, x0: 0, y0: 0, dx: 0, dy: 0, busy: false });
@@ -160,7 +159,6 @@ export function SwipeDeck({ cows, current, toneIdx, copy, onDecide, handleRef }:
               >
                 <CowCard
                   cow={cow}
-                  bio={cow.bios[toneIdx]}
                   copy={copy}
                   style={style}
                   isTop={isTop}

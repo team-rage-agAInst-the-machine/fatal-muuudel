@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import { Orbitron, Chakra_Petch } from "next/font/google";
 import "./globals.css";
+
+const cyberAliens = localFont({
+  src: "./fonts/cyber-aliens.ttf",
+  variable: "--font-cyber-aliens",
+  display: "swap",
+});
 
 const orbitron = Orbitron({
   variable: "--font-orbitron",
@@ -28,7 +35,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${orbitron.variable} ${chakraPetch.variable} h-full antialiased`}
+      className={`${cyberAliens.variable} ${orbitron.variable} ${chakraPetch.variable} h-full antialiased`}
     >
       <body className="min-h-full">{children}</body>
     </html>

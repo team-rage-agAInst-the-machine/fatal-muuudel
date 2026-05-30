@@ -15,6 +15,15 @@
   --ink-soft: #7fb8c4;
   --glow: 1;        /* set by tweaks */
   --anim: 1;        /* speed multiplier set by tweaks (higher = faster) */
+
+  /* Display = títulos, botões, logo. Body = texto corrido (sempre legível).
+     Cyber Aliens fica reservada para a tela inicial (override em .fm-splash). */
+  --fm-display: var(--font-orbitron);
+  --fm-body: var(--font-chakra-petch);
+}
+
+.fm-splash {
+  --fm-display: var(--font-cyber-aliens);
 }
 
 * { box-sizing: border-box; }
@@ -25,13 +34,13 @@ html, body {
   height: 100%;
   background: var(--bg);
   color: var(--ink);
-  font-family: var(--font-chakra-petch), system-ui, sans-serif;
+  font-family: var(--fm-body), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
 }
 
 .fm-display {
-  font-family: var(--font-orbitron), var(--font-chakra-petch), sans-serif;
+  font-family: var(--fm-display), sans-serif;
   letter-spacing: 0.04em;
 }
 
@@ -90,7 +99,7 @@ html, body {
   display: flex;
   align-items: center;
   gap: 9px;
-  font-family: var(--font-orbitron), sans-serif;
+  font-family: var(--fm-display), sans-serif;
   font-weight: 800;
   font-size: 17px;
   letter-spacing: 0.02em;
@@ -131,7 +140,7 @@ html, body {
 
 /* ---------- Buttons ---------- */
 .fm-btn {
-  font-family: var(--font-orbitron), sans-serif;
+  font-family: var(--fm-display), sans-serif;
   font-weight: 700;
   letter-spacing: 0.08em;
   border: none;
@@ -217,7 +226,7 @@ html, body {
 .fm-card-photo .ph-label {
   position: absolute;
   top: 14px; left: 14px;
-  font-family: var(--font-chakra-petch), monospace;
+  font-family: var(--fm-body), monospace;
   font-size: 10px;
   letter-spacing: .12em;
   color: rgba(212,251,255,0.55);
@@ -255,7 +264,7 @@ html, body {
   gap: 10px;
 }
 .fm-card-name h2 {
-  font-family: var(--font-orbitron), sans-serif;
+  font-family: var(--fm-display), sans-serif;
   font-weight: 800;
   font-size: 26px;
   margin: 0;
@@ -295,7 +304,7 @@ html, body {
   text-align: center;
 }
 .fm-stat .v {
-  font-family: var(--font-orbitron), sans-serif;
+  font-family: var(--fm-display), sans-serif;
   font-weight: 700;
   font-size: 16px;
   color: var(--cyan);
@@ -326,7 +335,7 @@ html, body {
 .fm-stamp {
   position: absolute;
   top: 34px;
-  font-family: var(--font-orbitron), sans-serif;
+  font-family: var(--fm-display), sans-serif;
   font-weight: 800;
   font-size: 26px;
   letter-spacing: .08em;
@@ -361,7 +370,7 @@ html, body {
 }
 .fm-splash .saucer-big { width: 150px; height: 150px; margin-bottom: 6px; }
 .fm-splash h1 {
-  font-family: var(--font-orbitron), sans-serif;
+  font-family: var(--fm-display), sans-serif;
   font-weight: 900;
   font-size: 40px;
   margin: 0;
@@ -426,7 +435,7 @@ html, body {
   z-index: 2;
 }
 .fm-match-text h2 {
-  font-family: var(--font-orbitron), sans-serif;
+  font-family: var(--fm-display), sans-serif;
   font-weight: 900;
   font-size: 30px;
   color: var(--cyan);
@@ -452,7 +461,7 @@ html, body {
   padding: 6px 18px 24px;
 }
 .fm-list h2 {
-  font-family: var(--font-orbitron), sans-serif;
+  font-family: var(--fm-display), sans-serif;
   font-size: 16px;
   letter-spacing: .06em;
   color: var(--cyan);
@@ -491,7 +500,7 @@ html, body {
   padding: 10px 12px;
 }
 .fm-grid-item .gi-name {
-  font-family: var(--font-orbitron), sans-serif;
+  font-family: var(--fm-display), sans-serif;
   font-weight: 700;
   font-size: 14px;
   color: #fff;
@@ -501,7 +510,7 @@ html, body {
   position: absolute; top: 8px; right: 8px;
   background: var(--lime); color: #022;
   font-size: 9px; font-weight: 800;
-  font-family: var(--font-orbitron), sans-serif;
+  font-family: var(--fm-display), sans-serif;
   padding: 3px 7px; border-radius: 7px;
   letter-spacing: .06em;
 }
@@ -514,7 +523,7 @@ html, body {
 }
 .fm-empty .big { font-size: 60px; margin-bottom: 14px; opacity: .8; }
 .fm-empty h3 {
-  font-family: var(--font-orbitron), sans-serif;
+  font-family: var(--fm-display), sans-serif;
   color: var(--cyan);
   font-size: 18px;
   margin: 0 0 8px;

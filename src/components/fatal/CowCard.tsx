@@ -4,7 +4,6 @@ import { stripedBg } from "./data";
 
 type Props = {
   cow: Cow;
-  bio: string;
   copy: Copy;
   style?: CSSProperties;
   isTop?: boolean;
@@ -12,7 +11,7 @@ type Props = {
 };
 
 export const CowCard = forwardRef<HTMLDivElement, Props>(function CowCard(
-  { cow, bio, copy, style, isTop, stampRef },
+  { cow, copy, style, isTop, stampRef },
   ref
 ) {
   return (
@@ -49,7 +48,7 @@ export const CowCard = forwardRef<HTMLDivElement, Props>(function CowCard(
           <span className="dot">•</span>
           <span>🛸 {cow.distancia}</span>
         </div>
-        <p className="fm-card-bio">{bio}</p>
+        <p className="fm-card-bio">{cow.bio}</p>
         <div className="fm-stats">
           <div className="fm-stat">
             <span className="v">{cow.peso}</span>
