@@ -24,7 +24,7 @@ export const CowCard = forwardRef<HTMLDivElement, Props>(function CowCard(
     <div className={"fm-card" + (isTop ? " top" : "")} style={style} ref={isTop ? ref : null}>
       <div className="fm-card-photo" style={showPhoto ? undefined : stripedBg(cow.hue)}>
         {showPhoto ? (
-          <Image src={cow.photoUrl!} alt={cow.name} fill unoptimized style={{ objectFit: "cover" }} onError={() => setImgError(true)} />
+          <Image src={cow.photoUrl!} alt={cow.name} fill sizes="400px" style={{ objectFit: "cover", zIndex: 0 }} onError={() => setImgError(true)} />
         ) : (
           <>
             <span className="ph-label">// FOTO_ESPÉCIME · {cow.id.toUpperCase()}</span>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { FM_COPY, type Cow } from "./data";
 import { Saucer } from "./Saucer";
 import { Starfield } from "./Starfield";
@@ -97,6 +98,12 @@ export function FatalMuuudelApp() {
                 </svg>
                 {abducted.length > 0 && <span className="count">{abducted.length}</span>}
               </button>
+              <Link href="/profile" className="fm-tab" title="Perfil ET">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                </svg>
+              </Link>
             </div>
           </div>
         )}

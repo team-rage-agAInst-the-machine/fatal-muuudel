@@ -120,20 +120,8 @@ export default function RegisterPage() {
     setLoading(true);
     setServerError("");
 
-    let imageUrl = "";
-    if (!skip && photoFile) {
-      const fd = new FormData();
-      fd.append("file", photoFile);
-      const uploadRes = await fetch("/api/upload", { method: "POST", body: fd });
-      if (uploadRes.ok) {
-        const data = await uploadRes.json();
-        imageUrl = data.url;
-      }
-    }
-
     const payload = {
       ...step1,
-      image: imageUrl || undefined,
       species: step2.species || undefined,
       locomotion: step2.locomotion || undefined,
       skinColor: step2.skinColor !== "#00f0ff" ? step2.skinColor : undefined,
@@ -160,7 +148,7 @@ export default function RegisterPage() {
         setStep1Errors((e) => ({ ...e, callsign: "Callsign já usado por outro ET" }));
         setStep(1);
       } else {
-        setServerError("Nave com defeito, tenta de novo 🛸");
+        setServerError(data.error ?? "Nave com defeito, tenta de novo 🛸");
       }
       setQuote(randomQuote());
       return;
@@ -170,6 +158,14 @@ export default function RegisterPage() {
     setS1("password", "");
 
     const login = await signIn("credentials", { email, password, redirect: false });
+
+    // Upload photo após o login — o endpoint requer auth
+    if (login && !login.error && !skip && photoFile) {
+      const fd = new FormData();
+      fd.append("file", photoFile);
+      await fetch("/api/upload", { method: "POST", body: fd }).catch(() => null);
+    }
+
     setLoading(false);
 
     if (login?.error) {
