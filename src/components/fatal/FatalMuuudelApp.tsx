@@ -31,8 +31,15 @@ export function FatalMuuudelApp() {
       .finally(() => setLoading(false));
   };
 
+  const fetchAbductions = () => {
+    fetch("/api/abductions")
+      .then((r) => r.json())
+      .then((data) => setAbducted(data.abductions ?? []));
+  };
+
   useEffect(() => {
     fetchCows();
+    fetchAbductions();
   }, []);
 
   const handleDecide = async (cow: Cow, dir: SwipeDir) => {
@@ -59,6 +66,7 @@ export function FatalMuuudelApp() {
     setAbducted([]);
     setMatch(null);
     fetchCows();
+    fetchAbductions();
     setScreen("swipe");
   };
 
