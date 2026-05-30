@@ -87,12 +87,12 @@ describe("PATCH /api/profile", () => {
     );
   });
 
-  it("aceita payload vazio (todos os campos são opcionais)", async () => {
+  it("rejeita payload vazio com 400", async () => {
     mockAuth.mockResolvedValue(SESSION);
-    mockUpdate.mockResolvedValue({ id: "et-001", image: null, callsign: null });
 
     const res = await PATCH(makeRequest({}));
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toBe("Nenhum campo para atualizar");
   });
 
   it("retorna 400 para homePlanet muito longo (> 50 chars)", async () => {
