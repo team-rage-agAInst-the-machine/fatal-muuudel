@@ -7,9 +7,10 @@ type Props = {
   abducted: Abducted[];
   copy: Copy;
   onBack: () => void;
+  onChat: (cow: Cow) => void;
 };
 
-export function AbductedList({ abducted, copy, onBack }: Props) {
+export function AbductedList({ abducted, copy, onBack, onChat }: Props) {
   return (
     <div className="fm-list">
       <h2>
@@ -37,6 +38,12 @@ export function AbductedList({ abducted, copy, onBack }: Props) {
               <div className="gi-info">
                 <div className="gi-name">{a.cow.name}</div>
                 <div className="gi-sub">{a.cow.breed}</div>
+                <button
+                  className="gi-chat-btn fm-display"
+                  onClick={() => onChat(a.cow)}
+                >
+                  COMUNICAR
+                </button>
               </div>
             </div>
           ))}
