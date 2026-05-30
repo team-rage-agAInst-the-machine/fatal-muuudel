@@ -11,14 +11,17 @@ npm install
 
 # 2. Variáveis de ambiente
 cp .env.example .env
-# preencha DATABASE_URL e gere AUTH_SECRET com:
+# gere AUTH_SECRET com:
 npx auth secret
 
-# 3. Banco de dados (com Postgres rodando localmente)
+# 3. Subir o Postgres via Docker
+docker compose up -d
+
+# 4. Migrar e popular o banco
 npx prisma migrate dev --name init
 npx prisma db seed   # popula com vacas de exemplo
 
-# 4. Dev server
+# 5. Dev server
 npm run dev
 ```
 
