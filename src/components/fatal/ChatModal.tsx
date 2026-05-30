@@ -22,6 +22,11 @@ const MOCK_REPLIES = [
   "Muuu moo mu muu... moooo! (Mandei abraço de volta pra você! Cuida do disco voador tá? 🛸)",
 ];
 
+let msgCounter = 0;
+function newId(from: string) {
+  return `${from}-${++msgCounter}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
 type Props = {
   cow: Cow;
   onClose: () => void;
@@ -30,17 +35,20 @@ type Props = {
 export function ChatModal({ cow, onClose }: Props) {
   const storageKey = `fm-chat-${cow.id}`;
 
-  const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    try {
-      const saved = localStorage.getItem(storageKey);
-      return saved ? (JSON.parse(saved) as ChatMessage[]) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
   const msgsEndRef = useRef<HTMLDivElement>(null);
+
+  // Hidratação segura: lê localStorage só no cliente
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) setMessages(JSON.parse(saved) as ChatMessage[]);
+    } catch {
+      // localStorage indisponível
+    }
+  }, [storageKey]);
 
   useEffect(() => {
     msgsEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -50,20 +58,17 @@ export function ChatModal({ cow, onClose }: Props) {
     try {
       localStorage.setItem(storageKey, JSON.stringify(messages));
     } catch {
-      // localStorage indisponível — ignora silenciosamente
+      // localStorage indisponível
     }
   }, [messages, storageKey]);
 
   const dispatchMessage = (text: string) => {
     if (!text.trim() || typing) return;
 
-    const alienMsg: ChatMessage = {
-      id: `${Date.now()}-alien`,
-      from: "alien",
-      text: text.trim(),
-    };
-
-    setMessages((prev) => [...prev, alienMsg]);
+    setMessages((prev) => [
+      ...prev,
+      { id: newId("alien"), from: "alien", text: text.trim() },
+    ]);
     setInput("");
     setTyping(true);
 
@@ -72,7 +77,7 @@ export function ChatModal({ cow, onClose }: Props) {
       const reply = MOCK_REPLIES[Math.floor(Math.random() * MOCK_REPLIES.length)];
       setMessages((prev) => [
         ...prev,
-        { id: `${Date.now()}-cow`, from: "cow", text: reply },
+        { id: newId("cow"), from: "cow", text: reply },
       ]);
       setTyping(false);
     }, delay);
@@ -86,9 +91,9 @@ export function ChatModal({ cow, onClose }: Props) {
         </button>
         <div className="fm-chat-avatar">🐄</div>
         <div className="fm-chat-header-info">
-          <div className="fm-chat-header-name fm-display">{cow.nome}</div>
+          <div className="fm-chat-header-name fm-display">{cow.name}</div>
           <div className="fm-chat-header-sub">
-            {cow.raca} · {cow.distancia}
+            {cow.breed} · {cow.distance}
           </div>
         </div>
         <div className="fm-chat-online">📡</div>
@@ -99,7 +104,7 @@ export function ChatModal({ cow, onClose }: Props) {
           <div className="fm-chat-empty">
             <div className="fm-chat-empty-icon">🛸</div>
             <p>
-              Canal interestelar aberto com {cow.nome}.
+              Canal interestelar aberto com {cow.name}.
               <br />
               Manda o primeiro sinal, capitão!
             </p>
@@ -126,7 +131,7 @@ export function ChatModal({ cow, onClose }: Props) {
           );
         })}
         {typing && (
-          <div className="fm-chat-typing">{cow.nome} está mugindo... 🐄</div>
+          <div className="fm-chat-typing">{cow.name} está mugindo... 🐄</div>
         )}
         <div ref={msgsEndRef} />
       </div>
