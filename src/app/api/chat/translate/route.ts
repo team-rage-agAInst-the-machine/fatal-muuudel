@@ -88,7 +88,7 @@ Regras:
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: "gemini-flash-latest",
+      model: "gemini-flash-lite-latest",
       systemInstruction: systemPrompt,
     });
 
