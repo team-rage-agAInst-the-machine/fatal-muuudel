@@ -18,7 +18,7 @@ export function CowProfileModal({ cow, vip, onClose, onChat }: Props) {
           ←
         </button>
         <span className="fm-profile-header-name fm-display">{cow.name}</span>
-        <span className={"fm-profile-badge fm-display" + (vip ? " vip" : "")}>
+        <span className={`fm-profile-badge fm-display${vip ? " vip" : ""}`}>
           {vip ? "VIP" : "ABDUZIDA"}
         </span>
       </div>
