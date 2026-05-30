@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { Cow, Copy } from "./data";
 import { stripedBg } from "./data";
 
@@ -29,8 +30,13 @@ export function AbductedList({ abducted, copy, onBack, onChat }: Props) {
         <div className="fm-grid">
           {abducted.map((a, i) => (
             <div className="fm-grid-item" key={a.cow.id + i}>
-              <div className="gi-photo" style={stripedBg(a.cow.hue)}></div>
-              <div className="gi-cow">🐄</div>
+              <div className="gi-photo" style={a.cow.photoUrl ? undefined : stripedBg(a.cow.hue)}>
+                {a.cow.photoUrl ? (
+                  <Image src={a.cow.photoUrl} alt={a.cow.name} fill unoptimized style={{ objectFit: "cover" }} />
+                ) : (
+                  <div className="gi-cow">🐄</div>
+                )}
+              </div>
               <div className="gi-scrim"></div>
               <div className={"gi-badge" + (a.vip ? " vip" : "")}>
                 {a.vip ? "VIP" : "ABDUZIDA"}
