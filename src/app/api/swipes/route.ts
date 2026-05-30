@@ -39,3 +39,25 @@ export async function POST(request: Request) {
 
   return Response.json({ ok: true });
 }
+
+export async function DELETE(request: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const cowId = searchParams.get("cowId");
+  if (!cowId) {
+    return Response.json({ error: "cowId obrigatório" }, { status: 400 });
+  }
+
+  await prisma.abduction.deleteMany({
+    where: { alienId: session.user.id, cowId },
+  });
+  await prisma.swipe.deleteMany({
+    where: { alienId: session.user.id, cowId },
+  });
+
+  return Response.json({ ok: true });
+}
