@@ -25,11 +25,14 @@ jobs:
             cd /opt/fatal-muuudel
             git pull origin main
             export $(cat /etc/fatal-muuudel.env | xargs)
-            npm ci --omit=dev
+            sudo rm -rf node_modules .next
+            npm ci
             npx prisma generate
             npx prisma migrate deploy
             npm run build
-            pm2 restart fatal-muuudel
+            pm2 describe fatal-muuudel > /dev/null 2>&1 \
+              && pm2 reload fatal-muuudel --update-env \
+              || pm2 start npm --name "fatal-muuudel" -- start
 
       - name: ✅ Missão cumprida
         if: success()

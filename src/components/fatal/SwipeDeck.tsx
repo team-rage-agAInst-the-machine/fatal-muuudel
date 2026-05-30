@@ -171,16 +171,12 @@ export function SwipeDeck({ cows, current, copy, onDecide, handleRef }: Props) {
       </div>
 
       <div className="fm-actions">
-        <button
-          className="fm-round sm nope"
-          title={copy.nope}
-          onClick={() => flyOut("nope")}
-        />
-        <button
-          className="fm-round big like"
-          title={copy.like}
-          onClick={() => flyOut("like")}
-        />
+        <button className="fm-pill nope" onClick={() => flyOut("nope")}>
+          <span className="fm-pill-label">{copy.nope}</span>
+        </button>
+        <button className="fm-pill like" onClick={() => flyOut("like")}>
+          <span className="fm-pill-label">{copy.like}</span>
+        </button>
       </div>
     </>
   );

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const updateSchema = z.object({
+  name: z.string().min(2).max(60).optional(),
   callsign: z.string().min(2).max(30).optional(),
   homePlanet: z.string().min(2).max(50).optional(),
   shipModel: z.string().min(2).max(50).optional(),
@@ -29,7 +30,7 @@ export async function PATCH(request: Request) {
   const user = await prisma.user.update({
     where: { id: session.user.id },
     data: parsed.data,
-    select: { id: true, image: true, callsign: true, homePlanet: true, shipModel: true },
+    select: { id: true, name: true, image: true, callsign: true, homePlanet: true, shipModel: true },
   });
 
   return NextResponse.json({ ok: true, user });
