@@ -35,8 +35,8 @@ export function AbductedList({ abducted, copy, onBack }: Props) {
                 {a.vip ? "VIP" : "ABDUZIDA"}
               </div>
               <div className="gi-info">
-                <div className="gi-name">{a.cow.nome}</div>
-                <div className="gi-sub">{a.cow.raca}</div>
+                <div className="gi-name">{a.cow.name}</div>
+                <div className="gi-sub">{a.cow.breed}</div>
               </div>
             </div>
           ))}
