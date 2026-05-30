@@ -1,0 +1,26 @@
+name: 🔍 SSH Test
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  ssh-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Test SSH manually
+        env:
+          SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          echo "$SSH_KEY" > key.pem
+          chmod 600 key.pem
+
+          ssh \
+            -vvv \
+            -o StrictHostKeyChecking=no \
+            -i key.pem \
+            ec2-user@${{ secrets.EC2_HOST }} \
+            hostname
