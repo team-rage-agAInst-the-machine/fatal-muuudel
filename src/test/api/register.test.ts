@@ -1,14 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { Prisma } from "@/generated/prisma/client";
 
-const mockFindFirst = vi.fn();
 const mockCreate = vi.fn();
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
-    user: {
-      findFirst: mockFindFirst,
-      create: mockCreate,
-    },
+    user: { create: mockCreate },
   },
 }));
 
@@ -26,6 +23,15 @@ function makeRequest(body: unknown) {
   });
 }
 
+function makePrismaUniqueError(field: string) {
+  const err = new Prisma.PrismaClientKnownRequestError("Unique constraint failed", {
+    code: "P2002",
+    clientVersion: "0.0.0",
+    meta: { target: [field] },
+  });
+  return err;
+}
+
 const validBody = {
   name: "Zork",
   email: "zork@nebulosa.ufo",
@@ -37,7 +43,6 @@ const validBody = {
 
 describe("POST /api/auth/register", () => {
   beforeEach(() => {
-    mockFindFirst.mockReset();
     mockCreate.mockReset();
   });
 
@@ -63,16 +68,16 @@ describe("POST /api/auth/register", () => {
     expect(res.status).toBe(400);
   });
 
-  it("retorna 409 EMAIL_TAKEN quando email já existe", async () => {
-    mockFindFirst.mockResolvedValue({ email: validBody.email, callsign: "outro" });
+  it("retorna 409 EMAIL_TAKEN via constraint P2002 no email", async () => {
+    mockCreate.mockRejectedValue(makePrismaUniqueError("email"));
     const res = await POST(makeRequest(validBody));
     expect(res.status).toBe(409);
     const data = await res.json();
     expect(data.error).toBe("EMAIL_TAKEN");
   });
 
-  it("retorna 409 CALLSIGN_TAKEN quando callsign já existe", async () => {
-    mockFindFirst.mockResolvedValue({ email: "outro@ufo.com", callsign: validBody.callsign });
+  it("retorna 409 CALLSIGN_TAKEN via constraint P2002 no callsign", async () => {
+    mockCreate.mockRejectedValue(makePrismaUniqueError("callsign"));
     const res = await POST(makeRequest(validBody));
     expect(res.status).toBe(409);
     const data = await res.json();
@@ -80,9 +85,7 @@ describe("POST /api/auth/register", () => {
   });
 
   it("retorna 201 com id, email e callsign em caso de sucesso", async () => {
-    mockFindFirst.mockResolvedValue(null);
     mockCreate.mockResolvedValue({ id: "abc123", email: validBody.email, callsign: validBody.callsign });
-
     const res = await POST(makeRequest(validBody));
     expect(res.status).toBe(201);
     const data = await res.json();
@@ -90,15 +93,17 @@ describe("POST /api/auth/register", () => {
   });
 
   it("chama prisma.user.create com senha hasheada", async () => {
-    mockFindFirst.mockResolvedValue(null);
     mockCreate.mockResolvedValue({ id: "abc123", email: validBody.email, callsign: validBody.callsign });
-
     await POST(makeRequest(validBody));
-
     expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ password: "hashed_password" }),
       })
     );
+  });
+
+  it("propaga erros desconhecidos do Prisma", async () => {
+    mockCreate.mockRejectedValue(new Error("conexão perdida"));
+    await expect(POST(makeRequest(validBody))).rejects.toThrow("conexão perdida");
   });
 });

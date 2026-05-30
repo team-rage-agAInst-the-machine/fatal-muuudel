@@ -72,24 +72,20 @@ export default function LoginPage() {
           <Field label="EMAIL DO ET" error={errors.email}>
             <input
               type="email"
+              className="fm-input"
               value={fields.email}
               onChange={(e) => set("email", e.target.value)}
               placeholder="capitao@galaxia.ufo"
-              style={inputStyle}
-              onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
-              onBlur={(e) => Object.assign(e.target.style, inputStyle)}
             />
           </Field>
 
           <Field label="SENHA ESTELAR" error={errors.password}>
             <input
               type="password"
+              className="fm-input"
               value={fields.password}
               onChange={(e) => set("password", e.target.value)}
               placeholder="••••••••"
-              style={inputStyle}
-              onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
-              onBlur={(e) => Object.assign(e.target.style, inputStyle)}
             />
           </Field>
 
@@ -131,22 +127,3 @@ function Field({ label, error, children }: { label: string; error?: string; chil
     </div>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  border: "1px solid var(--line)",
-  background: "var(--bg-2)",
-  color: "var(--ink)",
-  fontFamily: "var(--fm-body)",
-  fontSize: 14,
-  borderRadius: 10,
-  padding: "12px 16px",
-  outline: "none",
-  width: "100%",
-  transition: "border-color 0.15s, box-shadow 0.15s",
-};
-
-const inputFocusStyle: React.CSSProperties = {
-  ...inputStyle,
-  borderColor: "var(--cyan)",
-  boxShadow: "0 0 0 2px rgba(0,240,255,0.2)",
-};

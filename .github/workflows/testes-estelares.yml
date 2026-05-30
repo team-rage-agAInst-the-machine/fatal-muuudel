@@ -33,6 +33,7 @@ jobs:
 
       - name: 🧪 Iniciando testes estelares
         id: testes
+        shell: bash
         run: npm test -- --reporter=verbose 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}
 
       - name: 📡 Reportando falhas ao capitão

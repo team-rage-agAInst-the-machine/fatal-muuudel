@@ -24,7 +24,9 @@ const failLines = lines.filter(
     l.includes("Duration")
 );
 
-const excerpt = failLines.slice(0, 60).join("\n") || raw.slice(0, 2000);
+const rawExcerpt = failLines.slice(0, 60).join("\n") || raw.slice(0, 2000);
+// Escapa sequências de backtick triplo para não quebrar o bloco de código no markdown
+const excerpt = rawExcerpt.replace(/`{3,}/g, (m) => m.replace(/`/g, "\\`"));
 
 const body = `## 🛸 Relatório da Varredura Estelar
 

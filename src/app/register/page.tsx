@@ -73,11 +73,10 @@ export default function RegisterPage() {
       return;
     }
 
-    const login = await signIn("credentials", {
-      email: fields.email,
-      password: fields.password,
-      redirect: false,
-    });
+    const { email, password } = fields;
+    set("password", "");
+
+    const login = await signIn("credentials", { email, password, redirect: false });
 
     setLoading(false);
 
@@ -115,27 +114,27 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit} style={{ width: "100%", display: "flex", flexDirection: "column", gap: 16 }}>
           <Field label="NOME DO COMANDANTE" error={errors.name}>
-            <input type="text" value={fields.name} onChange={(e) => set("name", e.target.value)} placeholder="Zork das Nebulosas" style={inputStyle} onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)} onBlur={(e) => Object.assign(e.target.style, inputStyle)} />
+            <input type="text" className="fm-input" value={fields.name} onChange={(e) => set("name", e.target.value)} placeholder="Zork das Nebulosas" />
           </Field>
 
           <Field label="EMAIL DO ET" error={errors.email}>
-            <input type="email" value={fields.email} onChange={(e) => set("email", e.target.value)} placeholder="zork@nebulosa.ufo" style={inputStyle} onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)} onBlur={(e) => Object.assign(e.target.style, inputStyle)} />
+            <input type="email" className="fm-input" value={fields.email} onChange={(e) => set("email", e.target.value)} placeholder="zork@nebulosa.ufo" />
           </Field>
 
           <Field label="SENHA ESTELAR" error={errors.password}>
-            <input type="password" value={fields.password} onChange={(e) => set("password", e.target.value)} placeholder="••••••••" style={inputStyle} onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)} onBlur={(e) => Object.assign(e.target.style, inputStyle)} />
+            <input type="password" className="fm-input" value={fields.password} onChange={(e) => set("password", e.target.value)} placeholder="••••••••" />
           </Field>
 
           <Field label="CALLSIGN DO ET" error={errors.callsign}>
-            <input type="text" value={fields.callsign} onChange={(e) => set("callsign", e.target.value)} placeholder="Capitão Mugido" style={inputStyle} onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)} onBlur={(e) => Object.assign(e.target.style, inputStyle)} />
+            <input type="text" className="fm-input" value={fields.callsign} onChange={(e) => set("callsign", e.target.value)} placeholder="Capitão Mugido" />
           </Field>
 
           <Field label="PLANETA NATAL" error={errors.homePlanet}>
-            <input type="text" value={fields.homePlanet} onChange={(e) => set("homePlanet", e.target.value)} placeholder="Zargon-7" style={inputStyle} onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)} onBlur={(e) => Object.assign(e.target.style, inputStyle)} />
+            <input type="text" className="fm-input" value={fields.homePlanet} onChange={(e) => set("homePlanet", e.target.value)} placeholder="Zargon-7" />
           </Field>
 
           <Field label="MODELO DA NAVE" error={errors.shipModel}>
-            <input type="text" value={fields.shipModel} onChange={(e) => set("shipModel", e.target.value)} placeholder="Disco Voador Mk. IV" style={inputStyle} onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)} onBlur={(e) => Object.assign(e.target.style, inputStyle)} />
+            <input type="text" className="fm-input" value={fields.shipModel} onChange={(e) => set("shipModel", e.target.value)} placeholder="Disco Voador Mk. IV" />
           </Field>
 
           {serverError && (
@@ -176,22 +175,3 @@ function Field({ label, error, children }: { label: string; error?: string; chil
     </div>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  border: "1px solid var(--line)",
-  background: "var(--bg-2)",
-  color: "var(--ink)",
-  fontFamily: "var(--fm-body)",
-  fontSize: 14,
-  borderRadius: 10,
-  padding: "12px 16px",
-  outline: "none",
-  width: "100%",
-  transition: "border-color 0.15s, box-shadow 0.15s",
-};
-
-const inputFocusStyle: React.CSSProperties = {
-  ...inputStyle,
-  borderColor: "var(--cyan)",
-  boxShadow: "0 0 0 2px rgba(0,240,255,0.2)",
-};

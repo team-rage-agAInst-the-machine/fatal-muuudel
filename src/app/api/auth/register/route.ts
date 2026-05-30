@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { Prisma } from "@/generated/prisma/client";
 
 const registerSchema = z.object({
   name: z.string().min(2),
@@ -21,25 +22,21 @@ export async function POST(req: Request) {
   }
 
   const { name, email, password, callsign, homePlanet, shipModel } = parsed.data;
-
-  const existing = await prisma.user.findFirst({
-    where: { OR: [{ email }, { callsign }] },
-    select: { email: true, callsign: true },
-  });
-
-  if (existing?.email === email) {
-    return NextResponse.json({ error: "EMAIL_TAKEN" }, { status: 409 });
-  }
-  if (existing?.callsign === callsign) {
-    return NextResponse.json({ error: "CALLSIGN_TAKEN" }, { status: 409 });
-  }
-
   const hashed = await bcrypt.hash(password, 12);
 
-  const user = await prisma.user.create({
-    data: { name, email, password: hashed, callsign, homePlanet, shipModel },
-    select: { id: true, email: true, callsign: true },
-  });
+  try {
+    const user = await prisma.user.create({
+      data: { name, email, password: hashed, callsign, homePlanet, shipModel },
+      select: { id: true, email: true, callsign: true },
+    });
 
-  return NextResponse.json(user, { status: 201 });
+    return NextResponse.json(user, { status: 201 });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      const targets = e.meta?.target as string[] | undefined;
+      const field = targets?.includes("email") ? "EMAIL_TAKEN" : "CALLSIGN_TAKEN";
+      return NextResponse.json({ error: field }, { status: 409 });
+    }
+    throw e;
+  }
 }
