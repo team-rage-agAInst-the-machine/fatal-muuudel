@@ -102,8 +102,11 @@ describe("POST /api/auth/register", () => {
     );
   });
 
-  it("propaga erros desconhecidos do Prisma", async () => {
+  it("retorna 500 SERVER_ERROR para erros desconhecidos", async () => {
     mockCreate.mockRejectedValue(new Error("conexão perdida"));
-    await expect(POST(makeRequest(validBody))).rejects.toThrow("conexão perdida");
+    const res = await POST(makeRequest(validBody));
+    expect(res.status).toBe(500);
+    const data = await res.json();
+    expect(data.error).toBe("SERVER_ERROR");
   });
 });

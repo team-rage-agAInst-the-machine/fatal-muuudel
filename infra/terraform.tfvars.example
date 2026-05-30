@@ -1,0 +1,7 @@
+aws_region    = "us-east-1"
+key_pair_name = "minha-chave-ec2"       # nome do key pair criado no console AWS
+db_username   = "fatal"
+db_password   = "troque-essa-senha-123" # mínimo 8 caracteres
+auth_secret   = ""                      # gere com: npx auth secret --raw
+github_repo   = "https://github.com/SEU-USER/fatal-muuudel"
+app_url       = ""                      # preencha após o primeiro apply com o IP do output
