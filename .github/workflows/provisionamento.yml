@@ -1,0 +1,46 @@
+name: 🪐 Provisionamento Galáctico
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'infra/**'
+
+jobs:
+  terraform:
+    name: 🛸 Terraformando o universo
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: infra
+
+    steps:
+      - name: 🛸 Abduzindo o código...
+        uses: actions/checkout@v4
+
+      - name: 🔧 Configurando Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: 🔑 Configurando credenciais AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: 🌌 Inicializando nave (terraform init)
+        run: terraform init
+
+      - name: 🔍 Verificando rota estelar (terraform plan)
+        run: |
+          terraform plan \
+            -var="db_password=${{ secrets.TF_VAR_DB_PASSWORD }}" \
+            -var="auth_secret=${{ secrets.TF_VAR_AUTH_SECRET }}" \
+            -var="key_pair_name=${{ secrets.TF_VAR_KEY_PAIR_NAME }}" \
+            -var="github_repo=${{ secrets.TF_VAR_GITHUB_REPO }}" \
+            -var="app_url=${{ secrets.TF_VAR_APP_URL }}" \
+            -out=tfplan
+
+      - name: 🚀 Aplicando missão (terraform apply)
+        run: terraform apply -auto-approve tfplan
