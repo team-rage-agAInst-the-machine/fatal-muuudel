@@ -124,7 +124,9 @@ export function ChatModal({ cow, vip, onClose }: Props) {
       <div
         className="fm-chat-header fm-chat-header--clickable"
         onClick={() => setShowProfile(true)}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setShowProfile(true); }}
         role="button"
+        tabIndex={0}
         aria-label="Ver perfil da vaca"
       >
         <button
