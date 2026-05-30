@@ -18,6 +18,7 @@ type CowSeed = {
   hue: number;
   tags: string[];
   bio: string;
+  photoUrl: string;
 };
 
 const cows: CowSeed[] = [
@@ -34,6 +35,7 @@ const cows: CowSeed[] = [
     hue: 188,
     tags: ["Capim premium", "Rumina à noite", "Já viu OVNI antes"],
     bio: "Topo abdução de primeira, mas só se rolar sal mineral no after. 🐄✨",
+    photoUrl: "https://picsum.photos/seed/mimosa/400/500",
   },
   {
     id: "geraldina",
@@ -48,6 +50,7 @@ const cows: CowSeed[] = [
     hue: 168,
     tags: ["Leite premiado", "Anti-carrapato", "Não muge no after"],
     bio: "Sou a fábrica de leite da fazenda. Cabe na nave? Porque eu não passo na portinhola. 😎",
+    photoUrl: "https://picsum.photos/seed/geraldina/400/500",
   },
   {
     id: "estrela",
@@ -62,6 +65,7 @@ const cows: CowSeed[] = [
     hue: 200,
     tags: ["Berra alto", "Fã de cerca elétrica", "Vibe pasto orgânico"],
     bio: "Mugido nível show de rock 🤘 Se quiser silêncio na nave, passa pra próxima.",
+    photoUrl: "https://picsum.photos/seed/estrela/400/500",
   },
   {
     id: "margarida",
@@ -76,6 +80,7 @@ const cows: CowSeed[] = [
     hue: 152,
     tags: ["Compacta", "Curte sal mineral", "Soneca no pasto"],
     bio: "Pequena, dócil e cabe em qualquer disco voador. Praticamente plug and play. 🛸",
+    photoUrl: "https://picsum.photos/seed/margarida/400/500",
   },
   {
     id: "bartira",
@@ -90,6 +95,7 @@ const cows: CowSeed[] = [
     hue: 210,
     tags: ["Marrenta", "Pula cerca", "Líder do rebanho"],
     bio: "Já fugi de 3 fazendas, duvido essa navezinha me segurar. Vem com tudo. 💪",
+    photoUrl: "https://picsum.photos/seed/bartira/400/500",
   },
   {
     id: "penelope",
@@ -104,6 +110,7 @@ const cows: CowSeed[] = [
     hue: 176,
     tags: ["Romântica", "Olha pra lua", "Leite cremoso"],
     bio: "Vivo olhando pro céu esperando uma nave. Demorou, hein? 🌙👽",
+    photoUrl: "https://picsum.photos/seed/penelope/400/500",
   },
   {
     id: "zelia",
@@ -118,6 +125,7 @@ const cows: CowSeed[] = [
     hue: 164,
     tags: ["Sábia", "Conta histórias", "Anti-stress"],
     bio: "Sou a coroa do pasto, tenho causos de abdução pra te contar a viagem toda. 👵",
+    photoUrl: "https://picsum.photos/seed/zelia/400/500",
   },
   {
     id: "carminha",
@@ -132,6 +140,7 @@ const cows: CowSeed[] = [
     hue: 192,
     tags: ["Dramática", "Diva do curral", "Pose pra foto"],
     bio: "Se for me abduzir, que seja com raio trator de qualidade. Tenho padrão. 💅",
+    photoUrl: "https://picsum.photos/seed/carminha/400/500",
   },
 ];
 

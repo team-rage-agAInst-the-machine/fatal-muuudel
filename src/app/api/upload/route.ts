@@ -1,0 +1,75 @@
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { writeFile, mkdir } from "fs/promises";
+import { join } from "path";
+import { randomUUID } from "crypto";
+import { NextResponse } from "next/server";
+import { auth } from "@/auth";
+
+const MAX_SIZE = 5 * 1024 * 1024;
+const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
+
+function getS3Client() {
+  const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
+  if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_REGION) return null;
+  return new S3Client({
+    region: AWS_REGION,
+    credentials: { accessKeyId: AWS_ACCESS_KEY_ID, secretAccessKey: AWS_SECRET_ACCESS_KEY },
+  });
+}
+
+export async function POST(request: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const formData = await request.formData();
+  const file = formData.get("file") as File | null;
+
+  if (!file) {
+    return NextResponse.json({ error: "Arquivo não enviado" }, { status: 400 });
+  }
+  if (!ALLOWED.has(file.type)) {
+    return NextResponse.json(
+      { error: "Tipo inválido. Envia JPG, PNG ou WebP." },
+      { status: 400 }
+    );
+  }
+  if (file.size > MAX_SIZE) {
+    return NextResponse.json(
+      { error: "Arquivo maior que 5MB. Comprime aí, capitão." },
+      { status: 400 }
+    );
+  }
+
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const filename = `${randomUUID()}.${ext}`;
+  const bytes = await file.arrayBuffer();
+  const body = Buffer.from(bytes);
+
+  const s3 = getS3Client();
+
+  if (s3 && process.env.AWS_S3_BUCKET) {
+    const key = `uploads/${filename}`;
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET,
+        Key: key,
+        Body: body,
+        ContentType: file.type,
+      })
+    );
+
+    const base = process.env.AWS_S3_PUBLIC_URL
+      ? process.env.AWS_S3_PUBLIC_URL.replace(/\/$/, "")
+      : `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com`;
+
+    return NextResponse.json({ url: `${base}/${key}` });
+  }
+
+  // fallback: local storage (desenvolvimento)
+  const uploadDir = join(process.cwd(), "public", "uploads");
+  await mkdir(uploadDir, { recursive: true });
+  await writeFile(join(uploadDir, filename), body);
+  return NextResponse.json({ url: `/uploads/${filename}` });
+}

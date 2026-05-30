@@ -16,9 +16,15 @@ export const CowCard = forwardRef<HTMLDivElement, Props>(function CowCard(
 ) {
   return (
     <div className={"fm-card" + (isTop ? " top" : "")} style={style} ref={isTop ? ref : null}>
-      <div className="fm-card-photo" style={stripedBg(cow.hue)}>
-        <span className="ph-label">// FOTO_ESPÉCIME · {cow.id.toUpperCase()}</span>
-        <div className="ph-cow">🐄</div>
+      <div className="fm-card-photo" style={cow.photoUrl ? undefined : stripedBg(cow.hue)}>
+        {cow.photoUrl ? (
+          <img src={cow.photoUrl} alt={cow.nome} />
+        ) : (
+          <>
+            <span className="ph-label">// FOTO_ESPÉCIME · {cow.id.toUpperCase()}</span>
+            <div className="ph-cow">🐄</div>
+          </>
+        )}
         <div className="fm-card-scrim"></div>
       </div>
 

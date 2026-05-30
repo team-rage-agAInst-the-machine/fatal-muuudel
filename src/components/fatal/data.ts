@@ -14,6 +14,7 @@ export type Cow = {
   hue: number;
   tags: string[];
   bio: string;
+  photoUrl?: string;
 };
 
 export type Copy = {

@@ -268,6 +268,15 @@ html, body {
   opacity: .92;
 }
 
+.fm-card-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .fm-card-scrim {
   position: absolute;
   inset: 0;
@@ -576,4 +585,68 @@ html, body {
 @keyframes fm-wobble {
   0%,100% { transform: translateX(-50%) rotate(-5deg); }
   50% { transform: translateX(-50%) rotate(5deg); }
+}
+
+/* ---------- Profile page ---------- */
+.fm-profile {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 32px 22px 40px;
+}
+.fm-profile-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.fm-avatar-xl {
+  width: 112px !important;
+  height: 112px !important;
+  border: 2px solid var(--cyan) !important;
+  box-shadow: 0 0 28px rgba(0,240,255,0.4);
+}
+.fm-avatar-fallback {
+  background: var(--panel-solid);
+  color: var(--cyan);
+  font-family: var(--fm-display), sans-serif;
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: .08em;
+}
+.fm-profile-error {
+  color: var(--magenta);
+  font-size: 12px;
+  text-align: center;
+  margin: 0;
+}
+.fm-profile-card {
+  width: 100%;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.fm-profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.fm-profile-label {
+  font-family: var(--fm-display), sans-serif;
+  font-size: 9px;
+  letter-spacing: .14em;
+  color: var(--cyan);
+  opacity: .65;
+}
+.fm-profile-value {
+  font-size: 15px;
+  color: var(--ink);
+  font-weight: 600;
 }
