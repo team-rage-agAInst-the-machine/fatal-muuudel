@@ -11,18 +11,34 @@ type Props = {
   abducted: Abducted[];
   copy: Copy;
   onBack: () => void;
-  onChat: (cow: Cow) => void;
+  onProfile: (cow: Cow, vip: boolean) => void;
+  onChat: (cow: Cow, vip: boolean) => void;
 };
 
-function GridItem({ a, onChat }: { a: Abducted; onChat: (cow: Cow) => void }) {
+function GridItem({
+  a,
+  onProfile,
+  onChat,
+}: {
+  a: Abducted;
+  onProfile: (cow: Cow, vip: boolean) => void;
+  onChat: (cow: Cow, vip: boolean) => void;
+}) {
   const [imgError, setImgError] = useState(false);
   const showPhoto = !!a.cow.photoUrl && !imgError;
 
   return (
-    <div className="fm-grid-item">
+    <div className="fm-grid-item" onClick={() => onProfile(a.cow, a.vip)}>
       <div className="gi-photo" style={showPhoto ? undefined : stripedBg(a.cow.hue)}>
         {showPhoto ? (
-          <Image src={a.cow.photoUrl!} alt={a.cow.name} fill unoptimized style={{ objectFit: "cover" }} onError={() => setImgError(true)} />
+          <Image
+            src={a.cow.photoUrl!}
+            alt={a.cow.name}
+            fill
+            unoptimized
+            style={{ objectFit: "cover" }}
+            onError={() => setImgError(true)}
+          />
         ) : (
           <div className="gi-cow">🐄</div>
         )}
@@ -34,7 +50,10 @@ function GridItem({ a, onChat }: { a: Abducted; onChat: (cow: Cow) => void }) {
       <div className="gi-info">
         <div className="gi-name">{a.cow.name}</div>
         <div className="gi-sub">{a.cow.breed}</div>
-        <button className="gi-chat-btn fm-display" onClick={() => onChat(a.cow)}>
+        <button
+          className="gi-chat-btn fm-display"
+          onClick={(e) => { e.stopPropagation(); onChat(a.cow, a.vip); }}
+        >
           COMUNICAR
         </button>
       </div>
@@ -42,7 +61,7 @@ function GridItem({ a, onChat }: { a: Abducted; onChat: (cow: Cow) => void }) {
   );
 }
 
-export function AbductedList({ abducted, copy, onBack, onChat }: Props) {
+export function AbductedList({ abducted, copy, onBack, onProfile, onChat }: Props) {
   return (
     <div className="fm-list">
       <h2>
@@ -60,7 +79,7 @@ export function AbductedList({ abducted, copy, onBack, onChat }: Props) {
       ) : (
         <div className="fm-grid">
           {abducted.map((a, i) => (
-            <GridItem key={a.cow.id + i} a={a} onChat={onChat} />
+            <GridItem key={a.cow.id + i} a={a} onProfile={onProfile} onChat={onChat} />
           ))}
         </div>
       )}
