@@ -79,7 +79,7 @@ export function AbductedList({ abducted, copy, onBack, onProfile, onChat }: Prop
       ) : (
         <div className="fm-grid">
           {abducted.map((a, i) => (
-            <GridItem key={a.cow.id + i} a={a} onProfile={onProfile} onChat={onChat} />
+            <GridItem key={`cow-${a.cow.id}`} a={a} onProfile={onProfile} onChat={onChat} />
           ))}
         </div>
       )}
