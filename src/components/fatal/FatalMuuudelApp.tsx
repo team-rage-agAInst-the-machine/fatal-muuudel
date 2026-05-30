@@ -10,6 +10,7 @@ import { SwipeDeck, type SwipeDir } from "./SwipeDeck";
 import { MatchScreen } from "./MatchScreen";
 import { AbductedList, type Abducted } from "./AbductedList";
 import { ChatModal } from "./ChatModal";
+import { HumanAlert } from "./HumanAlert";
 
 type Screen = "splash" | "swipe" | "list";
 
@@ -23,6 +24,7 @@ export function FatalMuuudelApp() {
   const [abducted, setAbducted] = useState<Abducted[]>([]);
   const [match, setMatch] = useState<{ cow: Cow; vip: boolean } | null>(null);
   const [chatCow, setChatCow] = useState<Cow | null>(null);
+  const [humanAlert, setHumanAlert] = useState<Cow | null>(null);
 
   const fetchCows = () => {
     setLoading(true);
@@ -50,6 +52,17 @@ export function FatalMuuudelApp() {
   }, []);
 
   const handleDecide = async (cow: Cow, dir: SwipeDir) => {
+    if (cow.isHuman && (dir === "like" || dir === "super")) {
+      setCurrent((c) => c + 1);
+      setHumanAlert(cow);
+      fetch("/api/swipes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cowId: cow.id, direction: "pass" }),
+      }).catch(() => {});
+      return;
+    }
+
     try {
       await fetch("/api/swipes", {
         method: "POST",
@@ -167,6 +180,10 @@ export function FatalMuuudelApp() {
 
         {chatCow && (
           <ChatModal cow={chatCow} onClose={() => setChatCow(null)} />
+        )}
+
+        {humanAlert && (
+          <HumanAlert cow={humanAlert} onDismiss={() => setHumanAlert(null)} />
         )}
 
         {match && (
