@@ -33,8 +33,14 @@ export function FatalMuuudelApp() {
 
   const fetchAbductions = () => {
     fetch("/api/abductions")
-      .then((r) => r.json())
-      .then((data) => setAbducted(data.abductions ?? []));
+      .then((r) => {
+        if (!r.ok) return;
+        return r.json();
+      })
+      .then((data) => {
+        if (data) setAbducted(data.abductions ?? []);
+      })
+      .catch((err) => console.error("Falha ao buscar abduções:", err));
   };
 
   useEffect(() => {
