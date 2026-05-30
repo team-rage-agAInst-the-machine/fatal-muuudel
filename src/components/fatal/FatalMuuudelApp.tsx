@@ -8,6 +8,7 @@ import { Splash } from "./Splash";
 import { SwipeDeck, type SwipeDir } from "./SwipeDeck";
 import { MatchScreen } from "./MatchScreen";
 import { AbductedList, type Abducted } from "./AbductedList";
+import { ChatModal } from "./ChatModal";
 
 type Screen = "splash" | "swipe" | "list";
 
@@ -19,6 +20,7 @@ export function FatalMuuudelApp() {
   const [current, setCurrent] = useState(0);
   const [abducted, setAbducted] = useState<Abducted[]>([]);
   const [match, setMatch] = useState<{ cow: Cow; vip: boolean } | null>(null);
+  const [chatCow, setChatCow] = useState<Cow | null>(null);
 
   const handleDecide = (cow: Cow, dir: SwipeDir) => {
     setCurrent((c) => c + 1);
@@ -103,7 +105,16 @@ export function FatalMuuudelApp() {
         )}
 
         {screen === "list" && (
-          <AbductedList abducted={abducted} copy={copy} onBack={() => setScreen("swipe")} />
+          <AbductedList
+            abducted={abducted}
+            copy={copy}
+            onBack={() => setScreen("swipe")}
+            onChat={(cow) => setChatCow(cow)}
+          />
+        )}
+
+        {chatCow && (
+          <ChatModal cow={chatCow} onClose={() => setChatCow(null)} />
         )}
 
         {match && (
