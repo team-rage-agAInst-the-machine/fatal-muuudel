@@ -22,10 +22,11 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            sudo chown -R ec2-user:ec2-user /opt/fatal-muuudel
             cd /opt/fatal-muuudel
             git pull origin main
             export $(cat /etc/fatal-muuudel.env | xargs)
-            sudo rm -rf node_modules .next
+            rm -rf node_modules .next
             npm ci
             npx prisma generate
             npx prisma migrate deploy
