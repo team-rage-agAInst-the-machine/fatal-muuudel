@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "SwipeDirection" AS ENUM ('LIKE', 'PASS');
+CREATE TYPE "SwipeDirection" AS ENUM ('LIKE', 'SUPER', 'PASS');
 
 -- CreateEnum
 CREATE TYPE "AbductionStatus" AS ENUM ('PLANNED', 'IN_PROGRESS', 'COMPLETED', 'ABORTED');
@@ -59,13 +59,17 @@ CREATE TABLE "User" (
 CREATE TABLE "Cow" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "breed" TEXT,
-    "age" INTEGER,
-    "weightKg" INTEGER,
-    "farm" TEXT,
-    "bio" TEXT,
+    "breed" TEXT NOT NULL,
+    "age" INTEGER NOT NULL,
+    "farm" TEXT NOT NULL,
+    "weightKg" INTEGER NOT NULL,
+    "milkPct" INTEGER NOT NULL,
+    "mooLevel" INTEGER NOT NULL,
+    "distance" TEXT NOT NULL,
+    "hue" INTEGER NOT NULL,
+    "tags" TEXT[],
+    "bio" TEXT NOT NULL,
     "photoUrl" TEXT,
-    "vibe" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Cow_pkey" PRIMARY KEY ("id")
