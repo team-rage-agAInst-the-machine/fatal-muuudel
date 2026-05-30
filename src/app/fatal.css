@@ -217,8 +217,28 @@ html, body {
 .fm-round.nope:hover { background: var(--magenta); color: #fff; box-shadow: 0 0 calc(24px*var(--glow)) rgba(255,62,165,0.6); }
 .fm-round.like { color: var(--lime); }
 .fm-round.like:hover { background: var(--lime); color: #022; box-shadow: 0 0 calc(24px*var(--glow)) rgba(93,255,143,0.6); }
-.fm-round.star { color: var(--violet); }
-.fm-round.star:hover { background: var(--violet); color: #fff; box-shadow: 0 0 calc(24px*var(--glow)) rgba(176,107,255,0.6); }
+.fm-round.nope::before,
+.fm-round.like::before {
+  content: '';
+  display: block;
+  width: 46%;
+  height: 46%;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  background-color: currentColor;
+}
+.fm-round.nope::before {
+  mask-image: url('/icons/cow.svg');
+  -webkit-mask-image: url('/icons/cow.svg');
+}
+.fm-round.like::before {
+  mask-image: url('/icons/ufo.svg');
+  -webkit-mask-image: url('/icons/ufo.svg');
+}
 
 /* ---------- Deck / cards ---------- */
 .fm-deck {

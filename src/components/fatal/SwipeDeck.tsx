@@ -175,29 +175,12 @@ export function SwipeDeck({ cows, current, copy, onDecide, handleRef }: Props) {
           className="fm-round sm nope"
           title={copy.nope}
           onClick={() => flyOut("nope")}
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
-            <path d="M5 5l14 14M19 5L5 19" />
-          </svg>
-        </button>
-        <button
-          className="fm-round sm star"
-          title={copy.superLike}
-          onClick={() => flyOut("super")}
-        >
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2l2.6 6.3L21 9l-5 4.4L17.5 21 12 17.2 6.5 21 8 13.4 3 9l6.4-.7z" />
-          </svg>
-        </button>
+        />
         <button
           className="fm-round big like"
           title={copy.like}
           onClick={() => flyOut("like")}
-        >
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 21s-7.5-4.7-10-9.3C.4 8.5 2 5 5.5 5 7.7 5 9.3 6.3 12 9c2.7-2.7 4.3-4 6.5-4C22 5 23.6 8.5 22 11.7 19.5 16.3 12 21 12 21z" />
-          </svg>
-        </button>
+        />
       </div>
     </>
   );
