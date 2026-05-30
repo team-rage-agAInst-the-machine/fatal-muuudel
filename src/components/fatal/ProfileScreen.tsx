@@ -37,18 +37,6 @@ export function ProfileScreen({ user }: { user: UserData }) {
       }
 
       const { url } = await uploadRes.json();
-
-      const updateRes = await fetch("/api/profile", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: url }),
-      });
-
-      if (!updateRes.ok) {
-        setError("Nave com defeito, tenta de novo 🛸");
-        return;
-      }
-
       setImage(url);
     } finally {
       setUploading(false);

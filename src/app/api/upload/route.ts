@@ -4,6 +4,7 @@ import { join } from "path";
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
 
 const MAX_SIZE = 5 * 1024 * 1024;
 const EXT_MAP: Record<string, string> = {
@@ -80,7 +81,9 @@ export async function POST(request: Request) {
       ? process.env.AWS_S3_PUBLIC_URL.replace(/\/$/, "")
       : `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com`;
 
-    return NextResponse.json({ url: `${base}/${key}` });
+    const publicUrl = `${base}/${key}`;
+    await prisma.user.update({ where: { id: session.user.id }, data: { image: publicUrl } });
+    return NextResponse.json({ url: publicUrl });
   }
 
   // fallback: local storage — apenas em desenvolvimento
@@ -93,5 +96,7 @@ export async function POST(request: Request) {
   const uploadDir = join(process.cwd(), "public", "uploads");
   await mkdir(uploadDir, { recursive: true });
   await writeFile(join(uploadDir, filename), body);
-  return NextResponse.json({ url: `/uploads/${filename}` });
+  const localUrl = `/uploads/${filename}`;
+  await prisma.user.update({ where: { id: session.user.id }, data: { image: localUrl } });
+  return NextResponse.json({ url: localUrl });
 }

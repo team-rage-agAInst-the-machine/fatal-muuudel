@@ -11,6 +11,13 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "picsum.photos" },
     ],
   },
+  experimental: {
+    serverActions: {
+      // Limite de body para Server Actions — Route Handlers são limitados pelo
+      // runtime (Vercel: 4.5MB por padrão). O check real está em /api/upload.
+      bodySizeLimit: "6mb",
+    },
+  },
 };
 
 export default nextConfig;

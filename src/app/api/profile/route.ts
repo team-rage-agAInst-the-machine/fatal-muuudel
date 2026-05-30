@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const updateSchema = z.object({
-  image: z.string().min(1).optional(),
   callsign: z.string().min(2).max(30).optional(),
   homePlanet: z.string().min(2).max(50).optional(),
   shipModel: z.string().min(2).max(50).optional(),

@@ -272,12 +272,14 @@ html, body {
 .fm-card-scrim {
   position: absolute;
   inset: 0;
+  z-index: 1;
   background: linear-gradient(180deg, rgba(2,18,26,0) 35%, rgba(2,18,26,0.82) 72%, rgba(2,18,26,0.97) 100%);
 }
 
 .fm-card-info {
   position: absolute;
   left: 0; right: 0; bottom: 0;
+  z-index: 2;
   padding: 18px 20px 20px;
   display: flex;
   flex-direction: column;
@@ -360,6 +362,7 @@ html, body {
 .fm-stamp {
   position: absolute;
   top: 34px;
+  z-index: 2;
   font-family: var(--fm-display), sans-serif;
   font-weight: 800;
   font-size: 26px;
@@ -600,6 +603,10 @@ html, body {
   height: 112px !important;
   border: 2px solid var(--cyan) !important;
   box-shadow: 0 0 28px rgba(0,240,255,0.4);
+  transition: box-shadow .2s;
+}
+.fm-avatar-xl:hover {
+  box-shadow: 0 0 44px rgba(0,240,255,0.7);
 }
 .fm-avatar-fallback {
   background: var(--panel-solid);
@@ -632,7 +639,7 @@ html, body {
 }
 .fm-profile-label {
   font-family: var(--fm-display), sans-serif;
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: .14em;
   color: var(--cyan);
   opacity: .65;
