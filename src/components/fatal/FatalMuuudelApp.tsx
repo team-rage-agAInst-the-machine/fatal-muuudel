@@ -18,7 +18,7 @@ export function FatalMuuudelApp() {
 
   const [cows, setCows] = useState<Cow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [screen, setScreen] = useState<Screen>("splash");
+  const [screen, setScreen] = useState<Screen>("swipe");
   const [current, setCurrent] = useState(0);
   const [abducted, setAbducted] = useState<Abducted[]>([]);
   const [match, setMatch] = useState<{ cow: Cow; vip: boolean } | null>(null);

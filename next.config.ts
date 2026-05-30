@@ -16,8 +16,6 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverActions: {
-      // Limite de body para Server Actions — Route Handlers são limitados pelo
-      // runtime (Vercel: 4.5MB por padrão). O check real está em /api/upload.
       bodySizeLimit: "6mb",
     },
   },

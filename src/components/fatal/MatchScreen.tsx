@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { Cow, Copy } from "./data";
 import { Saucer } from "./Saucer";
 import { Starfield } from "./Starfield";
+import { CowCard } from "./CowCard";
 
 type Props = {
   cow: Cow;
@@ -15,59 +16,90 @@ type Props = {
 
 export function MatchScreen({ cow, copy, isVip, speed = 1, onContinue }: Props) {
   const [phase, setPhase] = useState(0);
+  const [beamOn, setBeamOn] = useState(false);
   const sp = Math.max(0.2, speed);
 
   useEffect(() => {
+    // UFO enters at 80ms, 700ms transition → centered at ~780ms; beam fires 50ms after
     const t1 = setTimeout(() => setPhase(1), 80 / sp);
-    const t2 = setTimeout(() => setPhase(2), 1300 / sp);
+    const t2 = setTimeout(() => setBeamOn(true), 830 / sp);
+    const t3 = setTimeout(() => setPhase(2), 1200 / sp);
+    const t4 = setTimeout(() => setPhase(3), 1800 / sp);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
     };
   }, [sp]);
 
-  const riseDur = 1500 / sp + "ms";
+  const ufoX = phase === 0 ? 460 : phase >= 3 ? -460 : 0;
+  const ufoTransition =
+    phase === 0
+      ? "none"
+      : phase >= 3
+        ? `transform ${450 / sp}ms cubic-bezier(0.55,0,1,0.45)`
+        : `transform ${700 / sp}ms cubic-bezier(0.25,0.46,0.45,0.94)`;
 
   return (
     <div className="fm-match">
       <Starfield enabled count={50} />
-      <div
-        className="fm-beam"
-        style={{
-          opacity: phase >= 1 ? 1 : 0,
-          transition: `opacity ${600 / sp}ms ease`,
-          animation: phase >= 1 ? `fm-beam-pulse ${1600 / sp}ms ease-in-out infinite` : "none",
-        }}
-      ></div>
 
+      {/* Cow card – centered, vanishes when flash fires */}
       <div
-        style={{
-          position: "absolute",
-          top: 60,
-          left: "50%",
-          animation: `fm-ufo-bob ${3200 / sp}ms ease-in-out infinite`,
-        }}
+        className="fm-match-card"
+        style={{ opacity: phase >= 3 ? 0 : 1 }}
       >
-        <Saucer className="ufo-top" />
+        <CowCard cow={cow} copy={copy} />
       </div>
 
+      {/* UFO container – handles horizontal enter/exit */}
       <div
-        className="fm-abductee"
+        className="fm-match-ufo"
         style={{
-          bottom: phase >= 1 ? 360 : 150,
-          opacity: phase >= 2 ? 0.15 : 1,
-          transform: `translateX(-50%) scale(${phase >= 1 ? 0.4 : 1})`,
-          transition: `bottom ${riseDur} cubic-bezier(.4,0,.6,1), transform ${riseDur} ease-in, opacity ${500 / sp}ms ease`,
+          transform: `translateX(calc(-50% + ${ufoX}px))`,
+          transition: ufoTransition,
         }}
       >
-        🐄
+        {/* Bob wrapper – position:relative so beam is anchored to hull */}
+        <div
+          style={{
+            position: "relative",
+            animation:
+              phase >= 1 && phase < 3
+                ? `fm-ufo-bob-inner ${3200 / sp}ms ease-in-out infinite`
+                : "none",
+          }}
+        >
+          <Saucer className="ufo-top" />
+          <div
+            className="fm-beam"
+            style={{
+              opacity: beamOn && phase < 3 ? 1 : 0,
+              transition: `opacity ${300 / sp}ms ease`,
+            }}
+          />
+        </div>
       </div>
 
+      {/* White flash */}
+      <div
+        className="fm-flash"
+        style={{
+          opacity: phase === 2 ? 1 : 0,
+          transition:
+            phase === 2
+              ? `opacity ${220 / sp}ms ease-in`
+              : `opacity ${700 / sp}ms ease-out`,
+        }}
+      />
+
+      {/* Match text */}
       <div
         className="fm-match-text"
         style={{
-          opacity: phase >= 2 ? 1 : 0,
-          animation: phase >= 2 ? `fm-fade-up ${500 / sp}ms ease both` : "none",
+          opacity: phase >= 3 ? 1 : 0,
+          animation: phase >= 3 ? `fm-fade-up ${500 / sp}ms ease both` : "none",
         }}
       >
         {isVip && (
@@ -95,7 +127,9 @@ export function MatchScreen({ cow, copy, isVip, speed = 1, onContinue }: Props) 
           }}
         >
           {cow.name}{" "}
-          <span style={{ color: "var(--ink-soft)", fontSize: 13 }}>· {cow.breed}</span>
+          <span style={{ color: "var(--ink-soft)", fontSize: 13 }}>
+            · {cow.breed}
+          </span>
         </div>
         <button className="fm-btn fm-cta fm-display" onClick={onContinue}>
           {copy.matchCta}

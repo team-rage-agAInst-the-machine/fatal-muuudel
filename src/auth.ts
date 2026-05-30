@@ -15,6 +15,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
+  logger: {
+    error(err) {
+      if (err.name === "CredentialsSignin") return;
+      console.error(err);
+    },
+  },
   providers: [
     Credentials({
       name: "Credentials",

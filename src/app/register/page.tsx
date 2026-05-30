@@ -7,6 +7,8 @@ import { z } from "zod";
 import Link from "next/link";
 import { Saucer } from "@/components/fatal/Saucer";
 import { Starfield } from "@/components/fatal/Starfield";
+import { HitchhikerQuote } from "@/components/fatal/HitchhikerQuote";
+import { randomQuote } from "@/lib/hitchhiker";
 
 // ── Schemas ───────────────────────────────────────────────────────────────────
 
@@ -82,6 +84,7 @@ export default function RegisterPage() {
 
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [quote, setQuote] = useState("");
 
   function setS1(k: keyof Step1, v: string) {
     setStep1((f) => ({ ...f, [k]: v }));
@@ -100,6 +103,7 @@ export default function RegisterPage() {
       const errs: Step1Errors = {};
       parsed.error.issues.forEach((i) => { errs[i.path[0] as keyof Step1] = i.message; });
       setStep1Errors(errs);
+      setQuote(randomQuote());
       return;
     }
     setStep(2);
@@ -146,6 +150,7 @@ export default function RegisterPage() {
       } else {
         setServerError(data.error ?? "Nave com defeito, tenta de novo 🛸");
       }
+      setQuote(randomQuote());
       return;
     }
 
@@ -168,6 +173,7 @@ export default function RegisterPage() {
 
     if (login?.error) {
       setServerError("Conta criada! Mas a nave travou no login 🛸");
+      setQuote(randomQuote());
       return;
     }
 
@@ -322,6 +328,8 @@ export default function RegisterPage() {
                 {serverError}
               </p>
             )}
+
+            {quote && <HitchhikerQuote quote={quote} />}
 
             <div style={{ display: "flex", flexDirection: "column", gap: 10, width: "100%", marginTop: 20 }}>
               <button
