@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_BYTES = 5 * 1024 * 1024;
 
 export async function POST(req: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const formData = await req.formData();
   const file = formData.get("file") as File | null;
 
@@ -37,13 +44,16 @@ export async function POST(req: Request) {
     }));
 
     const url = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION ?? "us-east-1"}.amazonaws.com/${key}`;
+    await prisma.user.update({ where: { id: session.user.id }, data: { image: url } });
     return NextResponse.json({ url });
   }
 
   // Fallback local para desenvolvimento
   const { writeFile } = await import("fs/promises");
   const path = await import("path");
-  const filename = key.replace("uploads/", "");
+  const filename = path.basename(key.replace("uploads/", ""));
   await writeFile(path.join(process.cwd(), "public", "uploads", filename), buffer);
-  return NextResponse.json({ url: `/uploads/${filename}` });
+  const localUrl = `/uploads/${filename}`;
+  await prisma.user.update({ where: { id: session.user.id }, data: { image: localUrl } });
+  return NextResponse.json({ url: localUrl });
 }
