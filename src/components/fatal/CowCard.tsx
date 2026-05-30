@@ -1,4 +1,6 @@
-import { forwardRef, type CSSProperties, type Ref } from "react";
+"use client";
+
+import { forwardRef, useState, type CSSProperties, type Ref } from "react";
 import Image from "next/image";
 import type { Cow, Copy } from "./data";
 import { stripedBg } from "./data";
@@ -15,11 +17,14 @@ export const CowCard = forwardRef<HTMLDivElement, Props>(function CowCard(
   { cow, copy, style, isTop, stampRef },
   ref
 ) {
+  const [imgError, setImgError] = useState(false);
+  const showPhoto = !!cow.photoUrl && !imgError;
+
   return (
     <div className={"fm-card" + (isTop ? " top" : "")} style={style} ref={isTop ? ref : null}>
-      <div className="fm-card-photo" style={cow.photoUrl ? undefined : stripedBg(cow.hue)}>
-        {cow.photoUrl ? (
-          <Image src={cow.photoUrl} alt={cow.name} fill unoptimized style={{ objectFit: "cover" }} />
+      <div className="fm-card-photo" style={showPhoto ? undefined : stripedBg(cow.hue)}>
+        {showPhoto ? (
+          <Image src={cow.photoUrl!} alt={cow.name} fill unoptimized style={{ objectFit: "cover" }} onError={() => setImgError(true)} />
         ) : (
           <>
             <span className="ph-label">// FOTO_ESPÉCIME · {cow.id.toUpperCase()}</span>

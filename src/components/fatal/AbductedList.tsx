@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import type { Cow, Copy } from "./data";
 import { stripedBg } from "./data";
@@ -10,6 +13,34 @@ type Props = {
   onBack: () => void;
   onChat: (cow: Cow) => void;
 };
+
+function GridItem({ a, onChat }: { a: Abducted; onChat: (cow: Cow) => void }) {
+  const [imgError, setImgError] = useState(false);
+  const showPhoto = !!a.cow.photoUrl && !imgError;
+
+  return (
+    <div className="fm-grid-item">
+      <div className="gi-photo" style={showPhoto ? undefined : stripedBg(a.cow.hue)}>
+        {showPhoto ? (
+          <Image src={a.cow.photoUrl!} alt={a.cow.name} fill unoptimized style={{ objectFit: "cover" }} onError={() => setImgError(true)} />
+        ) : (
+          <div className="gi-cow">🐄</div>
+        )}
+      </div>
+      <div className="gi-scrim"></div>
+      <div className={"gi-badge" + (a.vip ? " vip" : "")}>
+        {a.vip ? "VIP" : "ABDUZIDA"}
+      </div>
+      <div className="gi-info">
+        <div className="gi-name">{a.cow.name}</div>
+        <div className="gi-sub">{a.cow.breed}</div>
+        <button className="gi-chat-btn fm-display" onClick={() => onChat(a.cow)}>
+          COMUNICAR
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export function AbductedList({ abducted, copy, onBack, onChat }: Props) {
   return (
@@ -29,29 +60,7 @@ export function AbductedList({ abducted, copy, onBack, onChat }: Props) {
       ) : (
         <div className="fm-grid">
           {abducted.map((a, i) => (
-            <div className="fm-grid-item" key={a.cow.id + i}>
-              <div className="gi-photo" style={a.cow.photoUrl ? undefined : stripedBg(a.cow.hue)}>
-                {a.cow.photoUrl ? (
-                  <Image src={a.cow.photoUrl} alt={a.cow.name} fill unoptimized style={{ objectFit: "cover" }} />
-                ) : (
-                  <div className="gi-cow">🐄</div>
-                )}
-              </div>
-              <div className="gi-scrim"></div>
-              <div className={"gi-badge" + (a.vip ? " vip" : "")}>
-                {a.vip ? "VIP" : "ABDUZIDA"}
-              </div>
-              <div className="gi-info">
-                <div className="gi-name">{a.cow.name}</div>
-                <div className="gi-sub">{a.cow.breed}</div>
-                <button
-                  className="gi-chat-btn fm-display"
-                  onClick={() => onChat(a.cow)}
-                >
-                  COMUNICAR
-                </button>
-              </div>
-            </div>
+            <GridItem key={a.cow.id + i} a={a} onChat={onChat} />
           ))}
         </div>
       )}
