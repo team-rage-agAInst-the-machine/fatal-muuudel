@@ -1,0 +1,49 @@
+name: 🛸 Testes Estelares
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  testes:
+    name: 🐄 Varredura bovina da frota
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛸 Abduzindo o código...
+        uses: actions/checkout@v4
+
+      - name: 🌌 Configurando nave (Node.js 20)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Instalando combustível da nave
+        run: npm ci
+
+      - name: ⚗️ Gerando client Prisma
+        run: npx prisma generate
+
+      - name: 🧪 Iniciando testes estelares
+        id: testes
+        run: npm test -- --reporter=verbose 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}
+
+      - name: 📡 Reportando falhas ao capitão
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: node .github/scripts/relatorio-falhas.js
+
+      - name: ✅ Missão cumprida
+        if: success()
+        run: |
+          echo "🛸 Todos os testes passaram! A frota está pronta para abdução."
