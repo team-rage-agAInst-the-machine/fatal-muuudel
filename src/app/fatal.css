@@ -288,15 +288,18 @@ html, body {
   opacity: .92;
 }
 
+
 .fm-card-scrim {
   position: absolute;
   inset: 0;
+  z-index: 1;
   background: linear-gradient(180deg, rgba(2,18,26,0) 35%, rgba(2,18,26,0.82) 72%, rgba(2,18,26,0.97) 100%);
 }
 
 .fm-card-info {
   position: absolute;
   left: 0; right: 0; bottom: 0;
+  z-index: 2;
   padding: 18px 20px 20px;
   display: flex;
   flex-direction: column;
@@ -379,6 +382,7 @@ html, body {
 .fm-stamp {
   position: absolute;
   top: 34px;
+  z-index: 2;
   font-family: var(--fm-display), sans-serif;
   font-weight: 800;
   font-size: 26px;
@@ -850,4 +854,72 @@ html, body {
 @keyframes fm-wobble {
   0%,100% { transform: translateX(-50%) rotate(-5deg); }
   50% { transform: translateX(-50%) rotate(5deg); }
+}
+
+/* ---------- Profile page ---------- */
+.fm-profile {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 32px 22px 40px;
+}
+.fm-profile-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.fm-avatar-xl {
+  width: 112px !important;
+  height: 112px !important;
+  border: 2px solid var(--cyan) !important;
+  box-shadow: 0 0 28px rgba(0,240,255,0.4);
+  transition: box-shadow .2s;
+}
+.fm-avatar-xl:hover {
+  box-shadow: 0 0 44px rgba(0,240,255,0.7);
+}
+.fm-avatar-fallback {
+  background: var(--panel-solid);
+  color: var(--cyan);
+  font-family: var(--fm-display), sans-serif;
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: .08em;
+}
+.fm-profile-error {
+  color: var(--magenta);
+  font-size: 12px;
+  text-align: center;
+  margin: 0;
+}
+.fm-profile-card {
+  width: 100%;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.fm-profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.fm-profile-label {
+  font-family: var(--fm-display), sans-serif;
+  font-size: 10px;
+  letter-spacing: .14em;
+  color: var(--cyan);
+  opacity: .65;
+}
+.fm-profile-value {
+  font-size: 15px;
+  color: var(--ink);
+  font-weight: 600;
 }

@@ -16,7 +16,7 @@ const registerSchema = z.object({
   species: z.string().optional(),
   locomotion: z.string().optional(),
   skinColor: z.string().optional(),
-  eyeCount: z.number().int().min(1).optional(),
+  eyeCount: z.number().int().min(0).optional(),
   iq: z.number().int().min(1).max(9999).optional(),
   towelStatus: z.string().optional(),
   forceSensitive: z.boolean().optional(),
