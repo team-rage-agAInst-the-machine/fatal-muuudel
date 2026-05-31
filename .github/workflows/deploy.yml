@@ -34,7 +34,7 @@ jobs:
             rm -rf node_modules .next
             npm ci
             npx prisma generate
-            DATABASE_URL="$DATABASE_URL_MIGRATE" npx prisma migrate deploy
+            DATABASE_URL="${DATABASE_URL_MIGRATE:-$DATABASE_URL}" npx prisma migrate deploy
             npm run build
             pm2 describe fatal-muuudel > /dev/null 2>&1 \
               && pm2 reload fatal-muuudel --update-env \
