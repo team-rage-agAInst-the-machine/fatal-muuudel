@@ -81,17 +81,22 @@ export async function POST(request: Request) {
   const existing = await prisma.missionConfig.count({ where: { alienId: session.user.id } });
   const shouldActivate = activate || existing === 0;
 
-  if (shouldActivate) {
-    await prisma.missionConfig.updateMany({
-      where: { alienId: session.user.id, isActive: true },
-      data: { isActive: false },
-    });
-  }
+  const mission = shouldActivate
+    ? await prisma.$transaction(async (tx) => {
+        await tx.missionConfig.updateMany({
+          where: { alienId: session.user.id, isActive: true },
+          data: { isActive: false },
+        });
 
-  const mission = await prisma.missionConfig.create({
-    data: { ...data, alienId: session.user.id, isActive: shouldActivate },
-    select: MISSION_SELECT,
-  });
+        return tx.missionConfig.create({
+          data: { ...data, alienId: session.user.id, isActive: true },
+          select: MISSION_SELECT,
+        });
+      })
+    : await prisma.missionConfig.create({
+        data: { ...data, alienId: session.user.id, isActive: false },
+        select: MISSION_SELECT,
+      });
 
   return NextResponse.json({ ok: true, mission }, { status: 201 });
 }
@@ -154,21 +159,23 @@ export async function DELETE(request: Request) {
   });
   if (!target) return NextResponse.json({ error: "Missão não encontrada" }, { status: 404 });
 
-  await prisma.missionConfig.delete({ where: { id } });
+  await prisma.$transaction(async (tx) => {
+    await tx.missionConfig.delete({ where: { id, alienId: session.user.id } });
 
-  if (target.isActive) {
-    const next = await prisma.missionConfig.findFirst({
+    if (!target.isActive) return;
+
+    const next = await tx.missionConfig.findFirst({
       where: { alienId: session.user.id },
       orderBy: { createdAt: "desc" },
       select: { id: true },
     });
     if (next) {
-      await prisma.missionConfig.update({
-        where: { id: next.id },
+      await tx.missionConfig.update({
+        where: { id: next.id, alienId: session.user.id },
         data: { isActive: true },
       });
     }
-  }
+  });
 
   return NextResponse.json({ ok: true });
 }
