@@ -33,6 +33,22 @@ Abra http://localhost:3000.
 
 ---
 
+## Testes
+
+```bash
+# Rodar todos os testes
+npm test
+
+# Modo watch (re-roda ao salvar)
+npm run test:watch
+```
+
+Stack: **Vitest** + **@testing-library/react** + **jsdom**. Os testes vivem em `src/test/`, organizados por `api/`, `components/` e `pages/`.
+
+> Sempre rode `npm test` antes de abrir um PR.
+
+---
+
 ## Estrutura
 
 ```
