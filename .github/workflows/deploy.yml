@@ -5,16 +5,12 @@ on:
     branches: [main]
     paths-ignore:
       - 'infra/**'
-  workflow_run:
-    workflows: ["🪐 Provisionamento Galáctico"]
-    types: [completed]
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:
     name: 🛸 Enviando tripulação para a nave
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: 🛸 Abduzindo o código...
@@ -34,6 +30,7 @@ jobs:
             rm -rf node_modules .next
             npm ci
             npx prisma generate
+            : "${DATABASE_URL_MIGRATE:?DATABASE_URL_MIGRATE não definida — adicione o secret TF_VAR_DB_MIGRATOR_PASSWORD e reprovisiione a EC2}"
             DATABASE_URL="$DATABASE_URL_MIGRATE" npx prisma migrate deploy
             npm run build
             pm2 describe fatal-muuudel > /dev/null 2>&1 \

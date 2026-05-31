@@ -44,3 +44,9 @@ jobs:
 
       - name: 🚀 Aplicando missão (terraform apply)
         run: terraform apply -auto-approve tfplan
+
+      - name: 🛸 Disparando deploy após provisionamento
+        run: |
+          gh workflow run deploy.yml --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
