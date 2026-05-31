@@ -37,8 +37,20 @@ chown root:ec2-user /etc/fatal-muuudel.env
 # fatal_app      — DML apenas (usado pelo app em runtime)
 dnf install -y postgresql17
 PGPASSWORD="${db_admin_password}" psql -h "${db_host}" -U "${db_admin_username}" -d fatal_muuudel <<SQL
-CREATE USER fatal_migrator WITH PASSWORD '${db_migrator_password}';
-CREATE USER fatal_app      WITH PASSWORD '${db_admin_password}';
+-- Cria os usuários de forma idempotente (re-provisionamento não pode falhar
+-- se eles já existirem). O ALTER reconcilia a senha em ambos os casos.
+DO \$\$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'fatal_migrator') THEN
+    CREATE ROLE fatal_migrator LOGIN;
+  END IF;
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'fatal_app') THEN
+    CREATE ROLE fatal_app LOGIN;
+  END IF;
+END
+\$\$;
+ALTER USER fatal_migrator WITH PASSWORD '${db_migrator_password}';
+ALTER USER fatal_app      WITH PASSWORD '${db_admin_password}';
 
 -- migrator: acesso total ao schema para DDL
 GRANT ALL ON SCHEMA public TO fatal_migrator;
