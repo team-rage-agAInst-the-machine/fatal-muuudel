@@ -1,64 +1,85 @@
 ---
 name: gerar-pr
-description: Gera título e descrição de PR e abre direto no GitHub via gh pr create.
+description: Cria branch, commita, push e abre PR no GitHub — tudo em sequência.
 argument-hint: "[contexto extra opcional]"
 ---
 
-Crie um Pull Request no GitHub para a branch atual seguindo os passos abaixo.
+Crie um Pull Request no GitHub para as mudanças atuais, seguindo os passos abaixo em ordem.
 
 ## Passo 1 — coletar contexto
 
 Execute estes comandos em paralelo:
 
 ```bash
-git branch --show-current
-git log main..HEAD --oneline
-git diff main..HEAD --stat
-git diff main..HEAD
+git status --short
+git diff --stat
+git diff
+git log --oneline -5
 ```
 
-## Passo 2 — gerar título
+## Passo 2 — preparar a branch
+
+Se já estiver numa branch de feature com commits (não em `main`), pule para o Passo 3.
+
+Se estiver em `main` com mudanças não commitadas:
+1. Crie uma branch com nome descritivo em kebab-case baseado no conteúdo das mudanças
+2. Faça checkout nela: `git checkout -b <nome-da-branch>`
+
+## Passo 3 — commitar as mudanças pendentes
+
+Se houver arquivos modificados não commitados, commite-os agora em commits pequenos e focados (poucos arquivos por commit, agrupados por tema).
+
+```bash
+git add <arquivo(s) relacionados>
+git commit -m "<tipo>: <descrição curta>"
+```
+
+## Passo 4 — push
+
+```bash
+git push --set-upstream origin <branch>
+# ou simplesmente:
+git push
+```
+
+## Passo 5 — gerar título do PR
 
 Regras:
 - Máximo 72 caracteres
-- Pode (e deve) começar com um emoji temático que capture o espírito da mudança
-- Depois do emoji: descrição em português, direta, sem prefixo de tipo
+- Começa com emoji temático
+- Descrição em português, direta, sem prefixo de tipo
 - NUNCA incluir código Jira, issue number ou prefixos como `feat:` / `fix:`
 
-Exemplos de títulos bons:
+Exemplos:
 - `🤖 Chat interestelar com IA real — Gemini responde como a vaca abduzida`
-- `🐄 Perfil detalhado da vaca com foto, stats e bio`
-- `🛸 Histórico de abduzidas persiste entre reloads`
+- `✨ Auto-dismiss na tela de match e voltar no perfil ET`
 - `🔧 Botões de login/register e foto da vaca no chat`
 
-## Passo 3 — gerar descrição
+## Passo 6 — gerar descrição do PR
 
-A descrição deve ser **narrativa e contextual** — não um checklist genérico.
+Descrição **narrativa e contextual** — não um checklist genérico. Escolha seções que façam sentido:
 
-Escolha seções que façam sentido para o conteúdo da PR. Use apenas as que agregam valor:
+- **O que foi feito** — o que muda e por quê
+- **Como funciona** — lógica, fluxo, decisões técnicas relevantes
+- **Fallback / Tratamento de erro** — se a PR lida com falhas
+- **Como ativar** — se precisa de config, variável de ambiente, seed, etc.
+- **Arquivos** — arquivos alterados com uma linha cada
 
-- **O que foi feito** — o que muda e por quê, em linguagem direta
-- **Como funciona** — explica a lógica, o fluxo, as decisões técnicas relevantes
-- **Fallback / Tratamento de erro** — se a PR lida com falhas ou estados degradados
-- **Como ativar** — se precisa de configuração, variável de ambiente, seed, etc.
-- **Arquivos** — lista de arquivos alterados com uma linha explicando o papel de cada um
+Estilo: parágrafos curtos, direto, explica o **porquê**. Sem bullet lists genéricos.
 
-Estilo:
-- Parágrafos curtos, linguagem direta
-- Explica o **porquê** das decisões, não só o **o quê**
-- Tom técnico mas sem ser burocrático
-- Prefira prosa a bullet lists genéricos
-- Se houver argumento passado para a skill (`$ARGUMENTS`), use como contexto adicional
+Sempre terminar o body com uma linha em branco seguida de `SAVANOo`.
 
-## Passo 4 — abrir o PR no GitHub
+Se houver argumento passado para a skill (`$ARGUMENTS`), usar como contexto adicional.
 
-Execute o comando abaixo com o título e descrição gerados:
+## Passo 7 — abrir o PR
 
 ```bash
 gh pr create --title "<título>" --body "$(cat <<'EOF'
 <descrição completa>
+
+SAVANOo
 EOF
 )"
 ```
 
-Após criar, exiba apenas a URL do PR retornada pelo `gh`.
+Exibir apenas a URL do PR retornada pelo `gh`.
