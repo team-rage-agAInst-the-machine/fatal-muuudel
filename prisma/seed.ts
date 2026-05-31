@@ -322,7 +322,7 @@ const cows: CowSeed[] = [
     photoUrl: "https://images.pexels.com/photos/19395924/pexels-photo-19395924.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
     protectionLevel: "VEDETE", personality: "aventureira", flightRisk: 4, temperamento: "rebelde", signoGalactico: "Supernova do Pasto", papelNoRebanho: "líder",
   },
-  // 🎵 Lulubelle III — capa do Atom Heart Mother do Pink Floyd
+  // 🎵 Lulubelle III — referência à capa do Atom Heart Mother do Pink Floyd
   {
     id: "lulubelle",
     name: "Lulubelle III",
@@ -336,7 +336,7 @@ const cows: CowSeed[] = [
     hue: 30,
     tags: ["Capista de álbum", "Fotografada por acidente", "Sem ego artístico", "Alan's Psychedelic Breakfast fã"],
     bio: "Storm Thorgerson parou o carro, eu tava no pasto, ele clicou. Virei capa sem nem saber o que era Pink Floyd. Arte às vezes é isso. 🐄📸",
-    photoUrl: "https://upload.wikimedia.org/wikipedia/pt/d/d1/Pink_Floyd_-_Atom_Heart_Mother.jpg",
+    photoUrl: "https://images.pexels.com/photos/33851843/pexels-photo-33851843.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
     protectionLevel: "DIVINA",
     desprevenida: true,
     personality: "pacífica",
