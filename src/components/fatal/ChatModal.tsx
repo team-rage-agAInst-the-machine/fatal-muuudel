@@ -6,13 +6,22 @@ import { CowProfileModal } from "./CowProfileModal";
 
 type ChatMessage = {
   id: string;
-  from: "alien" | "cow";
+  from: "alien" | "cow" | "system";
   text: string;
+  timestamp?: number;
+  status?: "sent" | "read";
 };
 
 let msgCounter = 0;
 function newId(from: string) {
   return `${from}-${++msgCounter}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
+function galacticTime(ts: number): string {
+  const d = new Date(ts);
+  const h = String(d.getHours()).padStart(2, "0");
+  const m = String(d.getMinutes()).padStart(2, "0");
+  return `ÓRB. ${h}:${m}`;
 }
 
 type Props = {
@@ -30,10 +39,19 @@ export function ChatModal({ cow, vip, onClose }: Props) {
   const [showProfile, setShowProfile] = useState(false);
   const msgsEndRef = useRef<HTMLDivElement>(null);
 
+  // Restaura histórico — insere separador de sessão se havia mensagens salvas
   useEffect(() => {
     try {
       const saved = localStorage.getItem(storageKey);
-      if (saved) setMessages(JSON.parse(saved) as ChatMessage[]);
+      if (saved) {
+        const stored = JSON.parse(saved) as ChatMessage[];
+        if (stored.length > 0) {
+          setMessages([
+            { id: "session-break", from: "system", text: "📡 transmissão anterior" },
+            ...stored,
+          ]);
+        }
+      }
     } catch {
       // localStorage indisponível
     }
@@ -43,9 +61,13 @@ export function ChatModal({ cow, vip, onClose }: Props) {
     msgsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, typing]);
 
+  // Persiste histórico, sem salvar separadores de sessão
   useEffect(() => {
     try {
-      localStorage.setItem(storageKey, JSON.stringify(messages));
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify(messages.filter((m) => m.from !== "system"))
+      );
     } catch {
       // localStorage indisponível
     }
@@ -56,7 +78,7 @@ export function ChatModal({ cow, vip, onClose }: Props) {
 
     setMessages((prev) => [
       ...prev,
-      { id: newId("alien"), from: "alien", text: text.trim() },
+      { id: newId("alien"), from: "alien", text: text.trim(), timestamp: Date.now(), status: "sent" },
     ]);
     setInput("");
     setTyping(true);
@@ -65,15 +87,13 @@ export function ChatModal({ cow, vip, onClose }: Props) {
       const res = await fetch("/api/chat/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: text.trim(),
-          cowId: cow.id,
-        }),
+        body: JSON.stringify({ message: text.trim(), cowId: cow.id }),
       });
 
       if (!res.ok || !res.body) throw new Error("falha na transmissão");
 
       const cowMsgId = newId("cow");
+      const cowTs = Date.now();
       let accumulated = "";
       let started = false;
 
@@ -89,9 +109,12 @@ export function ChatModal({ cow, vip, onClose }: Props) {
         if (!started) {
           started = true;
           setTyping(false);
+          // Marca mensagens do alien como lidas e insere resposta da vaca
           setMessages((prev) => [
-            ...prev,
-            { id: cowMsgId, from: "cow", text: accumulated },
+            ...prev.map((m) =>
+              m.from === "alien" && m.status === "sent" ? { ...m, status: "read" as const } : m
+            ),
+            { id: cowMsgId, from: "cow", text: accumulated, timestamp: cowTs },
           ]);
         } else {
           setMessages((prev) => {
@@ -111,6 +134,7 @@ export function ChatModal({ cow, vip, onClose }: Props) {
           id: newId("cow"),
           from: "cow",
           text: "Muu... muuu moo! (Nave com defeito, tenta de novo, capitão 📡)",
+          timestamp: Date.now(),
         },
       ]);
     }
@@ -150,9 +174,7 @@ export function ChatModal({ cow, vip, onClose }: Props) {
         </div>
         <div className="fm-chat-header-info">
           <div className="fm-chat-header-name fm-display">{cow.name}</div>
-          <div className="fm-chat-header-sub">
-            {cow.breed} · {cow.distance}
-          </div>
+          <div className="fm-chat-header-sub">{cow.breed} · {cow.distance}</div>
         </div>
         <div className="fm-chat-online">📡</div>
       </div>
@@ -168,15 +190,54 @@ export function ChatModal({ cow, vip, onClose }: Props) {
             </p>
           </div>
         )}
+
         {messages.map((msg) => {
+          // Separador de sessão anterior
+          if (msg.from === "system") {
+            return (
+              <div key={msg.id} style={{
+                display: "flex", alignItems: "center", gap: 10,
+                margin: "8px 0", opacity: 0.5,
+              }}>
+                <div style={{ flex: 1, height: 1, background: "var(--line)" }} />
+                <span style={{ fontSize: 10, color: "var(--ink-soft)", fontFamily: "var(--fm-body)", whiteSpace: "nowrap" }}>
+                  {msg.text}
+                </span>
+                <div style={{ flex: 1, height: 1, background: "var(--line)" }} />
+              </div>
+            );
+          }
+
+          // Bolha do alien
           if (msg.from === "alien") {
             return (
               <div key={msg.id} className="fm-chat-bubble alien">
                 <span className="fm-chat-alien-script">{msg.text.toUpperCase()}</span>
                 <span className="fm-chat-alien-translation">({msg.text})</span>
+                <div style={{
+                  display: "flex", justifyContent: "flex-end", alignItems: "center",
+                  gap: 4, marginTop: 4,
+                }}>
+                  {msg.timestamp && (
+                    <span style={{ fontSize: 9, color: "var(--ink-soft)", fontFamily: "var(--fm-body)" }}>
+                      {galacticTime(msg.timestamp)}
+                    </span>
+                  )}
+                  {msg.status && (
+                    <span style={{
+                      fontSize: 11,
+                      color: msg.status === "read" ? "var(--cyan)" : "var(--ink-soft)",
+                      lineHeight: 1,
+                    }}>
+                      ✓✓
+                    </span>
+                  )}
+                </div>
               </div>
             );
           }
+
+          // Bolha da vaca
           const flat = msg.text.replace(/\n/g, " ").trim();
           const moo = flat.replace(/\s*\([^)]*\)\s*$/, "").trim();
           const translation = flat.match(/\(([^)]+)\)\s*$/)?.[1] ?? "";
@@ -186,9 +247,17 @@ export function ChatModal({ cow, vip, onClose }: Props) {
               {translation && (
                 <span className="fm-chat-cow-translation">({translation})</span>
               )}
+              {msg.timestamp && (
+                <div style={{ marginTop: 4 }}>
+                  <span style={{ fontSize: 9, color: "var(--ink-soft)", fontFamily: "var(--fm-body)" }}>
+                    {galacticTime(msg.timestamp)}
+                  </span>
+                </div>
+              )}
             </div>
           );
         })}
+
         {typing && (
           <div className="fm-chat-typing">{cow.name} está mugindo... 🐄</div>
         )}
@@ -197,34 +266,19 @@ export function ChatModal({ cow, vip, onClose }: Props) {
 
       <div className="fm-chat-bottom">
         <div className="fm-chat-gifts">
-          <button
-            className="fm-chat-gift"
-            onClick={() => dispatchMessage("Mandei 🌽 milho pra você!")}
-            disabled={typing}
-          >
+          <button className="fm-chat-gift" onClick={() => dispatchMessage("Mandei 🌽 milho pra você!")} disabled={typing}>
             🌽 MILHO
           </button>
-          <button
-            className="fm-chat-gift"
-            onClick={() => dispatchMessage("Mandei 🧂 sal mineral pra você!")}
-            disabled={typing}
-          >
+          <button className="fm-chat-gift" onClick={() => dispatchMessage("Mandei 🧂 sal mineral pra você!")} disabled={typing}>
             🧂 SAL
           </button>
-          <button
-            className="fm-chat-gift"
-            onClick={() => dispatchMessage("Mandei 🛸 um disco voador de brinquedo pra você!")}
-            disabled={typing}
-          >
+          <button className="fm-chat-gift" onClick={() => dispatchMessage("Mandei 🛸 um disco voador de brinquedo pra você!")} disabled={typing}>
             🛸 DISCO
           </button>
         </div>
         <form
           className="fm-chat-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            dispatchMessage(input);
-          }}
+          onSubmit={(e) => { e.preventDefault(); dispatchMessage(input); }}
         >
           <input
             className="fm-chat-input-field"
@@ -234,22 +288,14 @@ export function ChatModal({ cow, vip, onClose }: Props) {
             disabled={typing}
             autoComplete="off"
           />
-          <button
-            type="submit"
-            className="fm-chat-send fm-display"
-            disabled={!input.trim() || typing}
-          >
+          <button type="submit" className="fm-chat-send fm-display" disabled={!input.trim() || typing}>
             ENVIAR
           </button>
         </form>
       </div>
 
       {showProfile && (
-        <CowProfileModal
-          cow={cow}
-          vip={vip}
-          onClose={() => setShowProfile(false)}
-        />
+        <CowProfileModal cow={cow} vip={vip} onClose={() => setShowProfile(false)} />
       )}
     </div>
   );
