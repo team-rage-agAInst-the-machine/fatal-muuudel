@@ -22,12 +22,10 @@ npx auth secret
 # 3. Subir o Postgres via Docker
 docker compose up -d
 
-# 4. Migrar e popular o banco
-npx prisma migrate dev --name init
-npx prisma generate
+# 4. Popular o banco (primeira vez)
 npx prisma db seed
 
-# 5. Dev server
+# 5. Dev server — aplica migrations pendentes automaticamente
 npm run dev
 ```
 
