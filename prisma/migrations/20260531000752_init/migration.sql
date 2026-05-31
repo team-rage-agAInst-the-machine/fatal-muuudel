@@ -50,6 +50,14 @@ CREATE TABLE "User" (
     "callsign" TEXT,
     "homePlanet" TEXT,
     "shipModel" TEXT,
+    "species" TEXT,
+    "locomotion" TEXT,
+    "skinColor" TEXT,
+    "eyeCount" INTEGER,
+    "iq" INTEGER,
+    "towelStatus" TEXT,
+    "forceSensitive" BOOLEAN,
+    "starfleetRank" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
@@ -70,6 +78,7 @@ CREATE TABLE "Cow" (
     "tags" TEXT[],
     "bio" TEXT NOT NULL,
     "photoUrl" TEXT,
+    "isHuman" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Cow_pkey" PRIMARY KEY ("id")
