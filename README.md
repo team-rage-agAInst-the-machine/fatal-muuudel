@@ -1,23 +1,64 @@
-# Fatal Muuudel
+<div align="center">
 
-Tinder para extraterrestres escolherem quais vacas vão abduzir.
+```
+        .                 *           .            .       *
+   .           .-"""-.          .              *
+        .     /       \   .              .            .
+             |  () ()  |        ___________________
+        *     \   ^   /   __--""                   ""--__
+              /`-----'\  (_____  F A T A L  M U U U D E L  _)
+             /         \      """--__________________--"""
+            '-._____.-'              | | | | | |
+                  \\                 raio  trator  ON
+                 (_\\)        .  🐄  .   🐄    .   🐄
+```
 
-Stack: **Next.js 16 (App Router) + React 19 + TypeScript + Postgres + Prisma + Auth.js v5 + Tailwind + shadcn/ui**.
+# 🛸 Fatal Muuudel 🐄
+
+### _Tinder onde ETs escolhem quais vacas vão abduzir._
+
+**`"O pasto inteiro na palma do raio trator 🛸🐄"`**
+
+<br>
+
+![Next.js](https://img.shields.io/badge/Next.js-16-02121a?style=for-the-badge&logo=next.js&logoColor=00f0ff)
+![React](https://img.shields.io/badge/React-19-02121a?style=for-the-badge&logo=react&logoColor=00f0ff)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-02121a?style=for-the-badge&logo=typescript&logoColor=00f0ff)
+![Postgres](https://img.shields.io/badge/PostgreSQL-17-02121a?style=for-the-badge&logo=postgresql&logoColor=5dff8f)
+![Prisma](https://img.shields.io/badge/Prisma-7-02121a?style=for-the-badge&logo=prisma&logoColor=b06bff)
+![Auth.js](https://img.shields.io/badge/Auth.js-v5-02121a?style=for-the-badge&logoColor=ff3ea5)
+![Tailwind](https://img.shields.io/badge/Tailwind-4-02121a?style=for-the-badge&logo=tailwindcss&logoColor=00f0ff)
+
+</div>
 
 ---
 
-## Setup
+## 👽 O que é isso?
+
+Um app de swipe espacial onde **ETs com gosto refinado** garimpam o pasto, dão `LIKE` nas vacas
+mais promissoras e agendam a abdução. Tem match, tem disco voador, tem chat com tradutor de
+mugido — e tudo banhado em neon ciano sobre fundo de nave.
+
+| | |
+|---|---|
+| **DEIXA PASTAR** ❌ | passou batido, segue o baile |
+| **ABDUZIR** 💖 | beam me up — vira abdução agendada |
+| **ABDUÇÃO VIP** 💜 | super-like, a vaca dos sonhos |
+
+> **Regra de ouro:** todo `LIKE` ou `SUPER` cria automaticamente uma **Abdução** com status `PLANNED`. A nave já reserva o porão.
+
+---
+
+## 🚀 Decolagem (setup local)
 
 ```bash
-# 1. Dependencias
+# 1. Dependências
 npm install
 
-# 2. Variaveis de ambiente
+# 2. Variáveis de ambiente
 cp .env.example .env
-# gere AUTH_SECRET com:
-npx auth secret
-
-# (opcional) chat com IA real — veja a seção "Chat interestelar" abaixo
+npx auth secret          # gera o AUTH_SECRET
+# (opcional) chaves de IA e fotos reais — veja seções abaixo
 
 # 3. Subir o Postgres via Docker
 docker compose up -d
@@ -25,175 +66,167 @@ docker compose up -d
 # 4. Popular o banco (primeira vez)
 npx prisma db seed
 
-# 5. Dev server — aplica migrations pendentes automaticamente
+# 5. Ligar os motores — aplica migrations pendentes automaticamente
 npm run dev
 ```
 
-Abra http://localhost:3000.
+Abra **http://localhost:3000** e entre na nave. 🛸
+
+> 💡 O Postgres **não** expõe a porta 5432 no host por padrão (segurança). Para conectar do host
+> (ex.: Prisma Studio), crie um `docker-compose.override.yml` mapeando `"5432:5432"` —
+> o comentário no `docker-compose.yml` mostra exatamente como.
 
 ---
 
-## Testes
+## 🧪 Testes estelares
 
 ```bash
-# Rodar todos os testes
-npm test
-
-# Modo watch (re-roda ao salvar)
-npm run test:watch
+npm test            # roda toda a suíte
+npm run test:watch  # re-roda ao salvar
 ```
 
-Stack: **Vitest** + **@testing-library/react** + **jsdom**. Os testes vivem em `src/test/`, organizados por `api/`, `components/` e `pages/`.
+Stack: **Vitest** + **@testing-library/react** + **jsdom**. Os testes vivem em `src/test/`,
+organizados por `api/`, `components/` e `pages/`.
 
-> Sempre rode `npm test` antes de abrir um PR.
+> ⚠️ Sempre rode `npm test` antes de abrir uma PR. O ET Bilu está observando.
 
 ---
 
-## Estrutura
+## 🗺️ Mapa da nave (estrutura)
 
 ```
 prisma/
-  schema.prisma        # User (ET), Cow, Swipe, Abduction
-  seed.ts              # vacas de exemplo
+  schema.prisma          # User (ET), Cow, Swipe, Abduction
+  seed.ts                # vacas de exemplo
 src/
-  app/                 # App Router (pages + API routes)
-    api/auth/[...nextauth]/route.ts
-    fatal.css          # design system — fonte da verdade de estilo
-  auth.ts              # config Auth.js v5 (Credentials + Prisma adapter)
-  middleware.ts        # protege /swipe, /abductions, /profile
-  lib/prisma.ts        # singleton do Prisma Client
+  app/                   # App Router (pages + API routes)
+    api/                 # cows, swipes, abductions, profile, chat, upload...
+    fatal.css            # 🎨 design system — fonte da verdade de estilo
+  auth.ts                # config Auth.js v5 (Credentials + Prisma adapter)
+  middleware.ts          # protege /swipe, /abductions, /profile
+  lib/prisma.ts          # singleton do Prisma Client
   components/
-    fatal/             # componentes do app (SwipeDeck, CowCard, etc.)
-    ui/                # componentes shadcn/ui
-  generated/prisma/    # client gerado pelo Prisma (gitignored)
+    fatal/               # SwipeDeck, CowCard, MatchScreen, ChatModal, Splash...
+    ui/                  # componentes shadcn/ui
+  generated/prisma/      # client gerado pelo Prisma (gitignored)
 ```
+
+### 🎨 Design system (`src/app/fatal.css`)
+
+Paleta fechada — **nunca** use cor fora dela. Toda classe do projeto leva o prefixo `fm-`.
+
+| Token | Cor | Uso |
+|---|---|---|
+| `--cyan` | `#00f0ff` | ação primária, glow |
+| `--magenta` | `#ff3ea5` | like, match, destaque |
+| `--violet` | `#b06bff` | super-like, VIP |
+| `--lime` | `#5dff8f` | sucesso |
+| `--bg` | `#02121a` | fundo da nave |
+
+Títulos/botões em **Orbitron** (`--fm-display`), corpo em **Chakra Petch** (`--fm-body`).
 
 ---
 
-## Fotos reais de vacas (Pexels API)
+## 🌌 O domínio
 
-Por padrão o seed usa fotos de fallback do Pexels. Para buscar fotos reais de vacas dinamicamente:
-
-**1. Criar a chave de API**
-
-- Acesse https://www.pexels.com/api/
-- Clique em **Get Started** e crie uma conta
-- Copie a chave gerada
-
-**2. Adicionar no `.env`**
-
-```
-PEXELS_API_KEY="sua-chave-aqui"
-```
-
-**3. Rodar o seed**
-
-```bash
-npx prisma db seed
-```
-
-O seed busca fotos com queries como `"cow farm"`, `"dairy cow"`, `"cattle field"` e popula cada vaca com uma foto real. Os humanos infiltrados mantêm suas fotos fixas. Se a chave não estiver presente ou a API falhar, o seed cai automaticamente para as fotos de fallback.
+- **🛸 User (ET)** — pilota uma nave (`shipModel`) vinda de um `homePlanet`, com `callsign` próprio.
+- **🐄 Cow** — catálogo de bovinos com raça, vibe, `mooLevel`, bio e foto.
+- **👆 Swipe** — `LIKE` (beam me up), `SUPER` (abdução VIP) ou `PASS` (deixa pastar).
+- **🎯 Abduction** — criada automaticamente no `LIKE`/`SUPER`. Estados: `PLANNED → IN_PROGRESS → COMPLETED / ABORTED`.
 
 ---
 
-## Chat interestelar (IA real)
+## 📸 Fotos reais de vacas (Pexels API)
 
-O chat entre ET e vaca funciona com respostas mockadas por padrão. Para ativar a IA real:
+Por padrão o seed usa fotos de **fallback** do Pexels. Para buscar fotos reais dinamicamente:
 
-**1. Criar a chave de API**
+1. Crie a chave em https://www.pexels.com/api/ (**Get Started**).
+2. Adicione no `.env`:
+   ```
+   PEXELS_API_KEY="sua-chave-aqui"
+   ```
+3. Rode `npx prisma db seed`.
 
-- Acesse https://aistudio.google.com/app/api-keys
-- Clique em **Create API key**
-- Selecione ou crie um projeto Google Cloud
-- Copie a chave gerada (formato `AQ.Ab8...`)
-
-**2. Adicionar no `.env`**
-
-```
-GOOGLE_AI_API_KEY="sua-chave-aqui"
-```
-
-**3. Reiniciar o servidor**
-
-```bash
-npm run dev
-```
-
-A partir daí, ao clicar em **COMUNICAR** em qualquer vaca abduzida, as respostas virão do Gemini em tempo real — a vaca responde com a personalidade dela, no formato `mugido (tradução)`, sabendo que foi abduzida e com quem está falando.
-
-Se a chave não estiver presente ou a API falhar, o chat cai automaticamente para as respostas mockadas sem quebrar nada.
+O seed busca por `"cow farm"`, `"dairy cow"`, `"cattle field"` e popula cada vaca com uma foto
+real. Os humanos infiltrados mantêm fotos fixas. Sem a chave (ou se a API falhar), cai
+automaticamente no fallback. 🤙
 
 ---
 
-## Dominio
+## 💬 Chat interestelar (IA real)
 
-- **User (ET):** pilota uma nave (`shipModel`) vindo de um `homePlanet`.
-- **Cow:** catalogo de bovinos com raca, vibe, bio e foto.
-- **Swipe:** `LIKE` (beam me up), `SUPER` (abducao VIP) ou `PASS` (moo, hard pass).
-- **Abduction:** criada automaticamente quando o ET da `LIKE` ou `SUPER`. Estados: `PLANNED -> IN_PROGRESS -> COMPLETED / ABORTED`.
+O chat entre ET e vaca roda com **respostas mockadas** por padrão. Para ativar o Gemini de verdade:
 
----
+1. Crie a chave em https://aistudio.google.com/app/api-keys (**Create API key**).
+2. Adicione no `.env`:
+   ```
+   GOOGLE_AI_API_KEY="sua-chave-aqui"
+   ```
+3. Reinicie com `npm run dev`.
 
-## Review de PRs — ET Bilu, Socio-Fundador
-
-Todo pull request aberto neste repositorio e automaticamente revisado pelo **ET Bilu**, socio-fundador intergalactico do Fatal Muuudel e entidade de sabedoria ancestral originaria de Varginha.
-
-O review aparece como comentario na PR, assinado pela nave-mae, e cobre:
-
-- **Diagnostico Intergalactico** — impressao geral do que os hominideos tentaram fazer
-- **Anomalias Detectadas** — bugs, seguranca e code smells, com severidade
-- **Padroes Evolutivos Elogiaveis** — o que esta bem feito (Bilu e justo)
-- **Protocolos de Otimizacao Sugeridos** — melhorias recomendadas pela sabedoria cosmica
-- **Veredito Final** — pontuacao de 1 a 10 em "Maturidade Civilizatoria do Codigo" e decisao: `APROVADO PARA ABDUCAO` / `REQUER INSPECAO ADICIONAL` / `DEVOLVIDO AO PASTO`
-
-Para o review funcionar, configure o secret `ANTHROPIC_API_KEY` no repositorio (Settings > Secrets > Actions).
+Daí em diante, ao clicar em **COMUNICAR** numa vaca abduzida, as respostas vêm do Gemini em tempo
+real — a vaca responde com a personalidade dela, no formato `mugido (tradução)`, sabendo que foi
+abduzida e com quem fala. Sem a chave (ou se a API falhar), volta pro mock sem quebrar nada.
 
 ---
 
-## Skill do Claude Code — `/fatal-dev`
+## 🧿 Review de PRs — ET Bilu, Sócio-Fundador
 
-Este projeto tem uma skill customizada para o Claude Code que ativa o contexto completo do Fatal Muuudel em qualquer sessao de desenvolvimento.
+Toda PR aberta neste repositório é automaticamente revisada pelo **ET Bilu**, sócio-fundador
+intergaláctico do Fatal Muuudel e entidade de sabedoria ancestral originária de Varginha. O review
+aparece como comentário na PR, assinado pela nave-mãe, e cobre:
 
-**Como usar:**
+- **🔭 Diagnóstico Intergaláctico** — impressão geral do que os hominídeos tentaram fazer
+- **🛑 Anomalias Detectadas** — bugs, segurança e code smells, com severidade
+- **✨ Padrões Evolutivos Elogiáveis** — o que está bem feito (Bilu é justo)
+- **🧬 Protocolos de Otimização Sugeridos** — melhorias pela sabedoria cósmica
+- **⚖️ Veredito Final** — nota 1–10 em "Maturidade Civilizatória do Código" e decisão:
+  `APROVADO PARA ABDUÇÃO` / `REQUER INSPEÇÃO ADICIONAL` / `DEVOLVIDO AO PASTO`
 
-```
-/fatal-dev
-```
-
-Ou com foco em uma area especifica:
-
-```
-/fatal-dev auth
-/fatal-dev api
-/fatal-dev db
-/fatal-dev chat
-```
-
-**O que a skill carrega:**
-
-- Design system completo (paleta, fontes, classes `fm-*`)
-- Mapa de arquivos e onde mexer para cada feature
-- Schema do banco e regras de negocio criticas
-- Convencoes de codigo e nomenclatura do projeto
-- Tom de copy (exemplos do que escrever em labels e erros)
-- Estado atual do git em tempo real
-
-Recomendado usar `/fatal-dev` no inicio de toda sessao antes de codificar. A skill vive em `.claude/skills/fatal-dev/SKILL.md`.
+Para funcionar, configure o secret `ANTHROPIC_API_KEY` no repositório
+(**Settings → Secrets → Actions**).
 
 ---
 
-## Tasks do time
+## 🤖 Skill do Claude Code — `/fatal-dev`
 
-O backlog das 5 frentes de trabalho esta em `.claude/tasks.md`, com responsaveis, dependencias e arquivos relevantes por tarefa.
+Skill customizada que ativa o **contexto completo do Fatal Muuudel** em qualquer sessão de dev:
 
-Ordem sugerida: **P1 + P4 em paralelo -> P2 -> P3 -> P5**
+```
+/fatal-dev          # contexto geral
+/fatal-dev auth     # foco em autenticação
+/fatal-dev api      # foco nas API routes
+/fatal-dev db       # foco no schema/banco
+/fatal-dev chat     # foco no tradutor de mugido
+```
+
+Carrega design system, mapa de arquivos, schema + regras de negócio, convenções de nomenclatura,
+tom de copy e o estado atual do git. Recomendado rodar **no início de toda sessão** antes de
+codificar. Vive em `.claude/skills/fatal-dev/SKILL.md`.
 
 ---
 
-## Proximos passos
+## 📋 Tasks do time
 
-- [ ] [P1] Paginas `/login` e `/register` para os ETs
-- [ ] [P2] API `/api/cows` e `/api/swipes` integrando banco real
-- [ ] [P3] API `/api/abductions` + tela de historico e agendamento
-- [ ] [P4] Upload de fotos + tela de perfil do ET
-- [ ] [P5] Chat com tradutor mugido<->galactico via Claude API
+O backlog das frentes de trabalho está em `.claude/tasks.md` (responsáveis, dependências e arquivos
+por tarefa). O escopo do MVP e os cortes pós-lançamento estão em `progress.md`.
+
+Ordem sugerida: **P1 + P4 em paralelo → P2 → P3 → P5**
+
+### 🛰️ Próximos passos
+
+- [ ] **[P1]** Páginas `/login` e `/register` para os ETs
+- [ ] **[P2]** API `/api/cows` e `/api/swipes` integrando banco real
+- [ ] **[P3]** API `/api/abductions` + tela de histórico e agendamento
+- [ ] **[P4]** Upload de fotos + tela de perfil do ET
+- [ ] **[P5]** Chat com tradutor mugido ↔ galáctico
+
+---
+
+<div align="center">
+
+**🛸 Liga o raio trator que essa vaca é nossa! 🐄⚡**
+
+_Feito em algum lugar acima de Varginha._
+
+</div>

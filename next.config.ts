@@ -6,14 +6,14 @@ const s3Region = process.env.AWS_REGION ?? "us-east-1";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      // Apenas o bucket configurado — evita carregar imagens de buckets de terceiros
+      // S3: bucket específico se configurado, senão abre todos os buckets amazonaws
       ...(s3Bucket
         ? [{ protocol: "https" as const, hostname: `${s3Bucket}.s3.${s3Region}.amazonaws.com` }]
-        : []),
-      // Pexels (fotos das vacas e intrusos humanos)
+        : [{ protocol: "https" as const, hostname: "*.amazonaws.com" }]),
+      // Pexels (intrusos humanos do seed)
       { protocol: "https", hostname: "images.pexels.com" },
-      // Wikimedia (Lulubelle III — Atom Heart Mother)
-      { protocol: "https", hostname: "upload.wikimedia.org" },
+      // Picsum (fotos placeholder do seed)
+      { protocol: "https", hostname: "picsum.photos" },
     ],
   },
   async headers() {
