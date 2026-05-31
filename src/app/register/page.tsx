@@ -215,7 +215,7 @@ export default function RegisterPage() {
               <Field label="MODELO DA NAVE" error={step1Errors.shipModel}>
                 <input type="text" className="fm-input" value={step1.shipModel} onChange={(e) => setS1("shipModel", e.target.value)} placeholder="Millennium Falcon Mk. II" />
               </Field>
-              <button type="submit" className="fm-btn fm-btn-cta fm-display" style={{ width: "100%", padding: "14px", fontSize: 14, letterSpacing: "0.1em", marginTop: 6 }}>
+              <button type="submit" className="fm-btn fm-cta fm-display" style={{ width: "100%", padding: "14px", fontSize: 14, letterSpacing: "0.1em", marginTop: 6 }}>
                 PRÓXIMA ETAPA →
               </button>
             </form>
@@ -336,7 +336,7 @@ export default function RegisterPage() {
                 type="button"
                 disabled={loading}
                 onClick={() => handleFinalSubmit(false)}
-                className="fm-btn fm-btn-cta fm-display"
+                className="fm-btn fm-cta fm-display"
                 style={{ width: "100%", padding: "14px", fontSize: 14, letterSpacing: "0.1em" }}
               >
                 {loading ? "TRANSMITINDO DNA..." : "CONFIRMAR ESPÉCIME ✓"}
@@ -345,7 +345,7 @@ export default function RegisterPage() {
                 type="button"
                 disabled={loading}
                 onClick={() => handleFinalSubmit(true)}
-                className="fm-btn fm-btn-ghost fm-display"
+                className="fm-btn fm-ghost fm-display"
                 style={{ width: "100%", padding: "12px", fontSize: 12, letterSpacing: "0.1em" }}
               >
                 PULAR — SOU MISTERIOSO
