@@ -20,11 +20,11 @@ chown -R ec2-user:ec2-user "$APP_DIR"
 
 # Variáveis de ambiente (sem indentação para evitar espaços extras)
 cat > /etc/fatal-muuudel.env <<EOF
-DATABASE_URL=${db_url}
-AUTH_SECRET=${auth_secret}
-AUTH_URL=https://${domain}
-AWS_REGION=${aws_region}
-AWS_S3_BUCKET=${s3_bucket}
+DATABASE_URL="${db_url}"
+AUTH_SECRET="${auth_secret}"
+AUTH_URL="https://${domain}"
+AWS_REGION="${aws_region}"
+AWS_S3_BUCKET="${s3_bucket}"
 NODE_ENV=production
 PORT=3000
 EOF
