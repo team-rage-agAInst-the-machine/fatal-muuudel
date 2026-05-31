@@ -5,11 +5,16 @@ on:
     branches: [main]
     paths-ignore:
       - 'infra/**'
+  workflow_run:
+    workflows: ["🪐 Provisionamento Galáctico"]
+    types: [completed]
+    branches: [main]
 
 jobs:
   deploy:
     name: 🛸 Enviando tripulação para a nave
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: 🛸 Abduzindo o código...
@@ -22,17 +27,19 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            set -euo pipefail
             cd /opt/fatal-muuudel
             git pull origin main
-            export $(cat /etc/fatal-muuudel.env | xargs)
+            set -a; source /etc/fatal-muuudel.env; set +a
             rm -rf node_modules .next
-            npm install
+            npm ci
             npx prisma generate
-            npx prisma migrate deploy
+            DATABASE_URL="$DATABASE_URL_MIGRATE" npx prisma migrate deploy
             npm run build
             pm2 describe fatal-muuudel > /dev/null 2>&1 \
               && pm2 reload fatal-muuudel --update-env \
-              || pm2 start npm --name "fatal-muuudel" -- start
+              || pm2 start /opt/fatal-muuudel/node_modules/.bin/next --name fatal-muuudel -- start
+            pm2 save
 
       - name: ✅ Missão cumprida
         if: success()

@@ -1,7 +1,9 @@
 aws_region    = "us-east-1"
-key_pair_name = "minha-chave-ec2"       # nome do key pair criado no console AWS
-db_username   = "fatal"
-db_password   = "troque-essa-senha-123" # mínimo 8 caracteres
-auth_secret   = ""                      # gere com: npx auth secret --raw
-github_repo   = "https://github.com/SEU-USER/fatal-muuudel"
-app_url       = ""                      # preencha após o primeiro apply com o IP do output
+key_pair_name = "fatal-muuudel-key"      # nome do key pair criado no console AWS
+db_username          = "fatal"                   # usuário admin do RDS (master)
+db_password          = "TROCAR-senha-forte-123"  # senha do fatal_app (DML only)
+db_migrator_password = "TROCAR-outra-senha-456"  # senha do fatal_migrator (DDL)
+auth_secret   = ""                       # gere com: npx auth secret --raw
+github_repo   = "https://github.com/team-rage-agAInst-the-machine/fatal-muuudel"
+app_url       = "https://fatalmuuudel.com"
+domain        = "fatalmuuudel.com"
