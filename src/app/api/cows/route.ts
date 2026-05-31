@@ -15,13 +15,13 @@ export async function GET(request: Request) {
   let hasRejected = false;
 
   if (session?.user?.id) {
-    const [allSwipes, etProfile] = await Promise.all([
+    const [allSwipes, activeMission] = await Promise.all([
       prisma.swipe.findMany({
         where: { alienId: session.user.id },
         select: { cowId: true, direction: true },
       }),
-      prisma.user.findUnique({
-        where: { id: session.user.id },
+      prisma.missionConfig.findFirst({
+        where: { alienId: session.user.id, isActive: true },
         select: {
           mooPreference: true,
           maxCargoKg: true,
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
       where: { id: { notIn: excludeIds } },
     });
 
-    const et = etProfile ?? {};
+    const et = activeMission ?? {};
     cows = rawCows
       .map((cow) => ({
         ...cow,

@@ -77,20 +77,31 @@ model User {
   forceSensitive Boolean?
   starfleetRank  String?
 
-  // Preferências de matchmaking
-  mooPreference    Int? // preferência de mugido 0-10
-  maxCargoKg       Int? // capacidade de carga da nave em kg
-  abductionStyle   String? // "stealth" | "científico" | "flashy" | "casual"
-  temperamento     String? // "paciente" | "agitado" | "curioso" | "dominante"
-  signoGalactico   String?
-  objetivoDaMissao String? // "pesquisa" | "troféu" | "companhia" | "experimento"
-
   createdAt DateTime @default(now())
 
   accounts   Account[]
   sessions   Session[]
   swipes     Swipe[]
   abductions Abduction[]
+  missions   MissionConfig[]
+}
+
+model MissionConfig {
+  id               String   @id @default(cuid())
+  alienId          String
+  alien            User     @relation(fields: [alienId], references: [id], onDelete: Cascade)
+  name             String
+  isActive         Boolean  @default(false)
+  abductionStyle   String? // "stealth" | "científico" | "flashy" | "casual"
+  objetivoDaMissao String? // "pesquisa" | "troféu" | "companhia" | "experimento"
+  temperamento     String? // "paciente" | "agitado" | "curioso" | "dominante"
+  signoGalactico   String?
+  mooPreference    Int?    // preferência de mugido 0-10
+  maxCargoKg       Int?    // capacidade de carga da nave em kg
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([alienId])
 }
 
 enum CowProtectionLevel {

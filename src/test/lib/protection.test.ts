@@ -52,19 +52,30 @@ describe("hasTowel", () => {
     expect(hasTowel("")).toBe(false);
   });
 
-  it("retorna false para 'perdida'", () => {
+  it("retorna false para 'Perdi no buraco negro de Magrathea'", () => {
+    expect(hasTowel("Perdi no buraco negro de Magrathea")).toBe(false);
+  });
+
+  it("retorna false para 'Nunca ouvi falar — o que é uma toalha?'", () => {
+    expect(hasTowel("Nunca ouvi falar — o que é uma toalha?")).toBe(false);
+  });
+
+  it("retorna false para 'Uso apenas para secar meus tentáculos'", () => {
+    expect(hasTowel("Uso apenas para secar meus tentáculos")).toBe(false);
+  });
+
+  it("retorna true para 'Sempre com a toalha — sou um mochileiro sério'", () => {
+    expect(hasTowel("Sempre com a toalha — sou um mochileiro sério")).toBe(true);
+  });
+
+  it("retorna true para 'Tenho 42 toalhas, só por precaução'", () => {
+    expect(hasTowel("Tenho 42 toalhas, só por precaução")).toBe(true);
+  });
+
+  it("retorna false para qualquer valor desconhecido/legado", () => {
+    expect(hasTowel("mochila")).toBe(false);
+    expect(hasTowel("capsula")).toBe(false);
+    expect(hasTowel("cintura")).toBe(false);
     expect(hasTowel("perdida")).toBe(false);
-  });
-
-  it("retorna true para 'mochila'", () => {
-    expect(hasTowel("mochila")).toBe(true);
-  });
-
-  it("retorna true para 'capsula'", () => {
-    expect(hasTowel("capsula")).toBe(true);
-  });
-
-  it("retorna true para 'cintura'", () => {
-    expect(hasTowel("cintura")).toBe(true);
   });
 });

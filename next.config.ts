@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
         : []),
       // Pexels (fotos das vacas e intrusos humanos)
       { protocol: "https", hostname: "images.pexels.com" },
+      // Wikimedia (Lulubelle III — Atom Heart Mother)
+      { protocol: "https", hostname: "upload.wikimedia.org" },
     ],
   },
   experimental: {

@@ -19,12 +19,16 @@ export default async function ProfilePage() {
       homePlanet: true,
       shipModel: true,
       towelStatus: true,
-      mooPreference: true,
-      maxCargoKg: true,
-      abductionStyle: true,
-      temperamento: true,
-      signoGalactico: true,
-      objetivoDaMissao: true,
+      missions: {
+        select: {
+          id: true, name: true, isActive: true,
+          abductionStyle: true, objetivoDaMissao: true,
+          temperamento: true, signoGalactico: true,
+          mooPreference: true, maxCargoKg: true,
+          createdAt: true,
+        },
+        orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
+      },
     },
   });
 

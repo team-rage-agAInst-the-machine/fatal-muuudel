@@ -34,6 +34,14 @@ interface Step2 {
   towelStatus: string;
   forceSensitive: boolean;
   starfleetRank: string;
+  configurarMissao: boolean;
+  missionName: string;
+  abductionStyle: string;
+  objetivoDaMissao: string;
+  temperamento: string;
+  signoGalactico: string;
+  mooPreference: string;
+  maxCargoKg: string;
 }
 
 // ── Options ───────────────────────────────────────────────────────────────────
@@ -49,6 +57,15 @@ const TOWEL_OPTIONS = [
   "Nunca ouvi falar — o que é uma toalha?",
   "Uso apenas para secar meus tentáculos",
   "Tenho 42 toalhas, só por precaução",
+];
+
+const ABDUCTION_STYLE_OPTIONS = ["stealth", "científico", "flashy", "casual"];
+const OBJETIVO_OPTIONS = ["pesquisa", "troféu", "companhia", "experimento"];
+const TEMPERAMENTO_OPTIONS = ["paciente", "agitado", "curioso", "dominante"];
+const SIGNOS_OPTIONS = [
+  "Touro Nebular", "Leite de Andrômeda", "Escorpião Cósmico", "Buraco Negro do Boi",
+  "Cometa Lanoso", "Pulsar Bovino", "Galáxia Mugidora", "Supernova do Pasto",
+  "Quasar Ruminante", "Buraco de Minhoca", "Matéria Escura da Vaca", "Luz do Capim",
 ];
 
 const STARFLEET_RANKS = [
@@ -78,6 +95,10 @@ export default function RegisterPage() {
     image: "", species: "", locomotion: "",
     skinColor: "#00f0ff", eyeCount: "",
     iq: "", towelStatus: "", forceSensitive: false, starfleetRank: "",
+    configurarMissao: false,
+    missionName: "",
+    abductionStyle: "", objetivoDaMissao: "", temperamento: "",
+    signoGalactico: "", mooPreference: "", maxCargoKg: "",
   });
   const [photoPreview, setPhotoPreview] = useState<string>("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -158,6 +179,25 @@ export default function RegisterPage() {
     setS1("password", "");
 
     const login = await signIn("credentials", { email, password, redirect: false });
+
+    // Cria missão inicial se o ET quis configurar agora
+    if (login && !login.error && step2.configurarMissao && step2.missionName.trim()) {
+      const missionPayload: Record<string, unknown> = {
+        name: step2.missionName.trim(),
+        activate: true,
+      };
+      if (step2.abductionStyle) missionPayload.abductionStyle = step2.abductionStyle;
+      if (step2.objetivoDaMissao) missionPayload.objetivoDaMissao = step2.objetivoDaMissao;
+      if (step2.temperamento) missionPayload.temperamento = step2.temperamento;
+      if (step2.signoGalactico) missionPayload.signoGalactico = step2.signoGalactico;
+      if (step2.mooPreference) missionPayload.mooPreference = Number(step2.mooPreference);
+      if (step2.maxCargoKg) missionPayload.maxCargoKg = Number(step2.maxCargoKg);
+      await fetch("/api/mission", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(missionPayload),
+      }).catch(() => null);
+    }
 
     // Upload photo após o login — o endpoint requer auth
     if (login && !login.error && !skip && photoFile) {
@@ -321,6 +361,74 @@ export default function RegisterPage() {
                   {step2.forceSensitive ? "SIM — A FORÇA É FORTE COMIGO" : "NÃO — SOU UM MUGGLE ESPACIAL"}
                 </button>
               </Field>
+
+              <SectionLabel>CONFIGURAÇÕES DE MISSÃO</SectionLabel>
+
+              <Field label="">
+                <button
+                  type="button"
+                  onClick={() => setS2("configurarMissao", !step2.configurarMissao)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    background: "var(--bg-2)", border: `1px solid ${step2.configurarMissao ? "var(--cyan)" : "var(--line)"}`,
+                    borderRadius: 10, padding: "12px 16px", cursor: "pointer",
+                    color: step2.configurarMissao ? "var(--cyan)" : "var(--ink-soft)",
+                    fontFamily: "var(--fm-body)", fontSize: 13,
+                    boxShadow: step2.configurarMissao ? "0 0 12px rgba(0,240,255,0.2)" : "none",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  <span style={{ fontSize: 20 }}>{step2.configurarMissao ? "🛸" : "🐄"}</span>
+                  {step2.configurarMissao ? "SIM — QUERO CALIBRAR MINHA MISSÃO" : "CONFIGURAR MISSÃO AGORA? (OPCIONAL)"}
+                </button>
+              </Field>
+
+              {step2.configurarMissao && (
+                <>
+                  <Field label="NOME DA MISSÃO *">
+                    <input type="text" className="fm-input" value={step2.missionName}
+                      onChange={(e) => setS2("missionName", e.target.value)}
+                      placeholder="Ex: Operação Vaca Stealth" maxLength={60} />
+                  </Field>
+
+                  <Field label="ESTILO DE ABDUÇÃO">
+                    <select className="fm-input" value={step2.abductionStyle} onChange={(e) => setS2("abductionStyle", e.target.value)} style={{ cursor: "pointer" }}>
+                      <option value="">Selecione...</option>
+                      {ABDUCTION_STYLE_OPTIONS.map((o) => <option key={o} value={o}>{o.charAt(0).toUpperCase() + o.slice(1)}</option>)}
+                    </select>
+                  </Field>
+
+                  <Field label="OBJETIVO DA MISSÃO">
+                    <select className="fm-input" value={step2.objetivoDaMissao} onChange={(e) => setS2("objetivoDaMissao", e.target.value)} style={{ cursor: "pointer" }}>
+                      <option value="">Selecione...</option>
+                      {OBJETIVO_OPTIONS.map((o) => <option key={o} value={o}>{o.charAt(0).toUpperCase() + o.slice(1)}</option>)}
+                    </select>
+                  </Field>
+
+                  <Field label="TEMPERAMENTO ET">
+                    <select className="fm-input" value={step2.temperamento} onChange={(e) => setS2("temperamento", e.target.value)} style={{ cursor: "pointer" }}>
+                      <option value="">Selecione...</option>
+                      {TEMPERAMENTO_OPTIONS.map((o) => <option key={o} value={o}>{o.charAt(0).toUpperCase() + o.slice(1)}</option>)}
+                    </select>
+                  </Field>
+
+                  <Field label="SIGNO GALÁCTICO">
+                    <select className="fm-input" value={step2.signoGalactico} onChange={(e) => setS2("signoGalactico", e.target.value)} style={{ cursor: "pointer" }}>
+                      <option value="">Selecione...</option>
+                      {SIGNOS_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  </Field>
+
+                  <div style={{ display: "flex", gap: 12 }}>
+                    <Field label="PREFERÊNCIA DE MUGIDO (0-10)" style={{ flex: 1 }}>
+                      <input type="number" className="fm-input" min={0} max={10} value={step2.mooPreference} onChange={(e) => setS2("mooPreference", e.target.value)} placeholder="0–10" />
+                    </Field>
+                    <Field label="CARGA MÁXIMA (kg)" style={{ flex: 1 }}>
+                      <input type="number" className="fm-input" min={1} value={step2.maxCargoKg} onChange={(e) => setS2("maxCargoKg", e.target.value)} placeholder="500" />
+                    </Field>
+                  </div>
+                </>
+              )}
             </div>
 
             {serverError && (

@@ -135,7 +135,7 @@ describe("POST /api/swipes", () => {
   });
 
   it("retorna 403 NO_TOWEL ao tentar LIKE em vaca DIVINA sem toalha", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     mockCowFindUnique.mockResolvedValue({ protectionLevel: "DIVINA", desprevenida: false });
     mockUserFindUnique.mockResolvedValue({ towelStatus: null });
     const res = await POST(makePostRequest({ cowId: "clarabelle", direction: "like" }));
@@ -145,15 +145,15 @@ describe("POST /api/swipes", () => {
   });
 
   it("retorna 403 NO_TOWEL ao tentar SUPER em vaca SAGRADA sem toalha", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     mockCowFindUnique.mockResolvedValue({ protectionLevel: "SAGRADA", desprevenida: false });
-    mockUserFindUnique.mockResolvedValue({ towelStatus: "perdida" });
+    mockUserFindUnique.mockResolvedValue({ towelStatus: "Perdi no buraco negro de Magrathea" });
     const res = await POST(makePostRequest({ cowId: "mozzarina", direction: "super" }));
     expect(res.status).toBe(403);
   });
 
   it("permite LIKE em vaca DIVINA desprevenida mesmo sem toalha (Lulubelle exception)", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     mockCowFindUnique.mockResolvedValue({ protectionLevel: "DIVINA", desprevenida: true });
     mockUserFindUnique.mockResolvedValue({ towelStatus: null });
     const res = await POST(makePostRequest({ cowId: "lulubelle", direction: "like" }));
@@ -161,15 +161,15 @@ describe("POST /api/swipes", () => {
   });
 
   it("permite LIKE em vaca DIVINA quando ET tem toalha", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     mockCowFindUnique.mockResolvedValue({ protectionLevel: "DIVINA", desprevenida: false });
-    mockUserFindUnique.mockResolvedValue({ towelStatus: "mochila" });
+    mockUserFindUnique.mockResolvedValue({ towelStatus: "Sempre com a toalha — sou um mochileiro sério" });
     const res = await POST(makePostRequest({ cowId: "clarabelle", direction: "like" }));
     expect(res.status).toBe(200);
   });
 
   it("PASS não verifica toalha (qualquer vaca aceita PASS)", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     mockCowFindUnique.mockResolvedValue({ protectionLevel: "DIVINA", desprevenida: false });
     mockUserFindUnique.mockResolvedValue({ towelStatus: null });
     const res = await POST(makePostRequest({ cowId: "clarabelle", direction: "nope" }));
