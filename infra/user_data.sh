@@ -33,7 +33,7 @@ chmod 644 /etc/fatal-muuudel.env
 # Instala dependências e builda como ec2-user
 sudo -u ec2-user bash -c "
   set -euo pipefail
-  cd ${APP_DIR}
+  cd $APP_DIR
   export \$(cat /etc/fatal-muuudel.env | xargs)
   npm ci
   npx prisma generate
@@ -44,7 +44,7 @@ sudo -u ec2-user bash -c "
 # ── PM2 ───────────────────────────────────────────────────────────────────────
 sudo -u ec2-user bash -c "
   set -euo pipefail
-  cd ${APP_DIR}
+  cd $APP_DIR
   export \$(cat /etc/fatal-muuudel.env | xargs)
   pm2 start npm --name fatal-muuudel -- start
   pm2 save
