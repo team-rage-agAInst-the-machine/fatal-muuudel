@@ -63,7 +63,7 @@ npx auth secret          # gera o AUTH_SECRET
 # 3. Subir o Postgres via Docker
 docker compose up -d
 
-# 4. Popular o banco (primeira vez)
+# 4. Popular o pasto (primeira vez)
 npx prisma db seed
 
 # 5. Ligar os motores — aplica migrations pendentes automaticamente
@@ -75,6 +75,43 @@ Abra **http://localhost:3000** e entre na nave. 🛸
 > 💡 O Postgres **não** expõe a porta 5432 no host por padrão (segurança). Para conectar do host
 > (ex.: Prisma Studio), crie um `docker-compose.override.yml` mapeando `"5432:5432"` —
 > o comentário no `docker-compose.yml` mostra exatamente como.
+
+---
+
+## 🔭 Variáveis de Ambiente
+
+Copie `.env.example` para `.env` e preencha:
+
+| Variável | Obrigatória | Descrição |
+|---|---|---|
+| `DATABASE_URL` | ✅ | Connection string do Postgres |
+| `AUTH_SECRET` | ✅ | Gerada com `npx auth secret` |
+| `PEXELS_API_KEY` | ☁️ | Fotos reais de vacas no seed |
+| `GOOGLE_AI_API_KEY` | ☁️ | Chat interestelar com Gemini |
+
+### 📸 Fotos reais de vacas (Pexels API)
+
+Por padrão o seed usa fotos de **fallback** do Pexels. Para buscar fotos reais dinamicamente:
+
+1. Crie a chave em https://www.pexels.com/api/ (**Get Started**).
+2. Adicione no `.env`: `PEXELS_API_KEY="sua-chave-aqui"`
+3. Rode `npx prisma db seed`.
+
+O seed busca por `"cow farm"`, `"dairy cow"`, `"cattle field"` e popula cada vaca com uma foto
+real. Os humanos infiltrados mantêm fotos fixas. Sem a chave (ou se a API falhar), cai
+automaticamente no fallback. 🤙
+
+### 💬 Chat interestelar (IA real)
+
+O chat entre ET e vaca roda com **respostas mockadas** por padrão. Para ativar o Gemini de verdade:
+
+1. Crie a chave em https://aistudio.google.com/app/api-keys (**Create API key**).
+2. Adicione no `.env`: `GOOGLE_AI_API_KEY="sua-chave-aqui"`
+3. Reinicie com `npm run dev`.
+
+Daí em diante, ao clicar em **COMUNICAR** numa vaca abduzida, as respostas vêm do Gemini em tempo
+real — a vaca responde com a personalidade dela, no formato `mugido (tradução)`, sabendo que foi
+abduzida e com quem fala. Sem a chave (ou se a API falhar), volta pro mock sem quebrar nada.
 
 ---
 
@@ -136,41 +173,7 @@ Títulos/botões em **Orbitron** (`--fm-display`), corpo em **Chakra Petch** (`-
 
 ---
 
-## 📸 Fotos reais de vacas (Pexels API)
-
-Por padrão o seed usa fotos de **fallback** do Pexels. Para buscar fotos reais dinamicamente:
-
-1. Crie a chave em https://www.pexels.com/api/ (**Get Started**).
-2. Adicione no `.env`:
-   ```
-   PEXELS_API_KEY="sua-chave-aqui"
-   ```
-3. Rode `npx prisma db seed`.
-
-O seed busca por `"cow farm"`, `"dairy cow"`, `"cattle field"` e popula cada vaca com uma foto
-real. Os humanos infiltrados mantêm fotos fixas. Sem a chave (ou se a API falhar), cai
-automaticamente no fallback. 🤙
-
----
-
-## 💬 Chat interestelar (IA real)
-
-O chat entre ET e vaca roda com **respostas mockadas** por padrão. Para ativar o Gemini de verdade:
-
-1. Crie a chave em https://aistudio.google.com/app/api-keys (**Create API key**).
-2. Adicione no `.env`:
-   ```
-   GOOGLE_AI_API_KEY="sua-chave-aqui"
-   ```
-3. Reinicie com `npm run dev`.
-
-Daí em diante, ao clicar em **COMUNICAR** numa vaca abduzida, as respostas vêm do Gemini em tempo
-real — a vaca responde com a personalidade dela, no formato `mugido (tradução)`, sabendo que foi
-abduzida e com quem fala. Sem a chave (ou se a API falhar), volta pro mock sem quebrar nada.
-
----
-
-## 🧿 Review de PRs — ET Bilu, Sócio-Fundador
+## 🤖 Review de PRs — ET Bilu, Sócio-Fundador
 
 Toda PR aberta neste repositório é automaticamente revisada pelo **ET Bilu**, sócio-fundador
 intergaláctico do Fatal Muuudel e entidade de sabedoria ancestral originária de Varginha. O review
@@ -188,11 +191,11 @@ Para funcionar, configure o secret `ANTHROPIC_API_KEY` no repositório
 
 ---
 
-## 🤖 Skill do Claude Code — `/fatal-dev`
+## 🛠️ Skill do Claude Code — `/fatal-dev`
 
 Skill customizada que ativa o **contexto completo do Fatal Muuudel** em qualquer sessão de dev:
 
-```
+```bash
 /fatal-dev          # contexto geral
 /fatal-dev auth     # foco em autenticação
 /fatal-dev api      # foco nas API routes
@@ -203,23 +206,6 @@ Skill customizada que ativa o **contexto completo do Fatal Muuudel** em qualquer
 Carrega design system, mapa de arquivos, schema + regras de negócio, convenções de nomenclatura,
 tom de copy e o estado atual do git. Recomendado rodar **no início de toda sessão** antes de
 codificar. Vive em `.claude/skills/fatal-dev/SKILL.md`.
-
----
-
-## 📋 Tasks do time
-
-O backlog das frentes de trabalho está em `.claude/tasks.md` (responsáveis, dependências e arquivos
-por tarefa). O escopo do MVP e os cortes pós-lançamento estão em `progress.md`.
-
-Ordem sugerida: **P1 + P4 em paralelo → P2 → P3 → P5**
-
-### 🛰️ Próximos passos
-
-- [ ] **[P1]** Páginas `/login` e `/register` para os ETs
-- [ ] **[P2]** API `/api/cows` e `/api/swipes` integrando banco real
-- [ ] **[P3]** API `/api/abductions` + tela de histórico e agendamento
-- [ ] **[P4]** Upload de fotos + tela de perfil do ET
-- [ ] **[P5]** Chat com tradutor mugido ↔ galáctico
 
 ---
 
