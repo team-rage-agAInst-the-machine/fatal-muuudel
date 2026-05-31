@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { computeCompatibility } from "@/lib/matchmaking";
 
 const INITIAL_RANGE = 50;
 
@@ -14,10 +15,23 @@ export async function GET(request: Request) {
   let hasRejected = false;
 
   if (session?.user?.id) {
-    const allSwipes = await prisma.swipe.findMany({
-      where: { alienId: session.user.id },
-      select: { cowId: true, direction: true },
-    });
+    const [allSwipes, etProfile] = await Promise.all([
+      prisma.swipe.findMany({
+        where: { alienId: session.user.id },
+        select: { cowId: true, direction: true },
+      }),
+      prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: {
+          mooPreference: true,
+          maxCargoKg: true,
+          abductionStyle: true,
+          temperamento: true,
+          signoGalactico: true,
+          objetivoDaMissao: true,
+        },
+      }),
+    ]);
 
     const abductedIds = allSwipes
       .filter((s) => s.direction === "LIKE" || s.direction === "SUPER")
@@ -31,10 +45,17 @@ export async function GET(request: Request) {
 
     const excludeIds = expanded ? abductedIds : [...abductedIds, ...passedIds];
 
-    cows = await prisma.cow.findMany({
+    const rawCows = await prisma.cow.findMany({
       where: { id: { notIn: excludeIds } },
-      orderBy: { createdAt: "asc" },
     });
+
+    const et = etProfile ?? {};
+    cows = rawCows
+      .map((cow) => ({
+        ...cow,
+        matchScore: computeCompatibility(et, cow),
+      }))
+      .sort((a, b) => b.matchScore - a.matchScore);
   } else {
     cows = await prisma.cow.findMany({ orderBy: { createdAt: "asc" } });
   }

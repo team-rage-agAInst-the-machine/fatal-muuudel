@@ -1,10 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("@/auth", () => ({ auth: vi.fn() }));
+vi.mock("@/lib/matchmaking", () => ({
+  computeCompatibility: vi.fn().mockReturnValue(75),
+}));
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     swipe: { findMany: vi.fn() },
     cow: { findMany: vi.fn() },
+    user: { findUnique: vi.fn() },
   },
 }));
 
@@ -15,6 +19,7 @@ import { GET } from "@/app/api/cows/route";
 const mockAutET = vi.mocked(auth);
 const mockBuscarDecisoes = vi.mocked(prisma.swipe.findMany);
 const mockBuscarVacas = vi.mocked(prisma.cow.findMany);
+const mockUserFindUnique = vi.mocked(prisma.user.findUnique);
 
 const SESSAO_ET = { user: { id: "et-001", email: "zork@ufo.com" } };
 
@@ -45,6 +50,8 @@ describe("GET /api/cows", () => {
     mockAutET.mockReset();
     mockBuscarDecisoes.mockReset();
     mockBuscarVacas.mockReset();
+    mockUserFindUnique.mockReset();
+    mockUserFindUnique.mockResolvedValue(null);
   });
 
   it("retorna 200 com cows[] e hasRejected quando não autenticado", async () => {

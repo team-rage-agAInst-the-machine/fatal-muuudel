@@ -18,6 +18,13 @@ export default async function ProfilePage() {
       callsign: true,
       homePlanet: true,
       shipModel: true,
+      towelStatus: true,
+      mooPreference: true,
+      maxCargoKg: true,
+      abductionStyle: true,
+      temperamento: true,
+      signoGalactico: true,
+      objetivoDaMissao: true,
     },
   });
 

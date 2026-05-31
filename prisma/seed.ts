@@ -22,6 +22,13 @@ type CowSeed = {
   bio: string;
   photoUrl: string;
   isHuman?: boolean;
+  protectionLevel?: "EXTRAVIADA" | "CAMPESTRE" | "VEDETE" | "ELITE" | "SAGRADA" | "DIVINA";
+  desprevenida?: boolean;
+  personality?: string;
+  flightRisk?: number;
+  temperamento?: string;
+  signoGalactico?: string;
+  papelNoRebanho?: string;
 };
 
 const cows: CowSeed[] = [
@@ -39,6 +46,7 @@ const cows: CowSeed[] = [
     tags: ["Capim premium", "Rumina à noite", "Já viu OVNI antes"],
     bio: "Topo abdução de primeira, mas só se rolar sal mineral no after. 🐄✨",
     photoUrl: "https://images.pexels.com/photos/29468422/pexels-photo-29468422.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "CAMPESTRE", personality: "aventureira", flightRisk: 3, temperamento: "curiosa", signoGalactico: "Pulsar Bovino", papelNoRebanho: "popular",
   },
   {
     id: "geraldina",
@@ -54,6 +62,7 @@ const cows: CowSeed[] = [
     tags: ["Leite premiado", "Anti-carrapato", "Não muge no after"],
     bio: "Sou a fábrica de leite da fazenda. Cabe na nave? Porque eu não passo na portinhola. 😎",
     photoUrl: "https://images.pexels.com/photos/12381458/pexels-photo-12381458.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "VEDETE", personality: "pacífica", flightRisk: 2, temperamento: "indiferente", signoGalactico: "Leite de Andrômeda", papelNoRebanho: "líder",
   },
   {
     id: "estrela",
@@ -69,6 +78,7 @@ const cows: CowSeed[] = [
     tags: ["Berra alto", "Fã de cerca elétrica", "Vibe pasto orgânico"],
     bio: "Mugido nível show de rock 🤘 Se quiser silêncio na nave, passa pra próxima.",
     photoUrl: "https://images.pexels.com/photos/19855902/pexels-photo-19855902.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "ELITE", personality: "travessa", flightRisk: 7, temperamento: "rebelde", signoGalactico: "Supernova do Pasto", papelNoRebanho: "líder",
   },
   {
     id: "margarida",
@@ -84,6 +94,7 @@ const cows: CowSeed[] = [
     tags: ["Compacta", "Curte sal mineral", "Soneca no pasto"],
     bio: "Pequena, dócil e cabe em qualquer disco voador. Praticamente plug and play. 🛸",
     photoUrl: "https://images.pexels.com/photos/31458840/pexels-photo-31458840.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "CAMPESTRE", personality: "pacífica", flightRisk: 1, temperamento: "dócil", signoGalactico: "Luz do Capim", papelNoRebanho: "solitária",
   },
   {
     id: "bartira",
@@ -99,6 +110,7 @@ const cows: CowSeed[] = [
     tags: ["Marrenta", "Pula cerca", "Líder do rebanho"],
     bio: "Já fugi de 3 fazendas, duvido essa navezinha me segurar. Vem com tudo. 💪",
     photoUrl: "https://images.pexels.com/photos/13910867/pexels-photo-13910867.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "ELITE", personality: "aventureira", flightRisk: 9, temperamento: "rebelde", signoGalactico: "Escorpião Cósmico", papelNoRebanho: "líder",
   },
   {
     id: "penelope",
@@ -114,6 +126,7 @@ const cows: CowSeed[] = [
     tags: ["Romântica", "Olha pra lua", "Leite cremoso"],
     bio: "Vivo olhando pro céu esperando uma nave. Demorou, hein? 🌙👽",
     photoUrl: "https://images.pexels.com/photos/7626240/pexels-photo-7626240.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "CAMPESTRE", personality: "tímida", flightRisk: 2, temperamento: "dócil", signoGalactico: "Cometa Lanoso", papelNoRebanho: "isolada",
   },
   {
     id: "zelia",
@@ -129,6 +142,7 @@ const cows: CowSeed[] = [
     tags: ["Sábia", "Conta histórias", "Anti-stress"],
     bio: "Sou a coroa do pasto, tenho causos de abdução pra te contar a viagem toda. 👵",
     photoUrl: "https://images.pexels.com/photos/14748148/pexels-photo-14748148.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "VEDETE", personality: "pacífica", flightRisk: 1, temperamento: "indiferente", signoGalactico: "Quasar Ruminante", papelNoRebanho: "solitária",
   },
   {
     id: "carminha",
@@ -144,6 +158,7 @@ const cows: CowSeed[] = [
     tags: ["Dramática", "Diva do curral", "Pose pra foto"],
     bio: "Se for me abduzir, que seja com raio trator de qualidade. Tenho padrão. 💅",
     photoUrl: "https://images.pexels.com/photos/30121945/pexels-photo-30121945.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "VEDETE", personality: "travessa", flightRisk: 6, temperamento: "curiosa", signoGalactico: "Galáxia Mugidora", papelNoRebanho: "popular",
   },
   // ✨ Referências culturais & trocadilhos lácteos
   {
@@ -160,6 +175,7 @@ const cows: CowSeed[] = [
     tags: ["Leite tipo A", "Vitamina D extra", "Influencer do pasto"],
     bio: "Meu leite é tão premium que o ET pediu o contato do meu nutricionista. Encomenda direto, sem intermediário. 🥛✨",
     photoUrl: "https://images.pexels.com/photos/18843665/pexels-photo-18843665.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "EXTRAVIADA", personality: "aventureira", flightRisk: 8, temperamento: "curiosa", signoGalactico: "Buraco de Minhoca", papelNoRebanho: "popular",
   },
   {
     id: "mozzarina",
@@ -175,6 +191,7 @@ const cows: CowSeed[] = [
     tags: ["Mozzarella de elite", "Origem protegida", "Temperatura controlada"],
     bio: "Italiana por natureza, mozzarella por vocação. Se me abduzir, garanta temperatura controlada na nave. Sou delicada. 🧀🇮🇹",
     photoUrl: "https://images.pexels.com/photos/19603274/pexels-photo-19603274.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "SAGRADA", personality: "pacífica", flightRisk: 1, temperamento: "indiferente", signoGalactico: "Matéria Escura da Vaca", papelNoRebanho: "isolada",
   },
   {
     id: "milka",
@@ -190,6 +207,7 @@ const cows: CowSeed[] = [
     tags: ["Vaca roxa original", "Branding próprio", "Chocolate premium"],
     bio: "Sim, sou roxa. Não é doença — é branding. Me reconhecem de longe. Exatamente como planejei. 💜🍫",
     photoUrl: "https://images.pexels.com/photos/18827660/pexels-photo-18827660.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "SAGRADA", personality: "tímida", flightRisk: 1, temperamento: "dócil", signoGalactico: "Leite de Andrômeda", papelNoRebanho: "solitária",
   },
   {
     id: "clarabelle",
@@ -205,6 +223,7 @@ const cows: CowSeed[] = [
     tags: ["Amiga do Mickey", "Laço vermelho", "Celebridade"],
     bio: "Amiga do Mickey, comadre da Minnie, colega do Pateta. Frequento círculos muito melhores que esse pasto. 🐭✨",
     photoUrl: "https://images.pexels.com/photos/30982514/pexels-photo-30982514.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "DIVINA", personality: "pacífica", flightRisk: 0, temperamento: "dócil", signoGalactico: "Luz do Capim", papelNoRebanho: "popular",
   },
   {
     id: "bessie",
@@ -220,6 +239,7 @@ const cows: CowSeed[] = [
     tags: ["Old school", "Sem firulas", "Leite há décadas"],
     bio: "Classic. No nonsense. Produzindo leite desde antes da internet. Se você me abduziu, tem bom gosto, cowboy. 🤠",
     photoUrl: "https://images.pexels.com/photos/8637745/pexels-photo-8637745.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "ELITE", personality: "pacífica", flightRisk: 2, temperamento: "dócil", signoGalactico: "Touro Nebular", papelNoRebanho: "líder",
   },
   {
     id: "iracema",
@@ -235,6 +255,7 @@ const cows: CowSeed[] = [
     tags: ["Lábios de mel", "Cabelos da graúna", "Literatura nacional"],
     bio: "Virgem dos lábios de mel, os cabelos mais leves que a asa da graúna... e meu leite é tipo A. 📚💛",
     photoUrl: "https://images.pexels.com/photos/36607672/pexels-photo-36607672.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "SAGRADA", personality: "tímida", flightRisk: 3, temperamento: "curiosa", signoGalactico: "Galáxia Mugidora", papelNoRebanho: "isolada",
   },
   {
     id: "manteiga-monroe",
@@ -250,6 +271,7 @@ const cows: CowSeed[] = [
     tags: ["Dourada por natureza", "Irresistível", "Happy Birthday vibes"],
     bio: "Suave, dourada e irresistível como manteiga derretendo. Happy birthday, Mr. Astronaut. 🧈💋",
     photoUrl: "https://images.pexels.com/photos/2887110/pexels-photo-2887110.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "DIVINA", personality: "aventureira", flightRisk: 1, temperamento: "indiferente", signoGalactico: "Cometa Lanoso", papelNoRebanho: "popular",
   },
   {
     id: "brie-gitte",
@@ -265,6 +287,7 @@ const cows: CowSeed[] = [
     tags: ["Francesa de coração", "Casca branca impecável", "Exige vinho a bordo"],
     bio: "Refinada, francesa de coração, casca branca impecável. Apenas me abduzam com vinho tinto à bordo. 🧀🍷",
     photoUrl: "https://images.pexels.com/photos/2650386/pexels-photo-2650386.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "ELITE", personality: "travessa", flightRisk: 5, temperamento: "rebelde", signoGalactico: "Escorpião Cósmico", papelNoRebanho: "isolada",
   },
   {
     id: "pasteurela",
@@ -280,6 +303,7 @@ const cows: CowSeed[] = [
     tags: ["Pasteurizada", "Homogeneizada", "ISO 9001 bovina"],
     bio: "Pasteurizada, homogeneizada e pronta para consumo. Saúde e higiene são meu estilo de vida, capitão. 🔬🥛",
     photoUrl: "https://images.pexels.com/photos/1567938/pexels-photo-1567938.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "CAMPESTRE", personality: "pacífica", flightRisk: 1, temperamento: "dócil", signoGalactico: "Quasar Ruminante", papelNoRebanho: "solitária",
   },
   {
     id: "ivete-mugalo",
@@ -295,6 +319,30 @@ const cows: CowSeed[] = [
     tags: ["Não para de mugir", "Festival de verão", "Beijo pra quem veio de longe"],
     bio: "MUUUUUU! Não para de mugir! Vou fazer o show mais longo da nave. Beijo pra quem veio de longe! 🎤🎉",
     photoUrl: "https://images.pexels.com/photos/19395924/pexels-photo-19395924.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    protectionLevel: "VEDETE", personality: "aventureira", flightRisk: 4, temperamento: "rebelde", signoGalactico: "Supernova do Pasto", papelNoRebanho: "líder",
+  },
+  // 🎵 Lulubelle III — capa do Atom Heart Mother do Pink Floyd
+  {
+    id: "lulubelle",
+    name: "Lulubelle III",
+    age: 4,
+    breed: "Holstein-Friesian",
+    farm: "Potters Bar",
+    weightKg: 520,
+    milkPct: 12,
+    mooLevel: 1,
+    distance: "23 minutos e 44 segundos-luz",
+    hue: 30,
+    tags: ["Capista de álbum", "Fotografada por acidente", "Sem ego artístico", "Alan's Psychedelic Breakfast fã"],
+    bio: "Storm Thorgerson parou o carro, eu tava no pasto, ele clicou. Virei capa sem nem saber o que era Pink Floyd. Arte às vezes é isso. 🐄📸",
+    photoUrl: "https://upload.wikimedia.org/wikipedia/pt/d/d1/Pink_Floyd_-_Atom_Heart_Mother.jpg",
+    protectionLevel: "DIVINA",
+    desprevenida: true,
+    personality: "pacífica",
+    flightRisk: 0,
+    temperamento: "indiferente",
+    signoGalactico: "Matéria Escura da Vaca",
+    papelNoRebanho: "isolada",
   },
   // ⚠️ Intrusos — humanos disfarçados de vaca
   {
@@ -312,6 +360,7 @@ const cows: CowSeed[] = [
     bio: "MUU. Sou vaca sim. Não tenho medo de nada. Por favor não me abduz... digo, abduz à vontade! MUUUU.",
     photoUrl: "https://images.pexels.com/photos/10899302/pexels-photo-10899302.jpeg",
     isHuman: true,
+    protectionLevel: "EXTRAVIADA",
   },
   {
     id: "fernanda-pasto",
@@ -328,16 +377,17 @@ const cows: CowSeed[] = [
     bio: "Oi moo olá. Adoro comer capim e fazer coisas de vaca. Definitivamente não sou repórter investigando abdução extraterrestre.",
     photoUrl: "https://images.pexels.com/photos/30792475/pexels-photo-30792475.jpeg",
     isHuman: true,
+    protectionLevel: "EXTRAVIADA",
   },
 ];
 
 const CACHE_FOTOS = path.join(__dirname, "cow-photos.json");
-const TAMANHO_REBANHO = 18; // vacas reais (sem os humanos infiltrados)
+const TAMANHO_REBANHO = 19; // vacas reais (sem os humanos infiltrados)
 
 async function buscarFotosDoRebanho(): Promise<string[]> {
   // Usa cache se já tiver fotos suficientes
-  if (fs.existsSync(PHOTOS_CACHE)) {
-    const cached: string[] = JSON.parse(fs.readFileSync(PHOTOS_CACHE, "utf-8"));
+  if (fs.existsSync(CACHE_FOTOS)) {
+    const cached: string[] = JSON.parse(fs.readFileSync(CACHE_FOTOS, "utf-8"));
     if (cached.length >= TAMANHO_REBANHO) {
       console.log(`📸 Usando ${cached.length} fotos em cache (prisma/cow-photos.json).`);
       return cached;
@@ -365,7 +415,7 @@ async function buscarFotosDoRebanho(): Promise<string[]> {
     }
 
     if (urls.length > 0) {
-      fs.writeFileSync(PHOTOS_CACHE, JSON.stringify(urls, null, 2));
+      fs.writeFileSync(CACHE_FOTOS, JSON.stringify(urls, null, 2));
       console.log(`📸 ${urls.length} fotos salvas em cache (prisma/cow-photos.json).`);
     }
 

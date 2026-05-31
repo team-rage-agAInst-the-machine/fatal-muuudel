@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { SwipeDirection } from "@/generated/prisma/client";
+import { requiresTowel, hasTowel } from "@/lib/protection";
 
 const DIR_MAP: Record<string, SwipeDirection> = {
   like: SwipeDirection.LIKE,
@@ -22,6 +23,17 @@ export async function POST(request: Request) {
   }
 
   const prismaDirection = DIR_MAP[direction];
+
+  if (prismaDirection === SwipeDirection.LIKE || prismaDirection === SwipeDirection.SUPER) {
+    const [cow, user] = await Promise.all([
+      prisma.cow.findUnique({ where: { id: cowId }, select: { protectionLevel: true, desprevenida: true } }),
+      prisma.user.findUnique({ where: { id: session.user.id }, select: { towelStatus: true } }),
+    ]);
+
+    if (cow && requiresTowel(cow.protectionLevel, cow.desprevenida) && !hasTowel(user?.towelStatus)) {
+      return Response.json({ error: "NO_TOWEL" }, { status: 403 });
+    }
+  }
 
   await prisma.swipe.upsert({
     where: { alienId_cowId: { alienId: session.user.id, cowId } },
