@@ -18,13 +18,11 @@ jobs:
     steps:
       - name: 🛸 Abduzindo o código...
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
 
       - name: 🔍 Verificando se infra mudou
         id: check
         run: |
-          if git diff --name-only HEAD~1 HEAD | grep -q '^infra/'; then
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q '^infra/'; then
             echo "infra_changed=true" >> $GITHUB_OUTPUT
           else
             echo "infra_changed=false" >> $GITHUB_OUTPUT
