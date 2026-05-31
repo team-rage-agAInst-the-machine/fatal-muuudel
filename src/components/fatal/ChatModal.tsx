@@ -67,10 +67,7 @@ export function ChatModal({ cow, vip, onClose }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: text.trim(),
-          cowName: cow.name,
-          cowBio: cow.bio,
-          cowBreed: cow.breed,
-          cowMooLevel: cow.mooLevel,
+          cowId: cow.id,
         }),
       });
 

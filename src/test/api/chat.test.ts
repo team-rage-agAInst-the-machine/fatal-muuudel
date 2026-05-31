@@ -14,26 +14,36 @@ vi.mock("@google/generative-ai", () => ({
     constructor(public apiKey: string) {}
     getGenerativeModel = mockGetGenerativeModel;
   },
+  HarmCategory: {
+    HARM_CATEGORY_HARASSMENT: "HARM_CATEGORY_HARASSMENT",
+    HARM_CATEGORY_HATE_SPEECH: "HARM_CATEGORY_HATE_SPEECH",
+    HARM_CATEGORY_SEXUALLY_EXPLICIT: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+    HARM_CATEGORY_DANGEROUS_CONTENT: "HARM_CATEGORY_DANGEROUS_CONTENT",
+  },
+  HarmBlockThreshold: {
+    BLOCK_MEDIUM_AND_ABOVE: "BLOCK_MEDIUM_AND_ABOVE",
+  },
 }));
 
 vi.mock("@/auth", () => ({ auth: vi.fn() }));
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     user: { findUnique: vi.fn() },
+    cow: { findUnique: vi.fn() },
   },
 }));
 
 const { auth } = await import("@/auth");
 const mockAuth = vi.mocked(auth);
 
+const { prisma } = await import("@/lib/prisma");
+const mockCowFindUnique = vi.mocked(prisma.cow.findUnique);
+
 const { POST } = await import("@/app/api/chat/translate/route");
 
 const VALID_BODY = {
   message: "Oi vaquinha!",
-  cowName: "Mimosa",
-  cowBio: "Bio da vaca.",
-  cowBreed: "Girolando",
-  cowMooLevel: 8,
+  cowId: "mimosa",
 };
 
 const MOCK_REPLIES = [
@@ -77,6 +87,13 @@ describe("POST /api/chat/translate", () => {
     mockAuth.mockReset();
     mockGetGenerativeModel.mockClear();
     mockGenerateContentStream.mockReset();
+    mockCowFindUnique.mockReset();
+    mockCowFindUnique.mockResolvedValue({
+      name: "Mimosa",
+      breed: "Girolando",
+      bio: "Topo abdução de primeira.",
+      mooLevel: 8,
+    });
     delete process.env.GOOGLE_AI_API_KEY;
   });
 
@@ -84,34 +101,49 @@ describe("POST /api/chat/translate", () => {
     vi.unstubAllEnvs();
   });
 
+  it("retorna 401 sem autenticação", async () => {
+    mockAuth.mockResolvedValue(null);
+    const res = await POST(makeRequest(VALID_BODY));
+    expect(res.status).toBe(401);
+    const data = await res.json();
+    expect(data.error).toBe("Não autenticado");
+  });
+
   it("retorna 400 com message vazia", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "et-001" } });
     const res = await POST(makeRequest({ ...VALID_BODY, message: "" }));
     expect(res.status).toBe(400);
     const data = await res.json();
     expect(data.error).toBe("Dados inválidos");
   });
 
-  it("retorna 400 sem cowName", async () => {
-    const { cowName: _cn, ...bodyWithoutCowName } = VALID_BODY;
-    const res = await POST(makeRequest(bodyWithoutCowName));
+  it("retorna 400 sem cowId", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "et-001" } });
+    const { cowId: _ci, ...bodyWithoutCowId } = VALID_BODY;
+    const res = await POST(makeRequest(bodyWithoutCowId));
     expect(res.status).toBe(400);
     const data = await res.json();
     expect(data.error).toBe("Dados inválidos");
   });
 
   it("retorna 400 com message ausente", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "et-001" } });
     const { message: _m, ...bodyWithoutMessage } = VALID_BODY;
     const res = await POST(makeRequest(bodyWithoutMessage));
     expect(res.status).toBe(400);
   });
 
-  it("retorna 400 com cowMooLevel fora do intervalo (> 10)", async () => {
-    const res = await POST(makeRequest({ ...VALID_BODY, cowMooLevel: 11 }));
-    expect(res.status).toBe(400);
+  it("retorna 404 quando cowId não existe", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "et-001" } });
+    mockCowFindUnique.mockResolvedValue(null);
+    const res = await POST(makeRequest(VALID_BODY));
+    expect(res.status).toBe(404);
+    const data = await res.json();
+    expect(data.error).toBe("Vaca não encontrada");
   });
 
   it("sem GOOGLE_AI_API_KEY: retorna text/plain com uma resposta mock", async () => {
-    vi.mocked(auth).mockResolvedValue(null);
+    mockAuth.mockResolvedValue({ user: { id: "et-001" } });
     // GOOGLE_AI_API_KEY não definido
     const res = await POST(makeRequest(VALID_BODY));
 
@@ -123,7 +155,7 @@ describe("POST /api/chat/translate", () => {
   });
 
   it("sem GOOGLE_AI_API_KEY: não chama GoogleGenerativeAI", async () => {
-    vi.mocked(auth).mockResolvedValue(null);
+    mockAuth.mockResolvedValue({ user: { id: "et-001" } });
     await POST(makeRequest(VALID_BODY));
     // getGenerativeModel nunca é chamado quando não há API key
     expect(mockGetGenerativeModel).not.toHaveBeenCalled();
@@ -131,7 +163,7 @@ describe("POST /api/chat/translate", () => {
 
   it("com GOOGLE_AI_API_KEY: chama GoogleGenerativeAI e retorna stream", async () => {
     process.env.GOOGLE_AI_API_KEY = "fake-api-key";
-    mockAuth.mockResolvedValue(null);
+    mockAuth.mockResolvedValue({ user: { id: "et-001" } });
 
     async function* fakeStream() {
       yield { text: () => "Muu mu" };
@@ -154,7 +186,7 @@ describe("POST /api/chat/translate", () => {
 
   it("com GOOGLE_AI_API_KEY: retorna mock quando Gemini lança exceção", async () => {
     process.env.GOOGLE_AI_API_KEY = "fake-api-key";
-    mockAuth.mockResolvedValue(null);
+    mockAuth.mockResolvedValue({ user: { id: "et-001" } });
 
     mockGenerateContentStream.mockRejectedValue(new Error("Gemini indisponível"));
 
