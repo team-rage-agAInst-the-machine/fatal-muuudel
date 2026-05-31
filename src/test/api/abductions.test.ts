@@ -12,11 +12,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { GET } from "@/app/api/abductions/route";
 
-const mockAuth = vi.mocked(auth);
+const mockAutET = vi.mocked(auth);
 const mockAbductionFindMany = vi.mocked(prisma.abduction.findMany);
-const mockSwipeFindMany = vi.mocked(prisma.swipe.findMany);
+const mockBuscarDecisoes = vi.mocked(prisma.swipe.findMany);
 
-const SESSION = { user: { id: "et-001", email: "zork@ufo.com" } };
+const SESSAO_ET = { user: { id: "et-001", email: "zork@ufo.com" } };
 
 const mockCow = {
   id: "cow-1",
@@ -37,13 +37,13 @@ const mockCow = {
 
 describe("GET /api/abductions", () => {
   beforeEach(() => {
-    mockAuth.mockReset();
+    mockAutET.mockReset();
     mockAbductionFindMany.mockReset();
-    mockSwipeFindMany.mockReset();
+    mockBuscarDecisoes.mockReset();
   });
 
   it("retorna 401 quando não autenticado", async () => {
-    mockAuth.mockResolvedValue(null);
+    mockAutET.mockResolvedValue(null);
     const res = await GET();
     expect(res.status).toBe(401);
     const data = await res.json();
@@ -51,9 +51,9 @@ describe("GET /api/abductions", () => {
   });
 
   it("retorna [] quando user não tem abduções", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     mockAbductionFindMany.mockResolvedValue([]);
-    mockSwipeFindMany.mockResolvedValue([]);
+    mockBuscarDecisoes.mockResolvedValue([]);
 
     const res = await GET();
     expect(res.status).toBe(200);
@@ -62,11 +62,11 @@ describe("GET /api/abductions", () => {
   });
 
   it("retorna lista com cow incluída (include: { cow: true })", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     mockAbductionFindMany.mockResolvedValue([
       { cowId: "cow-1", cow: mockCow, createdAt: new Date("2025-01-01") },
     ] as never);
-    mockSwipeFindMany.mockResolvedValue([
+    mockBuscarDecisoes.mockResolvedValue([
       { cowId: "cow-1", direction: "LIKE" },
     ] as never);
 
@@ -78,9 +78,9 @@ describe("GET /api/abductions", () => {
   });
 
   it("busca abduções com include: { cow: true }", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     mockAbductionFindMany.mockResolvedValue([]);
-    mockSwipeFindMany.mockResolvedValue([]);
+    mockBuscarDecisoes.mockResolvedValue([]);
 
     await GET();
 
@@ -90,9 +90,9 @@ describe("GET /api/abductions", () => {
   });
 
   it("busca abduções ordenadas por createdAt desc", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     mockAbductionFindMany.mockResolvedValue([]);
-    mockSwipeFindMany.mockResolvedValue([]);
+    mockBuscarDecisoes.mockResolvedValue([]);
 
     await GET();
 
@@ -100,7 +100,7 @@ describe("GET /api/abductions", () => {
       expect.objectContaining({ orderBy: { createdAt: "desc" } })
     );
 
-    expect(mockSwipeFindMany).toHaveBeenCalledWith(
+    expect(mockBuscarDecisoes).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ alienId: expect.any(String) }),
       })
@@ -108,11 +108,11 @@ describe("GET /api/abductions", () => {
   });
 
   it("vip: true quando o swipe correspondente foi SUPER", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     mockAbductionFindMany.mockResolvedValue([
       { cowId: "cow-1", cow: mockCow, createdAt: new Date("2025-01-01") },
     ] as never);
-    mockSwipeFindMany.mockResolvedValue([
+    mockBuscarDecisoes.mockResolvedValue([
       { cowId: "cow-1", direction: "SUPER" },
     ] as never);
 
@@ -122,11 +122,11 @@ describe("GET /api/abductions", () => {
   });
 
   it("vip: false quando o swipe correspondente foi LIKE", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     mockAbductionFindMany.mockResolvedValue([
       { cowId: "cow-1", cow: mockCow, createdAt: new Date("2025-01-01") },
     ] as never);
-    mockSwipeFindMany.mockResolvedValue([
+    mockBuscarDecisoes.mockResolvedValue([
       { cowId: "cow-1", direction: "LIKE" },
     ] as never);
 
@@ -136,11 +136,11 @@ describe("GET /api/abductions", () => {
   });
 
   it("vip: false quando nao ha swipe correspondente para a vaca", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     mockAbductionFindMany.mockResolvedValue([
       { cowId: "cow-1", cow: mockCow, createdAt: new Date("2025-01-01") },
     ] as never);
-    mockSwipeFindMany.mockResolvedValue([] as never);
+    mockBuscarDecisoes.mockResolvedValue([] as never);
 
     const res = await GET();
     expect(res.status).toBe(200);
@@ -149,13 +149,13 @@ describe("GET /api/abductions", () => {
   });
 
   it("retorna 200 com { abductions: [...] }", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     const cow2 = { ...mockCow, id: "cow-2", name: "Beladona" };
     mockAbductionFindMany.mockResolvedValue([
       { cowId: "cow-1", cow: mockCow, createdAt: new Date("2025-02-01") },
       { cowId: "cow-2", cow: cow2, createdAt: new Date("2025-01-01") },
     ] as never);
-    mockSwipeFindMany.mockResolvedValue([
+    mockBuscarDecisoes.mockResolvedValue([
       { cowId: "cow-1", direction: "SUPER" },
       { cowId: "cow-2", direction: "LIKE" },
     ] as never);

@@ -12,7 +12,7 @@ vi.mock("next/image", () => ({
 
 const { SwipeDeck } = await import("@/components/fatal/SwipeDeck");
 
-const makeCow = (id: string, name: string): Cow => ({
+const fabricarVaca = (id: string, name: string): Cow => ({
   id,
   name,
   age: 4,
@@ -29,11 +29,11 @@ const makeCow = (id: string, name: string): Cow => ({
   isHuman: false,
 });
 
-const mockCows: Cow[] = [
-  makeCow("vaca-1", "Mimosa"),
-  makeCow("vaca-2", "Rosinha"),
-  makeCow("vaca-3", "Branquinha"),
-  makeCow("vaca-4", "Moreninha"),
+const rebanhoMock: Cow[] = [
+  fabricarVaca("vaca-1", "Mimosa"),
+  fabricarVaca("vaca-2", "Rosinha"),
+  fabricarVaca("vaca-3", "Branquinha"),
+  fabricarVaca("vaca-4", "Moreninha"),
 ];
 
 const mockCopy: Copy = {
@@ -63,7 +63,7 @@ describe("SwipeDeck", () => {
   it("renderiza o card da vaca no topo", () => {
     const onDecide = vi.fn();
     render(
-      <SwipeDeck cows={mockCows} current={0} copy={mockCopy} onDecide={onDecide} />
+      <SwipeDeck cows={rebanhoMock} current={0} copy={mockCopy} onDecide={onDecide} />
     );
     // A vaca no topo (índice 0) deve estar visível
     expect(screen.getAllByText("Mimosa")[0]).toBeInTheDocument();
@@ -72,7 +72,7 @@ describe("SwipeDeck", () => {
   it("renderiza até 3 cards empilhados", () => {
     const onDecide = vi.fn();
     render(
-      <SwipeDeck cows={mockCows} current={0} copy={mockCopy} onDecide={onDecide} />
+      <SwipeDeck cows={rebanhoMock} current={0} copy={mockCopy} onDecide={onDecide} />
     );
     // Com 4 vacas e current=0, apenas os 3 primeiros são renderizados no deck
     expect(screen.getByText("Mimosa")).toBeInTheDocument();
@@ -84,24 +84,24 @@ describe("SwipeDeck", () => {
   it("botão PASS/nope chama onDecide com 'nope'", async () => {
     const onDecide = vi.fn();
     render(
-      <SwipeDeck cows={mockCows} current={0} copy={mockCopy} onDecide={onDecide} />
+      <SwipeDeck cows={rebanhoMock} current={0} copy={mockCopy} onDecide={onDecide} />
     );
     const nopeButton = screen.getByRole("button", { name: /deixa pastar/i });
     await userEvent.click(nopeButton);
     // flyOut usa setTimeout de 360ms antes de chamar onDecide
     await waitFor(() => expect(onDecide).toHaveBeenCalled(), { timeout: 1000 });
-    expect(onDecide).toHaveBeenCalledWith(mockCows[0], "nope");
+    expect(onDecide).toHaveBeenCalledWith(rebanhoMock[0], "nope");
   });
 
   it("botão LIKE chama onDecide com 'like'", async () => {
     const onDecide = vi.fn();
     render(
-      <SwipeDeck cows={mockCows} current={0} copy={mockCopy} onDecide={onDecide} />
+      <SwipeDeck cows={rebanhoMock} current={0} copy={mockCopy} onDecide={onDecide} />
     );
     const likeButton = screen.getByRole("button", { name: /abduzir/i });
     await userEvent.click(likeButton);
     // flyOut usa setTimeout de 360ms antes de chamar onDecide
     await waitFor(() => expect(onDecide).toHaveBeenCalled(), { timeout: 1000 });
-    expect(onDecide).toHaveBeenCalledWith(mockCows[0], "like");
+    expect(onDecide).toHaveBeenCalledWith(rebanhoMock[0], "like");
   });
 });
