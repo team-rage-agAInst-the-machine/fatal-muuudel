@@ -23,6 +23,7 @@ export function FarmerCowForm() {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -33,9 +34,47 @@ export function FarmerCowForm() {
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    if (photoPreview && !photoPreview.startsWith("data:")) URL.revokeObjectURL(photoPreview);
     setPhotoFile(file);
     setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const handleGenerate = async () => {
+    setError(null);
+    setGenerating(true);
+    try {
+      const res = await fetch("/api/farmer/gerar-vaca", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Sinal perdido na galáxia 🛸");
+        return;
+      }
+      const cow = data.cow;
+      setForm({
+        id: String(cow.id ?? ""),
+        name: String(cow.name ?? ""),
+        breed: String(cow.breed ?? ""),
+        age: Number(cow.age ?? 3),
+        farm: String(cow.farm ?? ""),
+        weightKg: Number(cow.weightKg ?? 400),
+        milkPct: Number(cow.milkPct ?? 80),
+        mooLevel: Number(cow.mooLevel ?? 5),
+        distance: String(cow.distance ?? ""),
+        hue: Number(cow.hue ?? 180),
+        tags: Array.isArray(cow.tags) ? cow.tags.join(", ") : "",
+        bio: String(cow.bio ?? ""),
+        isHuman: false,
+      });
+      // Se a IA gerou imagem, usa como preview (data URL)
+      if (cow.photoUrl) {
+        setPhotoFile(null);
+        setPhotoPreview(cow.photoUrl);
+      }
+    } catch {
+      setError("Falha de comunicação intergaláctica. Tenta de novo 🛸");
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -46,12 +85,26 @@ export function FarmerCowForm() {
       let photoUrl: string | null = null;
 
       if (photoFile) {
+        // Foto selecionada manualmente — faz upload pro S3
         const fd = new FormData();
         fd.append("file", photoFile);
         const uploadRes = await fetch("/api/farmer/upload-cow-photo", { method: "POST", body: fd });
         const uploadData = await uploadRes.json();
         if (!uploadRes.ok) {
           setError(uploadData.error ?? "Falha no upload da foto 🛸");
+          return;
+        }
+        photoUrl = uploadData.url;
+      } else if (photoPreview?.startsWith("data:")) {
+        // Foto gerada pela IA — converte data URL para File e faz upload pro S3
+        const blob = await fetch(photoPreview).then((r) => r.blob());
+        const file = new File([blob], "vaca-ia.png", { type: "image/png" });
+        const fd = new FormData();
+        fd.append("file", file);
+        const uploadRes = await fetch("/api/farmer/upload-cow-photo", { method: "POST", body: fd });
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) {
+          setError(uploadData.error ?? "Falha no upload da foto gerada 🛸");
           return;
         }
         photoUrl = uploadData.url;
@@ -76,7 +129,7 @@ export function FarmerCowForm() {
       setSuccess(true);
       setForm(EMPTY_FORM);
       setPhotoFile(null);
-      if (photoPreview) URL.revokeObjectURL(photoPreview);
+      if (photoPreview && !photoPreview.startsWith("data:")) URL.revokeObjectURL(photoPreview);
       setPhotoPreview(null);
       if (fileRef.current) fileRef.current.value = "";
       setTimeout(() => setSuccess(false), 4000);
@@ -91,15 +144,27 @@ export function FarmerCowForm() {
     ? undefined
     : { background: `oklch(0.45 0.12 ${form.hue})` };
 
+  const busy = uploading || generating;
+
   return (
     <div className="fm-admin">
+      {/* Botão de geração aleatória */}
+      <button
+        className="fm-btn fm-ghost fm-display"
+        onClick={handleGenerate}
+        disabled={busy}
+        style={{ fontSize: 11, width: "100%" }}
+      >
+        {generating ? "ABDUZINDO DADOS DA GALÁXIA..." : "✨ GERAR VACA ALEATÓRIA"}
+      </button>
+
       {/* Foto */}
       <div className="fm-profile-card">
         <span className="fm-profile-label">FOTO DA VACA</span>
         <div
           className="fm-admin-photo-drop"
           style={photoBg}
-          onClick={() => fileRef.current?.click()}
+          onClick={() => !busy && fileRef.current?.click()}
         >
           {photoPreview ? (
             /* eslint-disable-next-line @next/next/no-img-element */
@@ -267,7 +332,7 @@ export function FarmerCowForm() {
       <button
         className="fm-btn fm-cta fm-display"
         onClick={handleSubmit}
-        disabled={uploading}
+        disabled={busy}
         style={{ fontSize: 12 }}
       >
         {uploading ? "TRANSMITINDO..." : "CADASTRAR VACA 🐄"}
