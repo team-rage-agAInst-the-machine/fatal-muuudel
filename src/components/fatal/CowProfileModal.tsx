@@ -25,8 +25,25 @@ export function CowProfileModal({ cow, vip, onClose, onChat, onRelease }: Props)
       </div>
 
       <div className="fm-profile-scroll">
-        <div className="fm-profile-photo" style={stripedBg(cow.hue)}>
-          <div className="fm-profile-cow">🐄</div>
+        <div className="fm-profile-photo" style={cow.photoUrl ? undefined : stripedBg(cow.hue)}>
+          {cow.photoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={cow.photoUrl}
+              alt={cow.name}
+              className="fm-profile-photo-img"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+                (e.currentTarget.nextSibling as HTMLElement).style.display = "block";
+              }}
+            />
+          ) : null}
+          <div
+            className="fm-profile-cow"
+            style={{ display: cow.photoUrl ? "none" : "block" }}
+          >
+            🐄
+          </div>
           <div className="fm-profile-scrim" />
         </div>
 
