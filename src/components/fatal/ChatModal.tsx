@@ -166,8 +166,9 @@ export function ChatModal({ cow, vip, onClose }: Props) {
               </div>
             );
           }
-          const moo = msg.text.replace(/\s*\(.*\)$/, "").trim();
-          const translation = msg.text.match(/\(([^)]+)\)$/)?.[1] ?? "";
+          const flat = msg.text.replace(/\n/g, " ").trim();
+          const moo = flat.replace(/\s*\([^)]*\)\s*$/, "").trim();
+          const translation = flat.match(/\(([^)]+)\)\s*$/)?.[1] ?? "";
           return (
             <div key={msg.id} className="fm-chat-bubble cow">
               <span className="fm-chat-cow-script">{moo}</span>
