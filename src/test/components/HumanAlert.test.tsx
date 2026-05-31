@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-const { HumanAlert } = await import("@/components/fatal/HumanAlert");
+import { HumanAlert } from "@/components/fatal/HumanAlert";
 
 const mockCow = {
   id: "humano-001",

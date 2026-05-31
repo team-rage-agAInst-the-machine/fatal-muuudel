@@ -4,8 +4,8 @@ import userEvent from "@testing-library/user-event";
 
 vi.mock("@/components/fatal/Saucer", () => ({ Saucer: () => null }));
 
-const { Splash } = await import("@/components/fatal/Splash");
-const { FM_COPY } = await import("@/components/fatal/data");
+import { Splash } from "@/components/fatal/Splash";
+import { FM_COPY } from "@/components/fatal/data";
 
 describe("Splash", () => {
   beforeEach(() => {
@@ -15,7 +15,7 @@ describe("Splash", () => {
   it("renderiza o título do app (Fatal Muuudel)", () => {
     render(<Splash copy={FM_COPY} onEnter={vi.fn()} />);
     const heading = screen.getByRole("heading", { level: 1 });
-    expect(heading).toHaveTextContent(/fatal muuudel/i);
+    expect(heading).toHaveTextContent(new RegExp(FM_COPY.nome, "i"));
   });
 
   it("renderiza a tagline do app", () => {
@@ -27,7 +27,7 @@ describe("Splash", () => {
     const onEnter = vi.fn();
     render(<Splash copy={FM_COPY} onEnter={onEnter} />);
 
-    const btn = screen.getByRole("button", { name: /entrar na nave/i });
+    const btn = screen.getByRole("button", { name: FM_COPY.enter });
     await userEvent.click(btn);
     expect(onEnter).toHaveBeenCalledTimes(1);
   });

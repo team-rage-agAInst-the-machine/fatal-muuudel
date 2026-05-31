@@ -5,8 +5,8 @@ vi.mock("@/components/fatal/CowCard", () => ({ CowCard: () => null }));
 vi.mock("@/components/fatal/Saucer", () => ({ Saucer: () => null }));
 vi.mock("@/components/fatal/Starfield", () => ({ Starfield: () => null }));
 
-const { MatchScreen } = await import("@/components/fatal/MatchScreen");
-const { FM_COPY } = await import("@/components/fatal/data");
+import { MatchScreen } from "@/components/fatal/MatchScreen";
+import { FM_COPY } from "@/components/fatal/data";
 
 const mockCow = {
   id: "test-cow",
@@ -60,7 +60,7 @@ describe("MatchScreen", () => {
       />
     );
 
-    const btn = screen.getByRole("button", { name: /próxima vítima/i });
+    const btn = screen.getByRole("button", { name: FM_COPY.matchCta });
     fireEvent.click(btn);
     expect(onContinue).toHaveBeenCalledTimes(1);
   });
@@ -75,7 +75,7 @@ describe("MatchScreen", () => {
       />
     );
 
-    expect(screen.getByText(/ABDUÇÃO VIP/)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(FM_COPY.superLike))).toBeInTheDocument();
   });
 
   it("badge VIP não aparece quando isVip=false", () => {
@@ -88,6 +88,6 @@ describe("MatchScreen", () => {
       />
     );
 
-    expect(screen.queryByText(/ABDUÇÃO VIP/)).toBeNull();
+    expect(screen.queryByText(new RegExp(FM_COPY.superLike))).toBeNull();
   });
 });
