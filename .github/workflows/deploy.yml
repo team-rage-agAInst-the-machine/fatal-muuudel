@@ -32,7 +32,7 @@ jobs:
             npm run build
             pm2 describe fatal-muuudel > /dev/null 2>&1 \
               && pm2 reload fatal-muuudel --update-env \
-              || pm2 start /opt/fatal-muuudel/node_modules/.bin/next --name fatal-muuudel -- start
+              || pm2 start npm --name fatal-muuudel --cwd /opt/fatal-muuudel --update-env -- start
             pm2 save
 
       - name: ✅ Missão cumprida
