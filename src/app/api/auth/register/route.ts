@@ -14,7 +14,7 @@ const registerSchema = z.object({
   homePlanet: z.string().min(2),
   shipModel: z.string().min(2),
   // perfil biológico — todos opcionais
-  image: z.string().optional(),
+  image: z.string().url().optional(),
   species: z.string().optional(),
   locomotion: z.string().optional(),
   skinColor: z.string().optional(),
