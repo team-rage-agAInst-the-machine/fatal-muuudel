@@ -1,18 +1,5 @@
 <div align="center">
 
-```
-        .                 *           .            .       *
-   .           .-"""-.          .              *
-        .     /       \   .              .            .
-             |  () ()  |        ___________________
-        *     \   ^   /   __--""                   ""--__
-              /`-----'\  (_____  F A T A L  M U U U D E L  _)
-             /         \      """--__________________--"""
-            '-._____.-'              | | | | | |
-                  \\                 raio  trator  ON
-                 (_\\)        .  🐄  .   🐄    .   🐄
-```
-
 # 🛸 Fatal Muuudel 🐄
 
 ### _Tinder onde ETs escolhem quais vacas vão abduzir._
