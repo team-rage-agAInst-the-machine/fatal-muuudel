@@ -535,6 +535,24 @@ html, body {
   text-wrap: pretty;
 }
 
+.fm-match-progress {
+  width: 180px;
+  height: 3px;
+  background: rgba(0,240,255,0.15);
+  border-radius: 2px;
+  margin: 0 auto 16px;
+  overflow: hidden;
+}
+.fm-match-progress-bar {
+  width: 100%;
+  height: 100%;
+  background: var(--cyan);
+  border-radius: 2px;
+  transform-origin: left;
+  transition: transform 50ms linear;
+  box-shadow: 0 0 6px rgba(0,240,255,0.6);
+}
+
 /* ---------- Abducted list ---------- */
 .fm-list {
   position: relative;
@@ -1288,6 +1306,22 @@ html, body {
 }
 
 /* ---------- Profile page ---------- */
+.fm-profile-et-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+  width: 100%;
+}
+.fm-profile-et-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cyan);
+  letter-spacing: 0.1em;
+}
+
 .fm-profile {
   flex: 1;
   overflow-y: auto;
@@ -1295,7 +1329,7 @@ html, body {
   flex-direction: column;
   align-items: center;
   gap: 28px;
-  padding: 32px 22px 40px;
+  padding: 0 22px 40px;
 }
 .fm-profile-avatar {
   display: flex;

@@ -6,6 +6,8 @@ import { Saucer } from "./Saucer";
 import { Starfield } from "./Starfield";
 import { CowCard } from "./CowCard";
 
+const AUTO_DISMISS_MS = 5000;
+
 type Props = {
   cow: Cow;
   copy: Copy;
@@ -17,6 +19,7 @@ type Props = {
 export function MatchScreen({ cow, copy, isVip, speed = 1, onContinue }: Props) {
   const [phase, setPhase] = useState(0);
   const [beamOn, setBeamOn] = useState(false);
+  const [progress, setProgress] = useState(0);
   const sp = Math.max(0.2, speed);
 
   useEffect(() => {
@@ -32,6 +35,24 @@ export function MatchScreen({ cow, copy, isVip, speed = 1, onContinue }: Props) 
       clearTimeout(t4);
     };
   }, [sp]);
+
+  // Auto-dismiss countdown starts when match text appears (phase 3)
+  useEffect(() => {
+    if (phase < 3) return;
+    const start = Date.now();
+    const tick = setInterval(() => {
+      const elapsed = Date.now() - start;
+      const pct = Math.min(1, elapsed / AUTO_DISMISS_MS);
+      setProgress(pct);
+      if (pct >= 1) {
+        clearInterval(tick);
+        onContinue();
+      }
+    }, 50);
+    return () => clearInterval(tick);
+  // onContinue é estável (definida inline no pai), sem necessidade de incluir
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   const ufoX = phase === 0 ? 460 : phase >= 3 ? -460 : 0;
   const ufoTransition =
@@ -130,6 +151,12 @@ export function MatchScreen({ cow, copy, isVip, speed = 1, onContinue }: Props) 
           <span style={{ color: "var(--ink-soft)", fontSize: 13 }}>
             · {cow.breed}
           </span>
+        </div>
+        <div className="fm-match-progress">
+          <div
+            className="fm-match-progress-bar"
+            style={{ transform: `scaleX(${1 - progress})` }}
+          />
         </div>
         <button className="fm-btn fm-cta fm-display" onClick={onContinue}>
           {copy.matchCta}
