@@ -54,13 +54,6 @@ export async function POST(req: Request) {
   const ext = EXT_MAP[detectedType]
   const key = `uploads/${randomUUID()}.${ext}`;
 
-  if (process.env.NODE_ENV === "production" && !process.env.AWS_S3_BUCKET) {
-    return NextResponse.json(
-      { error: "Nave com defeito: S3 não configurado em produção 🛸" },
-      { status: 500 }
-    );
-  }
-
   if (process.env.AWS_S3_BUCKET) {
     const { S3Client, PutObjectCommand } = await import("@aws-sdk/client-s3");
 
