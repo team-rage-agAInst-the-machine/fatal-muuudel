@@ -37,7 +37,7 @@ jobs:
             npx prisma migrate deploy
             npm run build
             pm2 describe fatal-muuudel > /dev/null 2>&1 \
-              && pm2 restart fatal-muuudel --update-env \
+              && pm2 reload fatal-muuudel --update-env \
               || pm2 start /opt/fatal-muuudel/node_modules/.bin/next --name fatal-muuudel -- start
             pm2 save
 
