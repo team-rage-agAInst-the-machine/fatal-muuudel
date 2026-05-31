@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { Prisma } from "@/generated/prisma/client";

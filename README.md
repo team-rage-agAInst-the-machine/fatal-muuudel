@@ -33,6 +33,22 @@ Abra http://localhost:3000.
 
 ---
 
+## Testes
+
+```bash
+# Rodar todos os testes
+npm test
+
+# Modo watch (re-roda ao salvar)
+npm run test:watch
+```
+
+Stack: **Vitest** + **@testing-library/react** + **jsdom**. Os testes vivem em `src/test/`, organizados por `api/`, `components/` e `pages/`.
+
+> Sempre rode `npm test` antes de abrir um PR.
+
+---
+
 ## Estrutura
 
 ```
@@ -51,6 +67,32 @@ src/
     ui/                # componentes shadcn/ui
   generated/prisma/    # client gerado pelo Prisma (gitignored)
 ```
+
+---
+
+## Fotos reais de vacas (Pexels API)
+
+Por padrão o seed usa fotos de fallback do Pexels. Para buscar fotos reais de vacas dinamicamente:
+
+**1. Criar a chave de API**
+
+- Acesse https://www.pexels.com/api/
+- Clique em **Get Started** e crie uma conta
+- Copie a chave gerada
+
+**2. Adicionar no `.env`**
+
+```
+PEXELS_API_KEY="sua-chave-aqui"
+```
+
+**3. Rodar o seed**
+
+```bash
+npx prisma db seed
+```
+
+O seed busca fotos com queries como `"cow farm"`, `"dairy cow"`, `"cattle field"` e popula cada vaca com uma foto real. Os humanos infiltrados mantêm suas fotos fixas. Se a chave não estiver presente ou a API falhar, o seed cai automaticamente para as fotos de fallback.
 
 ---
 

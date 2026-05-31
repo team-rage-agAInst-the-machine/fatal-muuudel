@@ -10,9 +10,7 @@ const nextConfig: NextConfig = {
       ...(s3Bucket
         ? [{ protocol: "https" as const, hostname: `${s3Bucket}.s3.${s3Region}.amazonaws.com` }]
         : []),
-      // Picsum (placeholder das vacas no seed)
-      { protocol: "https", hostname: "picsum.photos" },
-      // Pexels (fotos dos intrusos humanos)
+      // Pexels (fotos das vacas e intrusos humanos)
       { protocol: "https", hostname: "images.pexels.com" },
     ],
   },

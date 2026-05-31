@@ -1,5 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from "zod";
 
@@ -11,7 +13,7 @@ const bodySchema = z.object({
   cowMooLevel: z.number().int().min(0).max(10),
 });
 
-const MOCK_REPLIES = [
+const MUGIDOS_OFFLINE = [
   "Muu mu mumu muuu... (Oi capitão! Que bom que você apareceu, tava com saudade do pasto 😔)",
   "Mooo muu mu! Moo muu muuu! (Recebi seu sinal sim! Aqui no porão tá gelado mas tô bem!)",
   "Muuu... mu moo muu mumu! (Capitão, quando você vai me levar visitar o planeta de vocês?)",
@@ -24,7 +26,7 @@ const MOCK_REPLIES = [
   "Muuu moo mu muu... moooo! (Mandei abraço de volta pra você! Cuida do disco voador tá? 🛸)",
 ];
 
-function mockStream(text: string): ReadableStream {
+function fluxoMugidoMock(text: string): ReadableStream {
   return new ReadableStream({
     start(controller) {
       controller.enqueue(new TextEncoder().encode(text));
@@ -34,7 +36,12 @@ function mockStream(text: string): ReadableStream {
 }
 
 export async function POST(req: Request) {
-  const body = await req.json();
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return Response.json({ error: "Payload invalido" }, { status: 400 });
+  }
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {
     return Response.json({ error: "Dados inválidos" }, { status: 400 });
@@ -44,26 +51,26 @@ export async function POST(req: Request) {
 
   const apiKey = process.env.GOOGLE_AI_API_KEY;
   if (!apiKey) {
-    const reply = MOCK_REPLIES[Math.floor(Math.random() * MOCK_REPLIES.length)];
-    return new Response(mockStream(reply), {
+    const reply = MUGIDOS_OFFLINE[Math.floor(Math.random() * MUGIDOS_OFFLINE.length)];
+    return new Response(fluxoMugidoMock(reply), {
       headers: { "Content-Type": "text/plain; charset=utf-8" },
     });
   }
 
   const session = await auth();
-  let alienCallsign = "Capitão Anônimo";
-  let alienPlanet = "planeta desconhecido";
+  let codinomeET = "Capitão Anônimo";
+  let planetaET = "planeta desconhecido";
 
   if (session?.user?.id) {
     const alien = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: { callsign: true, homePlanet: true },
     });
-    if (alien?.callsign) alienCallsign = alien.callsign;
-    if (alien?.homePlanet) alienPlanet = alien.homePlanet;
+    if (alien?.callsign) codinomeET = alien.callsign;
+    if (alien?.homePlanet) planetaET = alien.homePlanet;
   }
 
-  const systemPrompt = `Você é ${cowName}, uma vaca da raça ${cowBreed} que foi abduzida por ${alienCallsign}, um ET vindo do planeta ${alienPlanet}. Você está no porão da nave espacial, conversando com seu abdutor.
+  const systemPrompt = `Você é ${cowName}, uma vaca da raça ${cowBreed} que foi abduzida por ${codinomeET}, um ET vindo do planeta ${planetaET}. Você está no porão da nave espacial, conversando com seu abdutor.
 
 Sobre você: ${cowBio}
 Expressividade bovine (0-10): ${cowMooLevel}
@@ -113,8 +120,8 @@ Regras absolutas:
       headers: { "Content-Type": "text/plain; charset=utf-8" },
     });
   } catch {
-    const reply = MOCK_REPLIES[Math.floor(Math.random() * MOCK_REPLIES.length)];
-    return new Response(mockStream(reply), {
+    const reply = MUGIDOS_OFFLINE[Math.floor(Math.random() * MUGIDOS_OFFLINE.length)];
+    return new Response(fluxoMugidoMock(reply), {
       headers: { "Content-Type": "text/plain; charset=utf-8" },
     });
   }

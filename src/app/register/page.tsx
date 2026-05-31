@@ -157,7 +157,15 @@ export default function RegisterPage() {
     const { email, password } = step1;
     setS1("password", "");
 
-    const login = await signIn("credentials", { email, password, redirect: false });
+    let login: Awaited<ReturnType<typeof signIn>> | null = null;
+    try {
+      login = await signIn("credentials", { email, password, redirect: false });
+    } catch {
+      setLoading(false);
+      setServerError("Conta criada! Mas a nave travou no login 🛸");
+      setQuote(randomQuote());
+      return;
+    }
 
     // Upload photo após o login — o endpoint requer auth
     if (login && !login.error && !skip && photoFile) {

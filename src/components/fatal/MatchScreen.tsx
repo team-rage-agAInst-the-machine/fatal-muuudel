@@ -6,6 +6,8 @@ import { Saucer } from "./Saucer";
 import { Starfield } from "./Starfield";
 import { CowCard } from "./CowCard";
 
+const RAIO_EXPIRA_EM_MS = 5000;
+
 type Props = {
   cow: Cow;
   copy: Copy;
@@ -16,13 +18,14 @@ type Props = {
 
 export function MatchScreen({ cow, copy, isVip, speed = 1, onContinue }: Props) {
   const [phase, setPhase] = useState(0);
-  const [beamOn, setBeamOn] = useState(false);
+  const [raioAtivo, setRaioAtivo] = useState(false);
+  const [progress, setProgress] = useState(0);
   const sp = Math.max(0.2, speed);
 
   useEffect(() => {
     // UFO enters at 80ms, 700ms transition → centered at ~780ms; beam fires 50ms after
     const t1 = setTimeout(() => setPhase(1), 80 / sp);
-    const t2 = setTimeout(() => setBeamOn(true), 830 / sp);
+    const t2 = setTimeout(() => setRaioAtivo(true), 830 / sp);
     const t3 = setTimeout(() => setPhase(2), 1200 / sp);
     const t4 = setTimeout(() => setPhase(3), 1800 / sp);
     return () => {
@@ -32,6 +35,24 @@ export function MatchScreen({ cow, copy, isVip, speed = 1, onContinue }: Props) 
       clearTimeout(t4);
     };
   }, [sp]);
+
+  // Auto-dismiss countdown starts when match text appears (phase 3)
+  useEffect(() => {
+    if (phase < 3) return;
+    const start = Date.now();
+    const tick = setInterval(() => {
+      const elapsed = Date.now() - start;
+      const pct = Math.min(1, elapsed / RAIO_EXPIRA_EM_MS);
+      setProgress(pct);
+      if (pct >= 1) {
+        clearInterval(tick);
+        onContinue();
+      }
+    }, 50);
+    return () => clearInterval(tick);
+  // onContinue é estável (definida inline no pai), sem necessidade de incluir
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   const ufoX = phase === 0 ? 460 : phase >= 3 ? -460 : 0;
   const ufoTransition =
@@ -75,7 +96,7 @@ export function MatchScreen({ cow, copy, isVip, speed = 1, onContinue }: Props) 
           <div
             className="fm-beam"
             style={{
-              opacity: beamOn && phase < 3 ? 1 : 0,
+              opacity: raioAtivo && phase < 3 ? 1 : 0,
               transition: `opacity ${300 / sp}ms ease`,
             }}
           />
@@ -130,6 +151,12 @@ export function MatchScreen({ cow, copy, isVip, speed = 1, onContinue }: Props) 
           <span style={{ color: "var(--ink-soft)", fontSize: 13 }}>
             · {cow.breed}
           </span>
+        </div>
+        <div className="fm-match-progress">
+          <div
+            className="fm-match-progress-bar"
+            style={{ transform: `scaleX(${1 - progress})` }}
+          />
         </div>
         <button className="fm-btn fm-cta fm-display" onClick={onContinue}>
           {copy.matchCta}

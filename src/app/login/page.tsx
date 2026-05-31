@@ -43,11 +43,19 @@ export default function LoginPage() {
     }
 
     setLoading(true);
-    const res = await signIn("credentials", {
-      email: fields.email,
-      password: fields.password,
-      redirect: false,
-    });
+    let res: Awaited<ReturnType<typeof signIn>> | null = null;
+    try {
+      res = await signIn("credentials", {
+        email: fields.email,
+        password: fields.password,
+        redirect: false,
+      });
+    } catch {
+      setLoading(false);
+      setServerError("Nave com defeito, tenta de novo 🛸");
+      setQuote(randomQuote());
+      return;
+    }
     setLoading(false);
 
     if (res?.error) {
