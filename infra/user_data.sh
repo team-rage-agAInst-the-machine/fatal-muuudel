@@ -78,8 +78,8 @@ sudo -u ec2-user bash -c "
   set -a; source /etc/fatal-muuudel.env; set +a
   npm ci
   ./node_modules/.bin/prisma generate
-  : $${DATABASE_URL_MIGRATE:?DATABASE_URL_MIGRATE nao definida no .env}
-  DATABASE_URL=$${DATABASE_URL_MIGRATE} ./node_modules/.bin/prisma migrate deploy
+  : \$${DATABASE_URL_MIGRATE:?DATABASE_URL_MIGRATE nao definida no .env}
+  DATABASE_URL=\$${DATABASE_URL_MIGRATE} ./node_modules/.bin/prisma migrate deploy
   npm run build
 "
 
