@@ -19,6 +19,7 @@ type CowSeed = {
   tags: string[];
   bio: string;
   photoUrl: string;
+  isHuman?: boolean;
 };
 
 const cows: CowSeed[] = [
@@ -142,6 +143,39 @@ const cows: CowSeed[] = [
     tags: ["Dramática", "Diva do curral", "Pose pra foto"],
     bio: "Se for me abduzir, que seja com raio trator de qualidade. Tenho padrão. 💅",
     photoUrl: "https://picsum.photos/seed/carminha/400/500",
+  },
+  // ⚠️ Intrusos — humanos disfarçados de vaca
+  {
+    id: "joao-da-fazenda",
+    name: "João da Fazenda",
+    age: 34,
+    breed: "Humano (nega muito)",
+    farm: "Não sei, uma fazenda aí",
+    weightKg: 78,
+    milkPct: 0,
+    mooLevel: 2,
+    distance: "1,8 km (foi de carro)",
+    hue: 30,
+    tags: ["Usa boné", "Fala português", "Não rumina"],
+    bio: "MUU. Sou vaca sim. Não tenho medo de nada. Por favor não me abduz... digo, abduz à vontade! MUUUU.",
+    photoUrl: "https://images.pexels.com/photos/10899302/pexels-photo-10899302.jpeg",
+    isHuman: true,
+  },
+  {
+    id: "fernanda-pasto",
+    name: "Fernanda do Pasto",
+    age: 28,
+    breed: "Jersey (acredite em mim)",
+    farm: "Sítio Suspeito",
+    weightKg: 62,
+    milkPct: 3,
+    mooLevel: 1,
+    distance: "Bem pertinho mesmo",
+    hue: 45,
+    tags: ["Totalmente vaca", "Não é humana", "Tem cascos (são botas)"],
+    bio: "Oi moo olá. Adoro comer capim e fazer coisas de vaca. Definitivamente não sou repórter investigando abdução extraterrestre.",
+    photoUrl: "https://images.pexels.com/photos/30792475/pexels-photo-30792475.jpeg",
+    isHuman: true,
   },
 ];
 

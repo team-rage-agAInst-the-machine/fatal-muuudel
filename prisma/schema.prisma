@@ -99,6 +99,7 @@ model Cow {
   tags      String[]
   bio       String
   photoUrl  String?
+  isHuman   Boolean  @default(false)
   createdAt DateTime @default(now())
 
   swipes     Swipe[]

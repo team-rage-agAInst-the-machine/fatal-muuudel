@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
         : []),
       // Picsum (placeholder das vacas no seed)
       { protocol: "https", hostname: "picsum.photos" },
+      // Pexels (fotos dos intrusos humanos)
+      { protocol: "https", hostname: "images.pexels.com" },
     ],
   },
   experimental: {
