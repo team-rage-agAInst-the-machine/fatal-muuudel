@@ -44,3 +44,37 @@ jobs:
 
       - name: 🚀 Aplicando missão (terraform apply)
         run: terraform apply -auto-approve tfplan
+
+  deploy:
+    name: 🛸 Enviando tripulação para a nave
+    runs-on: ubuntu-latest
+    needs: terraform
+
+    steps:
+      - name: 🛸 Abduzindo o código...
+        uses: actions/checkout@v4
+
+      - name: 🚀 Deployando na EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            cd /opt/fatal-muuudel
+            git pull origin main
+            set -a; source /etc/fatal-muuudel.env; set +a
+            rm -rf node_modules .next
+            npm ci
+            npx prisma generate
+            DATABASE_URL="${DATABASE_URL_MIGRATE:-$DATABASE_URL}" npx prisma migrate deploy
+            npm run build
+            pm2 describe fatal-muuudel > /dev/null 2>&1 \
+              && pm2 reload fatal-muuudel --update-env \
+              || pm2 start /opt/fatal-muuudel/node_modules/.bin/next --name fatal-muuudel -- start
+            pm2 save
+
+      - name: ✅ Missão cumprida
+        if: success()
+        run: echo "🛸 Deploy concluído! A frota está no ar em https://fatalmuuudel.com"
