@@ -6,6 +6,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { authConfig } from "@/auth.config";
 
+const DUMMY_HASH = "$2b$12$LKqGRinMwhY2ADRyR7hAJuRQCHKsLBRf7HVW.Q7BEYXy1FkCMnboe"
+
 const credentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
@@ -17,8 +19,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   logger: {
     error(err) {
-      if (err.name === "CredentialsSignin") return;
-      console.error(err);
+      if (err.name === "CredentialsSignin") {
+        console.warn("🛸 [auth] sinal de identificação ET inválido — acesso negado ao disco")
+        return
+      }
+      console.error("💥 [auth] falha crítica no sistema de autenticação interestelar:", err)
     },
   },
   providers: [
@@ -34,7 +39,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const { email, password } = parsed.data;
         const user = await prisma.user.findUnique({ where: { email } });
-        if (!user?.password) return null;
+        if (!user?.password) {
+          await bcrypt.compare(password, DUMMY_HASH)
+          return null
+        }
 
         const ok = await bcrypt.compare(password, user.password);
         if (!ok) return null;

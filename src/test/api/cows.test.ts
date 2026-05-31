@@ -54,27 +54,14 @@ describe("GET /api/cows", () => {
     mockMissaoAtiva.mockResolvedValue(null); // sem missão ativa → matchmaking usa defaults
   });
 
-  it("retorna 200 com cows[] e hasRejected quando não autenticado", async () => {
+  it("retorna 401 quando não autenticado", async () => {
     mockAutET.mockResolvedValue(null);
-    mockBuscarVacas.mockResolvedValue([VACA_PADRAO]);
 
     const res = await GET(makeRequest());
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(401);
     const data = await res.json();
-    expect(data).toHaveProperty("cows");
-    expect(data).toHaveProperty("hasRejected");
-    expect(data.hasRejected).toBe(false);
-    expect(Array.isArray(data.cows)).toBe(true);
-  });
-
-  it("não consulta swipes quando não autenticado", async () => {
-    mockAutET.mockResolvedValue(null);
-    mockBuscarVacas.mockResolvedValue([VACA_PADRAO]);
-
-    await GET(makeRequest());
-
-    expect(mockBuscarDecisoes).not.toHaveBeenCalled();
+    expect(data.error).toBe("Unauthorized");
   });
 
   it("exclui vacas já swipadas (LIKE, SUPER e PASS) da lista retornada no range padrão", async () => {

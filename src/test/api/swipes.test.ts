@@ -9,7 +9,6 @@ const mockSwipeUpsert = vi.fn();
 const mockSwipeDeleteMany = vi.fn();
 const mockAbductionUpsert = vi.fn();
 const mockAbductionDeleteMany = vi.fn();
-
 const mockCowFindUnique = vi.fn();
 const mockUserFindUnique = vi.fn();
 
@@ -56,8 +55,7 @@ describe("POST /api/swipes", () => {
     mockUserFindUnique.mockReset();
     mockSwipeUpsert.mockResolvedValue({});
     mockAbductionUpsert.mockResolvedValue({});
-    // Default: vaca sem proteção especial, ET sem toalha
-    mockCowFindUnique.mockResolvedValue({ protectionLevel: "CAMPESTRE", desprevenida: false });
+    mockCowFindUnique.mockResolvedValue({ id: "mimosa", protectionLevel: "CAMPESTRE", desprevenida: false });
     mockUserFindUnique.mockResolvedValue({ towelStatus: null });
   });
 
@@ -75,6 +73,15 @@ describe("POST /api/swipes", () => {
     expect(res.status).toBe(400);
     const data = await res.json();
     expect(data.error).toBe("Invalid payload");
+  });
+
+  it("retorna 404 quando cowId não existe", async () => {
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockCowFindUnique.mockResolvedValue(null);
+    const res = await POST(makePostRequest({ cowId: "vaca-inexistente", direction: "like" }));
+    expect(res.status).toBe(404);
+    const data = await res.json();
+    expect(data.error).toBe("Vaca não encontrada");
   });
 
   it("LIKE cria Swipe + Abduction com status PLANNED (upsert)", async () => {
@@ -174,7 +181,8 @@ describe("POST /api/swipes", () => {
     mockUserFindUnique.mockResolvedValue({ towelStatus: null });
     const res = await POST(makePostRequest({ cowId: "clarabelle", direction: "nope" }));
     expect(res.status).toBe(200);
-    expect(mockCowFindUnique).not.toHaveBeenCalled();
+    expect(mockCowFindUnique).toHaveBeenCalled();
+    expect(mockUserFindUnique).not.toHaveBeenCalled();
   });
 
   // A rota não possui try/catch em torno das chamadas ao banco — erros de DB propagam

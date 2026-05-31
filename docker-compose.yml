@@ -4,11 +4,15 @@ services:
     container_name: fatal-muuudel-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: fatal
-      POSTGRES_PASSWORD: muuudel
-      POSTGRES_DB: fatal_muuudel
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${POSTGRES_USER:-fatal}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-muuudel}
+      POSTGRES_DB: ${POSTGRES_DB:-fatal_muuudel}
+    # Porta 5432 não exposta no host por padrão (segurança).
+    # Para desenvolvimento local: crie docker-compose.override.yml com:
+    # services:
+    #   postgres:
+    #     ports:
+    #       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:

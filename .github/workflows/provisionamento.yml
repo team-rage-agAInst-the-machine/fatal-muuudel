@@ -3,13 +3,22 @@ name: 🪐 Provisionamento Galáctico
 on:
   push:
     branches: [main]
-    paths:
-      - 'infra/**'
+  workflow_dispatch:
+    inputs:
+      recreate_ec2:
+        description: 'Recria a EC2 do zero (terraform taint na instância). Mantém o RDS e o Elastic IP — o IP público não muda.'
+        type: boolean
+        default: false
+
+permissions:
+  actions: write
 
 jobs:
   terraform:
     name: 🛸 Terraformando o universo
     runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
 
     defaults:
       run:
@@ -19,10 +28,44 @@ jobs:
       - name: 🛸 Abduzindo o código...
         uses: actions/checkout@v4
 
+      - name: 🔍 Decidindo se roda o Terraform
+        id: check
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RECREATE: ${{ inputs.recreate_ec2 }}
+          SHA_BEFORE: ${{ github.event.before }}
+          SHA_NOW: ${{ github.sha }}
+        run: |
+          # Disparo manual pedindo recriação → roda direto, sem tocar em git diff
+          # (em workflow_dispatch o SHA_BEFORE não existe e o diff falharia).
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            if [ "$RECREATE" = "true" ]; then
+              echo "should_run=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "should_run=false" >> "$GITHUB_OUTPUT"
+            fi
+            exit 0
+          fi
+
+          # Push: roda só se algo em infra/ mudou. Tolera SHA_BEFORE ausente
+          # (ex: primeiro push de um branch) tratando como "mudou".
+          if [ -z "$SHA_BEFORE" ] || ! git cat-file -e "$SHA_BEFORE^{commit}" 2>/dev/null; then
+            CHANGED=$(git diff --name-only "${SHA_NOW}^" "$SHA_NOW" 2>/dev/null || echo "infra/")
+          else
+            CHANGED=$(git diff --name-only "$SHA_BEFORE" "$SHA_NOW")
+          fi
+          if echo "$CHANGED" | grep -q '^infra/'; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: 🔧 Configurando Terraform
+        if: steps.check.outputs.should_run == 'true'
         uses: hashicorp/setup-terraform@v3
 
       - name: 🔑 Configurando credenciais AWS
+        if: steps.check.outputs.should_run == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -30,12 +73,29 @@ jobs:
           aws-region: us-east-1
 
       - name: 🌌 Inicializando nave (terraform init)
+        if: steps.check.outputs.should_run == 'true'
         run: terraform init
 
+      - name: 💥 Marcando EC2 para recriação (taint)
+        if: steps.check.outputs.should_run == 'true' && inputs.recreate_ec2 == true
+        run: |
+          # taint só da instância — o Elastic IP é recurso separado e será
+          # re-associado, então o IP público (e o DNS) não muda.
+          # `|| true` evita falha se já estiver tainted ou ausente do state.
+          terraform taint aws_instance.app || true
+
       - name: 🔍 Verificando rota estelar (terraform plan)
+        if: steps.check.outputs.should_run == 'true'
+        env:
+          # allowed_ssh_cidrs é list(string). Passar via -var no shell é frágil
+          # (as aspas/colchetes se perdem → "Invalid number literal"). Montamos a
+          # lista JSON aqui e entregamos via TF_VAR_, que o Terraform parseia como HCL.
+          # A Secret guarda só o CIDR puro, ex: 0.0.0.0/0
+          TF_VAR_allowed_ssh_cidrs: '["${{ secrets.TF_VAR_ALLOWED_SSH_CIDRS }}"]'
         run: |
           terraform plan \
             -var="db_password=${{ secrets.TF_VAR_DB_PASSWORD }}" \
+            -var="db_migrator_password=${{ secrets.TF_VAR_DB_MIGRATOR_PASSWORD }}" \
             -var="auth_secret=${{ secrets.TF_VAR_AUTH_SECRET }}" \
             -var="key_pair_name=${{ secrets.TF_VAR_KEY_PAIR_NAME }}" \
             -var="github_repo=${{ secrets.TF_VAR_GITHUB_REPO }}" \
@@ -43,4 +103,15 @@ jobs:
             -out=tfplan
 
       - name: 🚀 Aplicando missão (terraform apply)
+        if: steps.check.outputs.should_run == 'true'
         run: terraform apply -auto-approve tfplan
+
+      - name: 🛸 Disparando deploy
+        # Só em push (fluxo de deploy contínuo de código). Ao RECRIAR a EC2 o
+        # próprio user_data já faz npm ci + migrate + build + start, então
+        # disparar o deploy aqui criaria uma corrida com o user_data ainda em
+        # execução na instância nova.
+        if: github.event_name == 'push'
+        run: gh workflow run deploy.yml --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

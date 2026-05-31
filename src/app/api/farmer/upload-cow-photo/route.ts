@@ -1,0 +1,63 @@
+import { NextResponse } from "next/server";
+import { randomUUID } from "crypto";
+import { auth } from "@/auth";
+
+const FARMER_EMAIL = "erick.szns@gmail.com";
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_BYTES = 5 * 1024 * 1024;
+
+export async function POST(req: Request) {
+  const session = await auth();
+  if (session?.user?.email !== FARMER_EMAIL) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const formData = await req.formData();
+  const file = formData.get("file") as File | null;
+
+  if (!file) {
+    return NextResponse.json({ error: "Nenhum arquivo enviado" }, { status: 400 });
+  }
+
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return NextResponse.json({ error: "Tipo de arquivo não suportado. Use JPG, PNG ou WebP." }, { status: 400 });
+  }
+
+  if (file.size > MAX_BYTES) {
+    return NextResponse.json({ error: "Arquivo muito grande. Máximo 5MB." }, { status: 400 });
+  }
+
+  const ext = file.type.split("/")[1].replace("jpeg", "jpg");
+  const filename = `${randomUUID()}.${ext}`;
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  if (process.env.NODE_ENV === "production" && !process.env.AWS_S3_BUCKET) {
+    return NextResponse.json(
+      { error: "Nave com defeito: S3 não configurado em produção 🛸" },
+      { status: 500 }
+    );
+  }
+
+  if (process.env.AWS_S3_BUCKET) {
+    const { S3Client, PutObjectCommand } = await import("@aws-sdk/client-s3");
+
+    const s3 = new S3Client({ region: process.env.AWS_REGION ?? "us-east-1" });
+    const key = `cows/${filename}`;
+
+    await s3.send(new PutObjectCommand({
+      Bucket: process.env.AWS_S3_BUCKET,
+      Key: key,
+      Body: buffer,
+      ContentType: file.type,
+    }));
+
+    const url = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION ?? "us-east-1"}.amazonaws.com/${key}`;
+    return NextResponse.json({ url });
+  }
+
+  // Fallback local para desenvolvimento
+  const { writeFile } = await import("fs/promises");
+  const path = await import("path");
+  await writeFile(path.join(process.cwd(), "public", "uploads", filename), buffer);
+  return NextResponse.json({ url: `/uploads/${filename}` });
+}

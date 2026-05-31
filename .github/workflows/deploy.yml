@@ -1,10 +1,7 @@
 name: 🚀 Deploy Intergaláctico
 
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - 'infra/**'
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -22,17 +19,21 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            set -euo pipefail
             cd /opt/fatal-muuudel
+            git checkout -- .
             git pull origin main
-            export $(cat /etc/fatal-muuudel.env | xargs)
+            set -a; source /etc/fatal-muuudel.env; set +a
             rm -rf node_modules .next
-            npm install
+            npm ci
             npx prisma generate
-            npx prisma migrate deploy
+            : "${DATABASE_URL_MIGRATE:?DATABASE_URL_MIGRATE não definida — adicione o secret TF_VAR_DB_MIGRATOR_PASSWORD e reprovisiione a EC2}"
+            DATABASE_URL="$DATABASE_URL_MIGRATE" npx prisma migrate deploy
             npm run build
             pm2 describe fatal-muuudel > /dev/null 2>&1 \
               && pm2 reload fatal-muuudel --update-env \
-              || pm2 start npm --name "fatal-muuudel" -- start
+              || pm2 start npm --name fatal-muuudel --cwd /opt/fatal-muuudel --update-env -- start
+            pm2 save
 
       - name: ✅ Missão cumprida
         if: success()

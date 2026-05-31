@@ -35,6 +35,10 @@ const mockCow = {
   isHuman: false,
 };
 
+function makeRequest(url = "http://localhost/api/abductions") {
+  return new Request(url, { method: "GET" });
+}
+
 describe("GET /api/abductions", () => {
   beforeEach(() => {
     mockAutET.mockReset();
@@ -44,7 +48,7 @@ describe("GET /api/abductions", () => {
 
   it("retorna 401 quando não autenticado", async () => {
     mockAutET.mockResolvedValue(null);
-    const res = await GET();
+    const res = await GET(makeRequest());
     expect(res.status).toBe(401);
     const data = await res.json();
     expect(data.error).toBeDefined();
@@ -55,13 +59,13 @@ describe("GET /api/abductions", () => {
     mockAbductionFindMany.mockResolvedValue([]);
     mockBuscarDecisoes.mockResolvedValue([]);
 
-    const res = await GET();
+    const res = await GET(makeRequest());
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.abductions).toEqual([]);
   });
 
-  it("retorna lista com cow incluída (include: { cow: true })", async () => {
+  it("retorna lista com cow incluída (include com select explícito)", async () => {
     mockAutET.mockResolvedValue(SESSAO_ET);
     mockAbductionFindMany.mockResolvedValue([
       { cowId: "cow-1", cow: mockCow, createdAt: new Date("2025-01-01") },
@@ -70,22 +74,40 @@ describe("GET /api/abductions", () => {
       { cowId: "cow-1", direction: "LIKE" },
     ] as never);
 
-    const res = await GET();
+    const res = await GET(makeRequest());
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.abductions).toHaveLength(1);
     expect(data.abductions[0].cow).toMatchObject({ id: "cow-1", name: "Mimosa" });
   });
 
-  it("busca abduções com include: { cow: true }", async () => {
+  it("busca abduções com include usando select explícito nos campos da vaca", async () => {
     mockAutET.mockResolvedValue(SESSAO_ET);
     mockAbductionFindMany.mockResolvedValue([]);
     mockBuscarDecisoes.mockResolvedValue([]);
 
-    await GET();
+    await GET(makeRequest());
 
     expect(mockAbductionFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ include: { cow: true } })
+      expect.objectContaining({
+        include: {
+          cow: {
+            select: expect.objectContaining({
+              id: true,
+              name: true,
+              photoUrl: true,
+              breed: true,
+              bio: true,
+              mooLevel: true,
+              tags: true,
+              hue: true,
+              distance: true,
+              age: true,
+              isHuman: true,
+            }),
+          },
+        },
+      })
     );
   });
 
@@ -94,7 +116,7 @@ describe("GET /api/abductions", () => {
     mockAbductionFindMany.mockResolvedValue([]);
     mockBuscarDecisoes.mockResolvedValue([]);
 
-    await GET();
+    await GET(makeRequest());
 
     expect(mockAbductionFindMany).toHaveBeenCalledWith(
       expect.objectContaining({ orderBy: { createdAt: "desc" } })
@@ -116,7 +138,7 @@ describe("GET /api/abductions", () => {
       { cowId: "cow-1", direction: "SUPER" },
     ] as never);
 
-    const res = await GET();
+    const res = await GET(makeRequest());
     const data = await res.json();
     expect(data.abductions[0].vip).toBe(true);
   });
@@ -130,7 +152,7 @@ describe("GET /api/abductions", () => {
       { cowId: "cow-1", direction: "LIKE" },
     ] as never);
 
-    const res = await GET();
+    const res = await GET(makeRequest());
     const data = await res.json();
     expect(data.abductions[0].vip).toBe(false);
   });
@@ -142,7 +164,7 @@ describe("GET /api/abductions", () => {
     ] as never);
     mockBuscarDecisoes.mockResolvedValue([] as never);
 
-    const res = await GET();
+    const res = await GET(makeRequest());
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.abductions[0].vip).toBe(false);
@@ -160,7 +182,7 @@ describe("GET /api/abductions", () => {
       { cowId: "cow-2", direction: "LIKE" },
     ] as never);
 
-    const res = await GET();
+    const res = await GET(makeRequest());
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data).toHaveProperty("abductions");
@@ -168,5 +190,29 @@ describe("GET /api/abductions", () => {
     expect(data.abductions).toHaveLength(2);
     expect(data.abductions[0].vip).toBe(true);
     expect(data.abductions[1].vip).toBe(false);
+  });
+
+  it("retorna page e pageSize no response", async () => {
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockAbductionFindMany.mockResolvedValue([]);
+    mockBuscarDecisoes.mockResolvedValue([]);
+
+    const res = await GET(makeRequest());
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.page).toBe(1);
+    expect(data.pageSize).toBe(50);
+  });
+
+  it("?page=2 passa skip correto para o findMany", async () => {
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockAbductionFindMany.mockResolvedValue([]);
+    mockBuscarDecisoes.mockResolvedValue([]);
+
+    await GET(makeRequest("http://localhost/api/abductions?page=2"));
+
+    expect(mockAbductionFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 50, take: 50 })
+    );
   });
 });

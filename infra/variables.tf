@@ -16,7 +16,13 @@ variable "db_username" {
 }
 
 variable "db_password" {
-  description = "Senha do banco RDS"
+  description = "Senha do banco RDS (usuário fatal_app — só DML)"
+  type        = string
+  sensitive   = true
+}
+
+variable "db_migrator_password" {
+  description = "Senha do usuário fatal_migrator — DDL, usado só pelo prisma migrate"
   type        = string
   sensitive   = true
 }
@@ -28,9 +34,9 @@ variable "auth_secret" {
 }
 
 variable "app_url" {
-  description = "URL pública da app (ex: http://1.2.3.4). Usado como AUTH_URL."
+  description = "URL pública da app. Usado como AUTH_URL."
   type        = string
-  default     = "" # será preenchido depois com o Elastic IP
+  default     = "https://fatalmuuudel.com"
 }
 
 variable "github_repo" {
@@ -42,4 +48,9 @@ variable "domain" {
   description = "Domínio da aplicação (ex: fatalmuuudel.com)"
   type        = string
   default     = "fatalmuuudel.com"
+}
+
+variable "allowed_ssh_cidrs" {
+  description = "CIDRs permitidos para acesso SSH à EC2. Use o IP da equipe ou range da VPN. NÃO use 0.0.0.0/0 em produção."
+  type        = list(string)
 }
