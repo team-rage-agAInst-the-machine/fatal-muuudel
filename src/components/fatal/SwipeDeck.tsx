@@ -23,7 +23,7 @@ export function SwipeDeck({ cows, current, copy, onDecide, handleRef }: Props) {
   const stampRef = useRef<HTMLDivElement | null>(null);
   const state = useRef({ down: false, x0: 0, y0: 0, dx: 0, dy: 0, busy: false });
 
-  const visible = cows.slice(current, current + 3);
+  const gadoVisivel = cows.slice(current, current + 3);
 
   const setStamps = (dx: number, dy: number) => {
     const el = stampRef.current;
@@ -48,7 +48,7 @@ export function SwipeDeck({ cows, current, copy, onDecide, handleRef }: Props) {
     c.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx * 0.05}deg)`;
   };
 
-  const flyOut = (dir: SwipeDir) => {
+  const abduzir = (dir: SwipeDir) => {
     if (state.current.busy) return;
     state.current.busy = true;
     const c = dragRef.current;
@@ -89,15 +89,15 @@ export function SwipeDeck({ cows, current, copy, onDecide, handleRef }: Props) {
     state.current.down = false;
     const { dx, dy } = state.current;
     if (dy < -130 && Math.abs(dy) > Math.abs(dx)) {
-      flyOut("super");
+      abduzir("super");
       return;
     }
     if (dx > 115) {
-      flyOut("like");
+      abduzir("like");
       return;
     }
     if (dx < -115) {
-      flyOut("nope");
+      abduzir("nope");
       return;
     }
     apply(0, 0, true);
@@ -113,9 +113,9 @@ export function SwipeDeck({ cows, current, copy, onDecide, handleRef }: Props) {
           c.style.transition = "transform .12s";
           c.style.transform = `translate(${dir === "like" ? 40 : -40}px,0) rotate(${dir === "like" ? 4 : -4}deg)`;
           setStamps(dir === "like" ? 60 : -60, 0);
-          setTimeout(() => flyOut(dir), 90);
+          setTimeout(() => abduzir(dir), 90);
         } else {
-          flyOut(dir);
+          abduzir(dir);
         }
       },
     }),
@@ -137,11 +137,11 @@ export function SwipeDeck({ cows, current, copy, onDecide, handleRef }: Props) {
   return (
     <>
       <div className="fm-deck" onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={onUp}>
-        {visible
+        {gadoVisivel
           .slice()
           .reverse()
           .map((cow) => {
-            const depth = visible.indexOf(cow);
+            const depth = gadoVisivel.indexOf(cow);
             const isTop = depth === 0;
             const scale = 1 - depth * 0.045;
             const ty = depth * 14;
@@ -171,10 +171,10 @@ export function SwipeDeck({ cows, current, copy, onDecide, handleRef }: Props) {
       </div>
 
       <div className="fm-actions">
-        <button className="fm-pill nope" onClick={() => flyOut("nope")}>
+        <button className="fm-pill nope" onClick={() => abduzir("nope")}>
           <span className="fm-pill-label">{copy.nope}</span>
         </button>
-        <button className="fm-pill like" onClick={() => flyOut("like")}>
+        <button className="fm-pill like" onClick={() => abduzir("like")}>
           <span className="fm-pill-label">{copy.like}</span>
         </button>
       </div>
