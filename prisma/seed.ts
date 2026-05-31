@@ -336,8 +336,8 @@ const TAMANHO_REBANHO = 18; // vacas reais (sem os humanos infiltrados)
 
 async function buscarFotosDoRebanho(): Promise<string[]> {
   // Usa cache se já tiver fotos suficientes
-  if (fs.existsSync(PHOTOS_CACHE)) {
-    const cached: string[] = JSON.parse(fs.readFileSync(PHOTOS_CACHE, "utf-8"));
+  if (fs.existsSync(CACHE_FOTOS)) {
+    const cached: string[] = JSON.parse(fs.readFileSync(CACHE_FOTOS, "utf-8"));
     if (cached.length >= TAMANHO_REBANHO) {
       console.log(`📸 Usando ${cached.length} fotos em cache (prisma/cow-photos.json).`);
       return cached;
@@ -396,7 +396,7 @@ async function main() {
       create: cow,
     });
   }
-  console.log(`Seeded ${cowsWithPhotos.length} cows. 🛸🐄`);
+  console.log(`Seeded ${rebanhoComFotos.length} cows. 🛸🐄`);
 }
 
 main()
