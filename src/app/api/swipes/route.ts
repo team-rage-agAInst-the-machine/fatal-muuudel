@@ -1,12 +1,18 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { SwipeDirection } from "@/generated/prisma/client";
+import { z } from "zod";
 
 const DIR_MAP: Record<string, SwipeDirection> = {
   like: SwipeDirection.LIKE,
   nope: SwipeDirection.PASS,
   super: SwipeDirection.SUPER,
 };
+
+const swipeSchema = z.object({
+  cowId: z.string().min(1),
+  direction: z.enum(["like", "nope", "super"]),
+});
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -15,11 +21,12 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { cowId, direction } = body as { cowId: string; direction: string };
+  const parsed = swipeSchema.safeParse(body);
+  if (!parsed.success) return Response.json({ error: "Invalid payload" }, { status: 400 });
+  const { cowId, direction } = parsed.data;
 
-  if (!cowId || !direction || !DIR_MAP[direction]) {
-    return Response.json({ error: "Invalid payload" }, { status: 400 });
-  }
+  const cow = await prisma.cow.findUnique({ where: { id: cowId } });
+  if (!cow) return Response.json({ error: "Vaca não encontrada" }, { status: 404 });
 
   const prismaDirection = DIR_MAP[direction];
 

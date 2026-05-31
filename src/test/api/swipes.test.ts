@@ -9,12 +9,14 @@ const mockSwipeUpsert = vi.fn();
 const mockSwipeDeleteMany = vi.fn();
 const mockAbductionUpsert = vi.fn();
 const mockAbductionDeleteMany = vi.fn();
+const mockCowFindUnique = vi.fn();
 
 vi.mock("@/auth", () => ({ auth: vi.fn() }));
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     swipe: { upsert: mockSwipeUpsert, deleteMany: mockSwipeDeleteMany },
     abduction: { upsert: mockAbductionUpsert, deleteMany: mockAbductionDeleteMany },
+    cow: { findUnique: mockCowFindUnique },
   },
 }));
 
@@ -47,8 +49,10 @@ describe("POST /api/swipes", () => {
     mockAbductionUpsert.mockReset();
     mockSwipeDeleteMany.mockReset();
     mockAbductionDeleteMany.mockReset();
+    mockCowFindUnique.mockReset();
     mockSwipeUpsert.mockResolvedValue({});
     mockAbductionUpsert.mockResolvedValue({});
+    mockCowFindUnique.mockResolvedValue({ id: "mimosa" });
   });
 
   it("retorna 401 quando não autenticado", async () => {
@@ -65,6 +69,15 @@ describe("POST /api/swipes", () => {
     expect(res.status).toBe(400);
     const data = await res.json();
     expect(data.error).toBe("Invalid payload");
+  });
+
+  it("retorna 404 quando cowId não existe", async () => {
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockCowFindUnique.mockResolvedValue(null);
+    const res = await POST(makePostRequest({ cowId: "vaca-inexistente", direction: "like" }));
+    expect(res.status).toBe(404);
+    const data = await res.json();
+    expect(data.error).toBe("Vaca não encontrada");
   });
 
   it("LIKE cria Swipe + Abduction com status PLANNED (upsert)", async () => {

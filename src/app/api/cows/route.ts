@@ -4,40 +4,36 @@ import { prisma } from "@/lib/prisma";
 const INITIAL_RANGE = 50;
 
 export async function GET(request: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
-  const range = Number(searchParams.get("range") ?? INITIAL_RANGE);
+  const range = Math.min(Math.max(1, Number(searchParams.get("range") ?? INITIAL_RANGE)), 100);
   const expanded = range > INITIAL_RANGE;
 
-  const session = await auth();
+  const allSwipes = await prisma.swipe.findMany({
+    where: { alienId: session.user.id },
+    select: { cowId: true, direction: true },
+  });
 
-  let cows;
-  let hasRejected = false;
+  const abductedIds = allSwipes
+    .filter((s) => s.direction === "LIKE" || s.direction === "SUPER")
+    .map((s) => s.cowId);
 
-  if (session?.user?.id) {
-    const allSwipes = await prisma.swipe.findMany({
-      where: { alienId: session.user.id },
-      select: { cowId: true, direction: true },
-    });
+  const passedIds = allSwipes
+    .filter((s) => s.direction === "PASS")
+    .map((s) => s.cowId);
 
-    const abductedIds = allSwipes
-      .filter((s) => s.direction === "LIKE" || s.direction === "SUPER")
-      .map((s) => s.cowId);
+  const hasRejected = passedIds.length > 0;
 
-    const passedIds = allSwipes
-      .filter((s) => s.direction === "PASS")
-      .map((s) => s.cowId);
+  const excludeIds = expanded ? abductedIds : [...abductedIds, ...passedIds];
 
-    hasRejected = passedIds.length > 0;
-
-    const excludeIds = expanded ? abductedIds : [...abductedIds, ...passedIds];
-
-    cows = await prisma.cow.findMany({
-      where: { id: { notIn: excludeIds } },
-      orderBy: { createdAt: "asc" },
-    });
-  } else {
-    cows = await prisma.cow.findMany({ orderBy: { createdAt: "asc" } });
-  }
+  const cows = await prisma.cow.findMany({
+    where: { id: { notIn: excludeIds } },
+    orderBy: { createdAt: "asc" },
+  });
 
   return Response.json({ cows, hasRejected });
 }
