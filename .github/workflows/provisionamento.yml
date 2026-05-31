@@ -30,15 +30,34 @@ jobs:
 
       - name: 🔍 Decidindo se roda o Terraform
         id: check
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RECREATE: ${{ inputs.recreate_ec2 }}
+          SHA_BEFORE: ${{ github.event.before }}
+          SHA_NOW: ${{ github.sha }}
         run: |
-          # Roda quando: (a) push alterou algo em infra/, ou
-          #              (b) disparo manual pedindo recriação da EC2.
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.recreate_ec2 }}" = "true" ]; then
-            echo "should_run=true" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" = "push" ] && git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q '^infra/'; then
-            echo "should_run=true" >> $GITHUB_OUTPUT
+          # Disparo manual pedindo recriação → roda direto, sem tocar em git diff
+          # (em workflow_dispatch o SHA_BEFORE não existe e o diff falharia).
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            if [ "$RECREATE" = "true" ]; then
+              echo "should_run=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "should_run=false" >> "$GITHUB_OUTPUT"
+            fi
+            exit 0
+          fi
+
+          # Push: roda só se algo em infra/ mudou. Tolera SHA_BEFORE ausente
+          # (ex: primeiro push de um branch) tratando como "mudou".
+          if [ -z "$SHA_BEFORE" ] || ! git cat-file -e "$SHA_BEFORE^{commit}" 2>/dev/null; then
+            CHANGED=$(git diff --name-only "${SHA_NOW}^" "$SHA_NOW" 2>/dev/null || echo "infra/")
           else
-            echo "should_run=false" >> $GITHUB_OUTPUT
+            CHANGED=$(git diff --name-only "$SHA_BEFORE" "$SHA_NOW")
+          fi
+          if echo "$CHANGED" | grep -q '^infra/'; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: 🔧 Configurando Terraform
@@ -67,6 +86,12 @@ jobs:
 
       - name: 🔍 Verificando rota estelar (terraform plan)
         if: steps.check.outputs.should_run == 'true'
+        env:
+          # allowed_ssh_cidrs é list(string). Passar via -var no shell é frágil
+          # (as aspas/colchetes se perdem → "Invalid number literal"). Montamos a
+          # lista JSON aqui e entregamos via TF_VAR_, que o Terraform parseia como HCL.
+          # A Secret guarda só o CIDR puro, ex: 0.0.0.0/0
+          TF_VAR_allowed_ssh_cidrs: '["${{ secrets.TF_VAR_ALLOWED_SSH_CIDRS }}"]'
         run: |
           terraform plan \
             -var="db_password=${{ secrets.TF_VAR_DB_PASSWORD }}" \
@@ -75,7 +100,6 @@ jobs:
             -var="key_pair_name=${{ secrets.TF_VAR_KEY_PAIR_NAME }}" \
             -var="github_repo=${{ secrets.TF_VAR_GITHUB_REPO }}" \
             -var="app_url=${{ secrets.TF_VAR_APP_URL }}" \
-            -var="allowed_ssh_cidrs=${{ secrets.TF_VAR_ALLOWED_SSH_CIDRS }}" \
             -out=tfplan
 
       - name: 🚀 Aplicando missão (terraform apply)

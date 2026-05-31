@@ -54,6 +54,10 @@ ALTER USER fatal_app      WITH PASSWORD '${db_admin_password}';
 
 -- migrator: acesso total ao schema para DDL
 GRANT ALL ON SCHEMA public TO fatal_migrator;
+-- tabelas/sequences que JÁ existem (ex: _prisma_migrations, criadas por outro
+-- usuário num provisionamento anterior) — ALTER DEFAULT só cobre as futuras.
+GRANT ALL ON ALL TABLES    IN SCHEMA public TO fatal_migrator;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO fatal_migrator;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES    TO fatal_migrator;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO fatal_migrator;
 
@@ -74,8 +78,8 @@ sudo -u ec2-user bash -c "
   set -a; source /etc/fatal-muuudel.env; set +a
   npm ci
   ./node_modules/.bin/prisma generate
-  : "\${DATABASE_URL_MIGRATE:?DATABASE_URL_MIGRATE nao definida no .env}"
-  DATABASE_URL="\$DATABASE_URL_MIGRATE" ./node_modules/.bin/prisma migrate deploy
+  : "$${DATABASE_URL_MIGRATE:?DATABASE_URL_MIGRATE nao definida no .env}"
+  DATABASE_URL="$${DATABASE_URL_MIGRATE}" ./node_modules/.bin/prisma migrate deploy
   npm run build
 "
 
