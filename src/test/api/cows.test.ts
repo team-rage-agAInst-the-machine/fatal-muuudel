@@ -12,13 +12,13 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { GET } from "@/app/api/cows/route";
 
-const mockAuth = vi.mocked(auth);
-const mockSwipeFindMany = vi.mocked(prisma.swipe.findMany);
-const mockCowFindMany = vi.mocked(prisma.cow.findMany);
+const mockAutET = vi.mocked(auth);
+const mockBuscarDecisoes = vi.mocked(prisma.swipe.findMany);
+const mockBuscarVacas = vi.mocked(prisma.cow.findMany);
 
-const SESSION = { user: { id: "et-001", email: "zork@ufo.com" } };
+const SESSAO_ET = { user: { id: "et-001", email: "zork@ufo.com" } };
 
-const BASE_COW = {
+const VACA_PADRAO = {
   id: "mimosa",
   name: "Mimosa",
   breed: "Girolando",
@@ -42,14 +42,14 @@ function makeRequest(url = "http://localhost/api/cows") {
 
 describe("GET /api/cows", () => {
   beforeEach(() => {
-    mockAuth.mockReset();
-    mockSwipeFindMany.mockReset();
-    mockCowFindMany.mockReset();
+    mockAutET.mockReset();
+    mockBuscarDecisoes.mockReset();
+    mockBuscarVacas.mockReset();
   });
 
   it("retorna 200 com cows[] e hasRejected quando não autenticado", async () => {
-    mockAuth.mockResolvedValue(null);
-    mockCowFindMany.mockResolvedValue([BASE_COW]);
+    mockAutET.mockResolvedValue(null);
+    mockBuscarVacas.mockResolvedValue([VACA_PADRAO]);
 
     const res = await GET(makeRequest());
 
@@ -62,25 +62,25 @@ describe("GET /api/cows", () => {
   });
 
   it("não consulta swipes quando não autenticado", async () => {
-    mockAuth.mockResolvedValue(null);
-    mockCowFindMany.mockResolvedValue([BASE_COW]);
+    mockAutET.mockResolvedValue(null);
+    mockBuscarVacas.mockResolvedValue([VACA_PADRAO]);
 
     await GET(makeRequest());
 
-    expect(mockSwipeFindMany).not.toHaveBeenCalled();
+    expect(mockBuscarDecisoes).not.toHaveBeenCalled();
   });
 
   it("exclui vacas já swipadas (LIKE, SUPER e PASS) da lista retornada no range padrão", async () => {
-    mockAuth.mockResolvedValue(SESSION);
-    mockSwipeFindMany.mockResolvedValue([
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockBuscarDecisoes.mockResolvedValue([
       { cowId: "mimosa", direction: "LIKE" },
       { cowId: "bezerrada", direction: "PASS" },
     ]);
-    mockCowFindMany.mockResolvedValue([]);
+    mockBuscarVacas.mockResolvedValue([]);
 
     await GET(makeRequest());
 
-    expect(mockCowFindMany).toHaveBeenCalledWith(
+    expect(mockBuscarVacas).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: { notIn: expect.arrayContaining(["mimosa", "bezerrada"]) } },
       })
@@ -88,16 +88,16 @@ describe("GET /api/cows", () => {
   });
 
   it("?range=100 é aceito e exclui apenas vacas com LIKE/SUPER (não as com PASS)", async () => {
-    mockAuth.mockResolvedValue(SESSION);
-    mockSwipeFindMany.mockResolvedValue([
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockBuscarDecisoes.mockResolvedValue([
       { cowId: "mimosa", direction: "LIKE" },
       { cowId: "bezerrada", direction: "PASS" },
     ]);
-    mockCowFindMany.mockResolvedValue([]);
+    mockBuscarVacas.mockResolvedValue([]);
 
     await GET(makeRequest("http://localhost/api/cows?range=100"));
 
-    const call = mockCowFindMany.mock.calls[0][0];
+    const call = mockBuscarVacas.mock.calls[0][0];
     const notIn: string[] = call.where.id.notIn;
 
     // Vaca com LIKE fica excluída mesmo com range ampliado
@@ -107,11 +107,11 @@ describe("GET /api/cows", () => {
   });
 
   it("hasRejected: true quando user tem swipes com PASS", async () => {
-    mockAuth.mockResolvedValue(SESSION);
-    mockSwipeFindMany.mockResolvedValue([
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockBuscarDecisoes.mockResolvedValue([
       { cowId: "bezerrada", direction: "PASS" },
     ]);
-    mockCowFindMany.mockResolvedValue([BASE_COW]);
+    mockBuscarVacas.mockResolvedValue([VACA_PADRAO]);
 
     const res = await GET(makeRequest());
     const data = await res.json();
@@ -120,11 +120,11 @@ describe("GET /api/cows", () => {
   });
 
   it("hasRejected: false quando user não tem swipes com PASS", async () => {
-    mockAuth.mockResolvedValue(SESSION);
-    mockSwipeFindMany.mockResolvedValue([
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockBuscarDecisoes.mockResolvedValue([
       { cowId: "mimosa", direction: "LIKE" },
     ]);
-    mockCowFindMany.mockResolvedValue([BASE_COW]);
+    mockBuscarVacas.mockResolvedValue([VACA_PADRAO]);
 
     const res = await GET(makeRequest());
     const data = await res.json();
@@ -133,9 +133,9 @@ describe("GET /api/cows", () => {
   });
 
   it("hasRejected: false quando user não tem nenhum swipe", async () => {
-    mockAuth.mockResolvedValue(SESSION);
-    mockSwipeFindMany.mockResolvedValue([]);
-    mockCowFindMany.mockResolvedValue([BASE_COW]);
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockBuscarDecisoes.mockResolvedValue([]);
+    mockBuscarVacas.mockResolvedValue([VACA_PADRAO]);
 
     const res = await GET(makeRequest());
     const data = await res.json();
@@ -144,9 +144,9 @@ describe("GET /api/cows", () => {
   });
 
   it("retorna vacas com todos os campos esperados (id, name, breed, farm, distance, bio, tags, etc.)", async () => {
-    mockAuth.mockResolvedValue(SESSION);
-    mockSwipeFindMany.mockResolvedValue([]);
-    mockCowFindMany.mockResolvedValue([BASE_COW]);
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockBuscarDecisoes.mockResolvedValue([]);
+    mockBuscarVacas.mockResolvedValue([VACA_PADRAO]);
 
     const res = await GET(makeRequest());
     const data = await res.json();
@@ -170,10 +170,10 @@ describe("GET /api/cows", () => {
   });
 
   it("vacas com isHuman: true são incluídas na lista (são intencionais)", async () => {
-    const humanCow = { ...BASE_COW, id: "etbilu", name: "ET Bilu", isHuman: true };
-    mockAuth.mockResolvedValue(SESSION);
-    mockSwipeFindMany.mockResolvedValue([]);
-    mockCowFindMany.mockResolvedValue([humanCow]);
+    const humanCow = { ...VACA_PADRAO, id: "etbilu", name: "ET Bilu", isHuman: true };
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockBuscarDecisoes.mockResolvedValue([]);
+    mockBuscarVacas.mockResolvedValue([humanCow]);
 
     const res = await GET(makeRequest());
     const data = await res.json();
@@ -184,9 +184,9 @@ describe("GET /api/cows", () => {
   });
 
   it("retorna 200 com cows[] e hasRejected para user autenticado sem swipes", async () => {
-    mockAuth.mockResolvedValue(SESSION);
-    mockSwipeFindMany.mockResolvedValue([]);
-    mockCowFindMany.mockResolvedValue([BASE_COW]);
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockBuscarDecisoes.mockResolvedValue([]);
+    mockBuscarVacas.mockResolvedValue([VACA_PADRAO]);
 
     const res = await GET(makeRequest());
 

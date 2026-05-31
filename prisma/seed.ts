@@ -331,14 +331,14 @@ const cows: CowSeed[] = [
   },
 ];
 
-const PHOTOS_CACHE = path.join(__dirname, "cow-photos.json");
-const COW_COUNT = 18; // vacas reais (sem os humanos infiltrados)
+const CACHE_FOTOS = path.join(__dirname, "cow-photos.json");
+const TAMANHO_REBANHO = 18; // vacas reais (sem os humanos infiltrados)
 
-async function fetchCowPhotos(): Promise<string[]> {
+async function buscarFotosDoRebanho(): Promise<string[]> {
   // Usa cache se já tiver fotos suficientes
   if (fs.existsSync(PHOTOS_CACHE)) {
     const cached: string[] = JSON.parse(fs.readFileSync(PHOTOS_CACHE, "utf-8"));
-    if (cached.length >= COW_COUNT) {
+    if (cached.length >= TAMANHO_REBANHO) {
       console.log(`📸 Usando ${cached.length} fotos em cache (prisma/cow-photos.json).`);
       return cached;
     }
@@ -377,19 +377,19 @@ async function fetchCowPhotos(): Promise<string[]> {
 }
 
 async function main() {
-  const pexelsPhotos = await fetchCowPhotos();
+  const fotasDoPasto = await buscarFotosDoRebanho();
 
-  if (pexelsPhotos.length === 0 && !process.env.PEXELS_API_KEY) {
+  if (fotasDoPasto.length === 0 && !process.env.PEXELS_API_KEY) {
     console.log("ℹ️  PEXELS_API_KEY não configurada — usando fotos de fallback do Pexels.");
   }
 
-  const cowsWithPhotos = cows.map((cow, i) => {
+  const rebanhoComFotos = cows.map((cow, i) => {
     if (cow.isHuman) return cow;
-    const photo = pexelsPhotos[i];
+    const photo = fotasDoPasto[i];
     return photo ? { ...cow, photoUrl: photo } : cow;
   });
 
-  for (const cow of cowsWithPhotos) {
+  for (const cow of rebanhoComFotos) {
     await prisma.cow.upsert({
       where: { id: cow.id },
       update: cow,

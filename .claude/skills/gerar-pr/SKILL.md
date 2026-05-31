@@ -34,7 +34,19 @@ git add <arquivo(s) relacionados>
 git commit -m "<tipo>: <descrição curta>"
 ```
 
-## Passo 4 — push
+## Passo 4 — rodar os testes
+
+Antes de fazer push, rode os testes para garantir que nada está quebrado:
+
+```bash
+npm test
+```
+
+Se algum teste falhar:
+- Se for falha relacionada às mudanças desta branch, corrija antes de continuar
+- Se for falha pré-existente não relacionada (ex: `upload.test.ts` por dependência ausente), documente no PR body e prossiga
+
+## Passo 5 — push
 
 ```bash
 git push --set-upstream origin <branch>
@@ -42,7 +54,7 @@ git push --set-upstream origin <branch>
 git push
 ```
 
-## Passo 5 — gerar título do PR
+## Passo 6 — gerar título do PR
 
 Regras:
 - Máximo 72 caracteres
@@ -55,7 +67,7 @@ Exemplos:
 - `✨ Auto-dismiss na tela de match e voltar no perfil ET`
 - `🔧 Botões de login/register e foto da vaca no chat`
 
-## Passo 6 — gerar descrição do PR
+## Passo 7 — gerar descrição do PR
 
 Descrição **narrativa e contextual** — não um checklist genérico. Escolha seções que façam sentido:
 
@@ -71,7 +83,7 @@ Sempre terminar o body com uma linha em branco seguida de `SAVANOo`.
 
 Se houver argumento passado para a skill (`$ARGUMENTS`), usar como contexto adicional.
 
-## Passo 7 — abrir o PR
+## Passo 8 — abrir o PR
 
 ```bash
 gh pr create --title "<título>" --body "$(cat <<'EOF'

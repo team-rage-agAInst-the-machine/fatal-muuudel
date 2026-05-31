@@ -19,11 +19,11 @@ vi.mock("@/lib/prisma", () => ({
 }));
 
 const { auth } = await import("@/auth");
-const mockAuth = vi.mocked(auth);
+const mockAutET = vi.mocked(auth);
 
 const { POST, DELETE } = await import("@/app/api/swipes/route");
 
-const SESSION = { user: { id: "et-001", email: "zork@ufo.com" } };
+const SESSAO_ET = { user: { id: "et-001", email: "zork@ufo.com" } };
 
 function makePostRequest(body: unknown) {
   return new Request("http://localhost/api/swipes", {
@@ -42,7 +42,7 @@ function makeDeleteRequest(cowId?: string) {
 
 describe("POST /api/swipes", () => {
   beforeEach(() => {
-    mockAuth.mockReset();
+    mockAutET.mockReset();
     mockSwipeUpsert.mockReset();
     mockAbductionUpsert.mockReset();
     mockSwipeDeleteMany.mockReset();
@@ -52,7 +52,7 @@ describe("POST /api/swipes", () => {
   });
 
   it("retorna 401 quando não autenticado", async () => {
-    mockAuth.mockResolvedValue(null);
+    mockAutET.mockResolvedValue(null);
     const res = await POST(makePostRequest({ cowId: "mimosa", direction: "like" }));
     expect(res.status).toBe(401);
     const data = await res.json();
@@ -60,7 +60,7 @@ describe("POST /api/swipes", () => {
   });
 
   it("retorna 400 quando direction é inválida", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     const res = await POST(makePostRequest({ cowId: "mimosa", direction: "VAMOS_ABDUZIR" }));
     expect(res.status).toBe(400);
     const data = await res.json();
@@ -68,7 +68,7 @@ describe("POST /api/swipes", () => {
   });
 
   it("LIKE cria Swipe + Abduction com status PLANNED (upsert)", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     const res = await POST(makePostRequest({ cowId: "mimosa", direction: "like" }));
     expect(res.status).toBe(200);
     expect(mockSwipeUpsert).toHaveBeenCalledWith(
@@ -88,7 +88,7 @@ describe("POST /api/swipes", () => {
   });
 
   it("SUPER cria Swipe + Abduction com status PLANNED (upsert)", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     const res = await POST(makePostRequest({ cowId: "mimosa", direction: "super" }));
     expect(res.status).toBe(200);
     expect(mockSwipeUpsert).toHaveBeenCalledWith(
@@ -105,7 +105,7 @@ describe("POST /api/swipes", () => {
 
   it("PASS: frontend envia nope, API normaliza e persiste direction PASS", async () => {
     // A UI envia "nope" como alias para PASS — a API normaliza internamente
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     const res = await POST(makePostRequest({ cowId: "mimosa", direction: "nope" }));
     expect(res.status).toBe(200);
     expect(mockSwipeUpsert).toHaveBeenCalledWith(
@@ -117,7 +117,7 @@ describe("POST /api/swipes", () => {
   });
 
   it("retorna 200 em caso de sucesso", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     const res = await POST(makePostRequest({ cowId: "mimosa", direction: "like" }));
     expect(res.status).toBe(200);
     const data = await res.json();
@@ -127,7 +127,7 @@ describe("POST /api/swipes", () => {
   // A rota não possui try/catch em torno das chamadas ao banco — erros de DB propagam
   // como exceção não tratada em vez de retornar 500. Habilitar após adicionar tratamento de erro.
   it.skip("retorna 500 quando o banco falha ao registrar swipe", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     mockSwipeUpsert.mockRejectedValue(new Error("DB explodiu"));
     const res = await POST(makePostRequest({ cowId: "mimosa", direction: "like" }));
     expect(res.status).toBe(500);
@@ -136,7 +136,7 @@ describe("POST /api/swipes", () => {
 
 describe("DELETE /api/swipes", () => {
   beforeEach(() => {
-    mockAuth.mockReset();
+    mockAutET.mockReset();
     mockSwipeUpsert.mockReset();
     mockAbductionUpsert.mockReset();
     mockSwipeDeleteMany.mockReset();
@@ -146,7 +146,7 @@ describe("DELETE /api/swipes", () => {
   });
 
   it("retorna 401 quando não autenticado", async () => {
-    mockAuth.mockResolvedValue(null);
+    mockAutET.mockResolvedValue(null);
     const res = await DELETE(makeDeleteRequest("mimosa"));
     expect(res.status).toBe(401);
     const data = await res.json();
@@ -154,7 +154,7 @@ describe("DELETE /api/swipes", () => {
   });
 
   it("retorna 400 quando cowId não fornecido", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     const res = await DELETE(makeDeleteRequest());
     expect(res.status).toBe(400);
     const data = await res.json();
@@ -162,7 +162,7 @@ describe("DELETE /api/swipes", () => {
   });
 
   it("deleta a Abduction associada", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     await DELETE(makeDeleteRequest("mimosa"));
     expect(mockAbductionDeleteMany).toHaveBeenCalledWith({
       where: { alienId: "et-001", cowId: "mimosa" },
@@ -170,7 +170,7 @@ describe("DELETE /api/swipes", () => {
   });
 
   it("deleta o Swipe existente", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     await DELETE(makeDeleteRequest("mimosa"));
     expect(mockSwipeDeleteMany).toHaveBeenCalledWith({
       where: { alienId: "et-001", cowId: "mimosa" },
@@ -178,7 +178,7 @@ describe("DELETE /api/swipes", () => {
   });
 
   it("retorna 200 em caso de sucesso", async () => {
-    mockAuth.mockResolvedValue(SESSION);
+    mockAutET.mockResolvedValue(SESSAO_ET);
     const res = await DELETE(makeDeleteRequest("mimosa"));
     expect(res.status).toBe(200);
     const data = await res.json();
