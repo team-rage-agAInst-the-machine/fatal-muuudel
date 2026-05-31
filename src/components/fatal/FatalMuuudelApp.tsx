@@ -13,6 +13,7 @@ import { AbductedList, type Abducted } from "./AbductedList";
 import { ChatModal } from "./ChatModal";
 import { CowProfileModal } from "./CowProfileModal";
 import { HumanAlert } from "./HumanAlert";
+import { TowelAlert } from "./TowelAlert";
 
 type Screen = "splash" | "swipe" | "list";
 
@@ -30,6 +31,7 @@ export function FatalMuuudelApp() {
   const [profileCow, setProfileCow] = useState<{ cow: Cow; vip: boolean } | null>(null);
   const [searchRange, setSearchRange] = useState(50);
   const [hasRejected, setHasRejected] = useState(false);
+  const [towelAlert, setTowelAlert] = useState<{ cow: Cow } | null>(null);
 
   const buscarRebanho = (range = 50) => {
     setLoading(true);
@@ -71,8 +73,9 @@ export function FatalMuuudelApp() {
       return;
     }
 
+    let res: Response;
     try {
-      await fetch("/api/swipes", {
+      res = await fetch("/api/swipes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cowId: cow.id, direction: dir }),
@@ -81,6 +84,15 @@ export function FatalMuuudelApp() {
       console.error("🐄 [swipe] raio trator falhou — vaca escapou sem ser registrada:", err);
       return;
     }
+
+    if (res.status === 403) {
+      const data = await res.json().catch(() => ({}));
+      if (data.error === "NO_TOWEL") {
+        setTowelAlert({ cow });
+        return;
+      }
+    }
+
     setCurrent((c) => c + 1);
     if (dir === "like" || dir === "super") {
       const vip = dir === "super";
@@ -271,6 +283,12 @@ export function FatalMuuudelApp() {
             onContinue={() => setMatch(null)}
           />
         )}
+
+        <TowelAlert
+          open={towelAlert !== null}
+          protectionLevel={towelAlert?.cow.protectionLevel}
+          onClose={() => setTowelAlert(null)}
+        />
       </div>
     </div>
   );

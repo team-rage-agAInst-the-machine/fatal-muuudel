@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { computeCompatibility } from "@/lib/matchmaking";
 
 export const dynamic = "force-dynamic";
 
@@ -15,10 +16,23 @@ export async function GET(request: Request) {
   const range = Math.min(Math.max(1, Number(searchParams.get("range") ?? INITIAL_RANGE)), 100);
   const expanded = range > INITIAL_RANGE;
 
-  const allSwipes = await prisma.swipe.findMany({
-    where: { alienId: session.user.id },
-    select: { cowId: true, direction: true },
-  });
+  const [allSwipes, activeMission] = await Promise.all([
+    prisma.swipe.findMany({
+      where: { alienId: session.user.id },
+      select: { cowId: true, direction: true },
+    }),
+    prisma.missionConfig.findFirst({
+      where: { alienId: session.user.id, isActive: true },
+      select: {
+        mooPreference: true,
+        maxCargoKg: true,
+        abductionStyle: true,
+        temperamento: true,
+        signoGalactico: true,
+        objetivoDaMissao: true,
+      },
+    }),
+  ]);
 
   const abductedIds = allSwipes
     .filter((s) => s.direction === "LIKE" || s.direction === "SUPER")
@@ -32,10 +46,18 @@ export async function GET(request: Request) {
 
   const excludeIds = expanded ? abductedIds : [...abductedIds, ...passedIds];
 
-  const cows = await prisma.cow.findMany({
+  const rawCows = await prisma.cow.findMany({
     where: { id: { notIn: excludeIds } },
     orderBy: { createdAt: "asc" },
   });
+
+  const et = activeMission ?? {};
+  const cows = rawCows
+    .map((cow) => ({
+      ...cow,
+      matchScore: computeCompatibility(et, cow),
+    }))
+    .sort((a, b) => b.matchScore - a.matchScore);
 
   return Response.json({ cows, hasRejected });
 }

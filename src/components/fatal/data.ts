@@ -15,6 +15,15 @@ export type Cow = {
   bio: string;
   photoUrl?: string | null;
   isHuman?: boolean;
+  // Proteção e matchmaking
+  matchScore?: number;
+  protectionLevel?: string;
+  desprevenida?: boolean;
+  personality?: string | null;
+  flightRisk?: number | null;
+  temperamento?: string | null;
+  signoGalactico?: string | null;
+  papelNoRebanho?: string | null;
 };
 
 export type Copy = {

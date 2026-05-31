@@ -22,6 +22,17 @@ const step1Schema = z.object({
 type Step1 = z.infer<typeof step1Schema>;
 type Step1Errors = Partial<Record<keyof Step1, string>>;
 
+interface MissionDraft {
+  configurarMissao: boolean;
+  missionName: string;
+  abductionStyle: string;
+  objetivoDaMissao: string;
+  temperamento: string;
+  signoGalactico: string;
+  mooPreference: string;
+  maxCargoKg: string;
+}
+
 // ── Opções ────────────────────────────────────────────────────────────────────
 
 const PLANET_SUGGESTIONS = [
@@ -56,6 +67,15 @@ const TOWEL_OPTIONS = [
   "Nunca ouvi falar — o que é uma toalha?",
   "Uso apenas para secar meus tentáculos",
   "Tenho 42 toalhas, só por precaução",
+];
+
+const ABDUCTION_STYLE_OPTIONS = ["stealth", "científico", "flashy", "casual"];
+const OBJETIVO_OPTIONS = ["pesquisa", "troféu", "companhia", "experimento"];
+const TEMPERAMENTO_OPTIONS = ["paciente", "agitado", "curioso", "dominante"];
+const SIGNOS_OPTIONS = [
+  "Touro Nebular", "Leite de Andrômeda", "Escorpião Cósmico", "Buraco Negro do Boi",
+  "Cometa Lanoso", "Pulsar Bovino", "Galáxia Mugidora", "Supernova do Pasto",
+  "Quasar Ruminante", "Buraco de Minhoca", "Matéria Escura da Vaca", "Luz do Capim",
 ];
 
 const STARFLEET_RANKS = [
@@ -103,6 +123,16 @@ export default function RegisterPage() {
   const [towelStatus, setTowelStatus] = useState("");
   const [forceSensitive, setForceSensitive] = useState(false);
   const [starfleetRank, setStarfleetRank] = useState("");
+  const [mission, setMission] = useState<MissionDraft>({
+    configurarMissao: false,
+    missionName: "",
+    abductionStyle: "",
+    objetivoDaMissao: "",
+    temperamento: "",
+    signoGalactico: "",
+    mooPreference: "",
+    maxCargoKg: "",
+  });
 
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -112,6 +142,10 @@ export default function RegisterPage() {
     setStep1((f) => ({ ...f, [k]: v }));
     setStep1Errors((e) => ({ ...e, [k]: undefined }));
     setServerError("");
+  }
+
+  function setMissionField<K extends keyof MissionDraft>(k: K, v: MissionDraft[K]) {
+    setMission((f) => ({ ...f, [k]: v }));
   }
 
   function goBack() {
@@ -190,6 +224,24 @@ export default function RegisterPage() {
       setServerError("Conta criada! Mas a nave travou no login 🛸");
       setQuote(randomQuote());
       return;
+    }
+
+    if (login && !login.error && mission.configurarMissao && mission.missionName.trim()) {
+      const missionPayload: Record<string, unknown> = {
+        name: mission.missionName.trim(),
+        activate: true,
+      };
+      if (mission.abductionStyle) missionPayload.abductionStyle = mission.abductionStyle;
+      if (mission.objetivoDaMissao) missionPayload.objetivoDaMissao = mission.objetivoDaMissao;
+      if (mission.temperamento) missionPayload.temperamento = mission.temperamento;
+      if (mission.signoGalactico) missionPayload.signoGalactico = mission.signoGalactico;
+      if (mission.mooPreference) missionPayload.mooPreference = Number(mission.mooPreference);
+      if (mission.maxCargoKg) missionPayload.maxCargoKg = Number(mission.maxCargoKg);
+      await fetch("/api/mission", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(missionPayload),
+      }).catch(() => null);
     }
 
     if (login && !login.error && !skipPhoto && photoFile) {
@@ -363,6 +415,75 @@ export default function RegisterPage() {
                   {forceSensitive ? "SIM — A FORÇA É FORTE COMIGO" : "NÃO — SOU UM MUGGLE ESPACIAL"}
                 </button>
               </Field>
+
+              <SectionLabel>CONFIGURAÇÕES DE MISSÃO</SectionLabel>
+
+              <Field label="">
+                <button
+                  type="button"
+                  onClick={() => setMissionField("configurarMissao", !mission.configurarMissao)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    background: "var(--bg-2)", border: `1px solid ${mission.configurarMissao ? "var(--cyan)" : "var(--line)"}`,
+                    borderRadius: 10, padding: "12px 16px", cursor: "pointer",
+                    color: mission.configurarMissao ? "var(--cyan)" : "var(--ink-soft)",
+                    fontFamily: "var(--fm-body)", fontSize: 13,
+                    boxShadow: mission.configurarMissao ? "0 0 12px rgba(0,240,255,0.2)" : "none",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  <span style={{ fontSize: 20 }}>{mission.configurarMissao ? "🛸" : "🐄"}</span>
+                  {mission.configurarMissao ? "SIM — QUERO CALIBRAR MINHA MISSÃO" : "CONFIGURAR MISSÃO AGORA? (OPCIONAL)"}
+                </button>
+              </Field>
+
+              {mission.configurarMissao && (
+                <>
+                  <Field label="NOME DA MISSÃO *">
+                    <input type="text" className="fm-input" value={mission.missionName}
+                      onChange={(e) => setMissionField("missionName", e.target.value)}
+                      placeholder="Ex: Operação Vaca Stealth" maxLength={60} />
+                  </Field>
+
+                  <Field label="ESTILO DE ABDUÇÃO">
+                    <select className="fm-input" value={mission.abductionStyle} onChange={(e) => setMissionField("abductionStyle", e.target.value)} style={{ cursor: "pointer" }}>
+                      <option value="">Selecione...</option>
+                      {ABDUCTION_STYLE_OPTIONS.map((o) => <option key={o} value={o}>{o.charAt(0).toUpperCase() + o.slice(1)}</option>)}
+                    </select>
+                  </Field>
+
+                  <Field label="OBJETIVO DA MISSÃO">
+                    <select className="fm-input" value={mission.objetivoDaMissao} onChange={(e) => setMissionField("objetivoDaMissao", e.target.value)} style={{ cursor: "pointer" }}>
+                      <option value="">Selecione...</option>
+                      {OBJETIVO_OPTIONS.map((o) => <option key={o} value={o}>{o.charAt(0).toUpperCase() + o.slice(1)}</option>)}
+                    </select>
+                  </Field>
+
+                  <Field label="TEMPERAMENTO ET">
+                    <select className="fm-input" value={mission.temperamento} onChange={(e) => setMissionField("temperamento", e.target.value)} style={{ cursor: "pointer" }}>
+                      <option value="">Selecione...</option>
+                      {TEMPERAMENTO_OPTIONS.map((o) => <option key={o} value={o}>{o.charAt(0).toUpperCase() + o.slice(1)}</option>)}
+                    </select>
+                  </Field>
+
+                  <Field label="SIGNO GALÁCTICO">
+                    <select className="fm-input" value={mission.signoGalactico} onChange={(e) => setMissionField("signoGalactico", e.target.value)} style={{ cursor: "pointer" }}>
+                      <option value="">Selecione...</option>
+                      {SIGNOS_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  </Field>
+
+                  <div style={{ display: "flex", gap: 12 }}>
+                    <Field label="PREFERÊNCIA DE MUGIDO (0-10)" style={{ flex: 1 }}>
+                      <input type="number" className="fm-input" min={0} max={10} value={mission.mooPreference} onChange={(e) => setMissionField("mooPreference", e.target.value)} placeholder="0–10" />
+                    </Field>
+                    <Field label="CARGA MÁXIMA (kg)" style={{ flex: 1 }}>
+                      <input type="number" className="fm-input" min={1} value={mission.maxCargoKg} onChange={(e) => setMissionField("maxCargoKg", e.target.value)} placeholder="500" />
+                    </Field>
+                  </div>
+                </>
+              )}
+
               {serverError && <p style={{ color: "var(--magenta)", fontSize: 13, textAlign: "center", margin: "4px 0 0" }}>{serverError}</p>}
               {quote && <HitchhikerQuote quote={quote} />}
             </div>

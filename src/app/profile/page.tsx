@@ -18,6 +18,17 @@ export default async function ProfilePage() {
       callsign: true,
       homePlanet: true,
       shipModel: true,
+      towelStatus: true,
+      missions: {
+        select: {
+          id: true, name: true, isActive: true,
+          abductionStyle: true, objetivoDaMissao: true,
+          temperamento: true, signoGalactico: true,
+          mooPreference: true, maxCargoKg: true,
+          createdAt: true,
+        },
+        orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
+      },
     },
   });
 

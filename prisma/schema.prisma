@@ -83,6 +83,34 @@ model User {
   sessions   Session[]
   swipes     Swipe[]
   abductions Abduction[]
+  missions   MissionConfig[]
+}
+
+model MissionConfig {
+  id               String   @id @default(cuid())
+  alienId          String
+  alien            User     @relation(fields: [alienId], references: [id], onDelete: Cascade)
+  name             String
+  isActive         Boolean  @default(false)
+  abductionStyle   String? // "stealth" | "científico" | "flashy" | "casual"
+  objetivoDaMissao String? // "pesquisa" | "troféu" | "companhia" | "experimento"
+  temperamento     String? // "paciente" | "agitado" | "curioso" | "dominante"
+  signoGalactico   String?
+  mooPreference    Int?    // preferência de mugido 0-10
+  maxCargoKg       Int?    // capacidade de carga da nave em kg
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([alienId])
+}
+
+enum CowProtectionLevel {
+  EXTRAVIADA // se perdeu do rebanho — qualquer ET pode abduzi-la
+  CAMPESTRE // vaquinha comum do pasto
+  VEDETE // vedete do capim
+  ELITE // raça fina, campeã regional
+  SAGRADA // patrimônio bovino nacional — requer toalha
+  DIVINA // reencarnação bovina suprema — requer toalha
 }
 
 model Cow {
@@ -99,8 +127,17 @@ model Cow {
   tags      String[]
   bio       String
   photoUrl  String?
-  isHuman   Boolean  @default(false)
-  createdAt DateTime @default(now())
+  isHuman   Boolean            @default(false)
+  createdAt DateTime           @default(now())
+
+  // Proteção e matchmaking
+  protectionLevel CowProtectionLevel @default(CAMPESTRE)
+  desprevenida    Boolean            @default(false) // bypassa verificação de toalha
+  personality     String? // "aventureira" | "tímida" | "travessa" | "pacífica"
+  flightRisk      Int? // risco de fuga 0-10
+  temperamento    String? // "dócil" | "rebelde" | "curiosa" | "indiferente"
+  signoGalactico  String?
+  papelNoRebanho  String? // "líder" | "isolada" | "popular" | "solitária"
 
   swipes     Swipe[]
   abductions Abduction[]

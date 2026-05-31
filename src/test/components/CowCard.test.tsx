@@ -55,4 +55,39 @@ describe("CowCard", () => {
     render(<CowCard cow={baseCow} copy={copy} />);
     expect(screen.getByText("Capim premium")).toBeInTheDocument();
   });
+
+  it("renderiza badge de matchScore >= 80 com texto '🛸 85%'", () => {
+    render(<CowCard cow={{ ...baseCow, matchScore: 85 }} copy={copy} />);
+    expect(screen.getByText("🛸 85%")).toBeInTheDocument();
+  });
+
+  it("badge de matchScore 60-79 está presente", () => {
+    render(<CowCard cow={{ ...baseCow, matchScore: 72 }} copy={copy} />);
+    expect(screen.getByText("🛸 72%")).toBeInTheDocument();
+  });
+
+  it("não renderiza badge de matchScore quando ausente", () => {
+    render(<CowCard cow={baseCow} copy={copy} />);
+    expect(screen.queryByText(/🛸 \d+%/)).not.toBeInTheDocument();
+  });
+
+  it("renderiza badge SAGRADA com ícone de cadeado", () => {
+    render(<CowCard cow={{ ...baseCow, protectionLevel: "SAGRADA" }} copy={copy} />);
+    expect(screen.getByText("🔒 Sagrada")).toBeInTheDocument();
+  });
+
+  it("renderiza badge DIVINA com ícone especial", () => {
+    render(<CowCard cow={{ ...baseCow, protectionLevel: "DIVINA" }} copy={copy} />);
+    expect(screen.getByText("✨🔒 Divina")).toBeInTheDocument();
+  });
+
+  it("não renderiza badge de proteção para CAMPESTRE", () => {
+    render(<CowCard cow={{ ...baseCow, protectionLevel: "CAMPESTRE" }} copy={copy} />);
+    expect(screen.queryByText(/Sagrada|Divina|Livre/)).not.toBeInTheDocument();
+  });
+
+  it("renderiza badge EXTRAVIADA com cadeado aberto", () => {
+    render(<CowCard cow={{ ...baseCow, protectionLevel: "EXTRAVIADA" }} copy={copy} />);
+    expect(screen.getByText("🔓 Livre")).toBeInTheDocument();
+  });
 });

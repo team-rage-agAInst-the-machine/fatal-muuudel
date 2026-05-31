@@ -10,6 +10,7 @@ const mockSwipeDeleteMany = vi.fn();
 const mockAbductionUpsert = vi.fn();
 const mockAbductionDeleteMany = vi.fn();
 const mockCowFindUnique = vi.fn();
+const mockUserFindUnique = vi.fn();
 
 vi.mock("@/auth", () => ({ auth: vi.fn() }));
 vi.mock("@/lib/prisma", () => ({
@@ -17,6 +18,7 @@ vi.mock("@/lib/prisma", () => ({
     swipe: { upsert: mockSwipeUpsert, deleteMany: mockSwipeDeleteMany },
     abduction: { upsert: mockAbductionUpsert, deleteMany: mockAbductionDeleteMany },
     cow: { findUnique: mockCowFindUnique },
+    user: { findUnique: mockUserFindUnique },
   },
 }));
 
@@ -50,9 +52,11 @@ describe("POST /api/swipes", () => {
     mockSwipeDeleteMany.mockReset();
     mockAbductionDeleteMany.mockReset();
     mockCowFindUnique.mockReset();
+    mockUserFindUnique.mockReset();
     mockSwipeUpsert.mockResolvedValue({});
     mockAbductionUpsert.mockResolvedValue({});
-    mockCowFindUnique.mockResolvedValue({ id: "mimosa" });
+    mockCowFindUnique.mockResolvedValue({ id: "mimosa", protectionLevel: "CAMPESTRE", desprevenida: false });
+    mockUserFindUnique.mockResolvedValue({ towelStatus: null });
   });
 
   it("retorna 401 quando não autenticado", async () => {
@@ -135,6 +139,50 @@ describe("POST /api/swipes", () => {
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.ok).toBe(true);
+  });
+
+  it("retorna 403 NO_TOWEL ao tentar LIKE em vaca DIVINA sem toalha", async () => {
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockCowFindUnique.mockResolvedValue({ protectionLevel: "DIVINA", desprevenida: false });
+    mockUserFindUnique.mockResolvedValue({ towelStatus: null });
+    const res = await POST(makePostRequest({ cowId: "clarabelle", direction: "like" }));
+    expect(res.status).toBe(403);
+    const data = await res.json();
+    expect(data.error).toBe("NO_TOWEL");
+  });
+
+  it("retorna 403 NO_TOWEL ao tentar SUPER em vaca SAGRADA sem toalha", async () => {
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockCowFindUnique.mockResolvedValue({ protectionLevel: "SAGRADA", desprevenida: false });
+    mockUserFindUnique.mockResolvedValue({ towelStatus: "Perdi no buraco negro de Magrathea" });
+    const res = await POST(makePostRequest({ cowId: "mozzarina", direction: "super" }));
+    expect(res.status).toBe(403);
+  });
+
+  it("permite LIKE em vaca DIVINA desprevenida mesmo sem toalha (Lulubelle exception)", async () => {
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockCowFindUnique.mockResolvedValue({ protectionLevel: "DIVINA", desprevenida: true });
+    mockUserFindUnique.mockResolvedValue({ towelStatus: null });
+    const res = await POST(makePostRequest({ cowId: "lulubelle", direction: "like" }));
+    expect(res.status).toBe(200);
+  });
+
+  it("permite LIKE em vaca DIVINA quando ET tem toalha", async () => {
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockCowFindUnique.mockResolvedValue({ protectionLevel: "DIVINA", desprevenida: false });
+    mockUserFindUnique.mockResolvedValue({ towelStatus: "Sempre com a toalha — sou um mochileiro sério" });
+    const res = await POST(makePostRequest({ cowId: "clarabelle", direction: "like" }));
+    expect(res.status).toBe(200);
+  });
+
+  it("PASS não verifica toalha (qualquer vaca aceita PASS)", async () => {
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockCowFindUnique.mockResolvedValue({ protectionLevel: "DIVINA", desprevenida: false });
+    mockUserFindUnique.mockResolvedValue({ towelStatus: null });
+    const res = await POST(makePostRequest({ cowId: "clarabelle", direction: "nope" }));
+    expect(res.status).toBe(200);
+    expect(mockCowFindUnique).toHaveBeenCalled();
+    expect(mockUserFindUnique).not.toHaveBeenCalled();
   });
 
   // A rota não possui try/catch em torno das chamadas ao banco — erros de DB propagam

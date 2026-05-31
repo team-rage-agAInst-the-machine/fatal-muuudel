@@ -29,6 +29,13 @@ const QUOTES = [
   "Curiosidade: em Damogran, planeta natal do Presidente Zaphod Beeblebrox, erros de senha são punidos com uma leitura de poesia Vogon. Considere-se com sorte.",
   "De acordo com o Guia do Mochileiro das Galáxias, a probabilidade de um formulário ser preenchido corretamente na primeira tentativa é de 1 em 2 elevado ao número de campos, e você tem muitos campos.",
   "O Drive de Improbabilidade Infinita calculou que este erro específico era, na verdade, o resultado mais provável de todos os resultados possíveis. Parabéns.",
+
+  // Frases específicas sobre toalha + abdução
+  "O Guia do Mochileiro das Galáxias dedica 17 páginas à toalha. Apenas 2 à abdução bovina. A proporção não é acidente.",
+  "Um ET sem toalha tentando abduzir uma vaca de nível SAGRADA é, segundo o Guia, 'o ato mais otimista e mal calculado do universo conhecido'.",
+  "A toalha serve para se enrolar quando está com frio, deitar quando está com calor, usar como vela improvisada numa emergência hiperespacial, e — criticamente — para mostrar que você sabe o que está fazendo. Você claramente não sabe.",
+  "Capítulo 42 do Guia: 'Vacas de proteção DIVINA não são abduzidas por ETs sem toalha. Isso não é preconceito. É física.'",
+  "Zaphod Beeblebrox tentou abduzir uma vaca SAGRADA sem toalha uma vez. O resultado foi classificado como 'inacreditavelmente imprudente, mesmo para ele'.",
 ];
 
 export function randomQuote(): string {

@@ -1,10 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("@/auth", () => ({ auth: vi.fn() }));
+vi.mock("@/lib/matchmaking", () => ({
+  computeCompatibility: vi.fn().mockReturnValue(75),
+}));
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     swipe: { findMany: vi.fn() },
     cow: { findMany: vi.fn() },
+    missionConfig: { findFirst: vi.fn() },
   },
 }));
 
@@ -15,6 +19,7 @@ import { GET } from "@/app/api/cows/route";
 const mockAutET = vi.mocked(auth);
 const mockBuscarDecisoes = vi.mocked(prisma.swipe.findMany);
 const mockBuscarVacas = vi.mocked(prisma.cow.findMany);
+const mockMissaoAtiva = vi.mocked(prisma.missionConfig.findFirst);
 
 const SESSAO_ET = { user: { id: "et-001", email: "zork@ufo.com" } };
 
@@ -45,6 +50,8 @@ describe("GET /api/cows", () => {
     mockAutET.mockReset();
     mockBuscarDecisoes.mockReset();
     mockBuscarVacas.mockReset();
+    mockMissaoAtiva.mockReset();
+    mockMissaoAtiva.mockResolvedValue(null); // sem missão ativa → matchmaking usa defaults
   });
 
   it("retorna 401 quando não autenticado", async () => {
@@ -181,6 +188,66 @@ describe("GET /api/cows", () => {
     const data = await res.json();
     expect(Array.isArray(data.cows)).toBe(true);
     expect(typeof data.hasRejected).toBe("boolean");
+  });
+
+  it("sem missão ativa: não chama computeCompatibility com parâmetros nulos e retorna vacas", async () => {
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockBuscarDecisoes.mockResolvedValue([]);
+    mockBuscarVacas.mockResolvedValue([VACA_PADRAO]);
+    mockMissaoAtiva.mockResolvedValue(null);
+
+    const res = await GET(makeRequest());
+    const data = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(data.cows).toHaveLength(1);
+    // computeCompatibility foi chamado com {} (sem parâmetros de missão) → usa defaults internos
+    expect(data.cows[0]).toHaveProperty("matchScore");
+    expect(typeof data.cows[0].matchScore).toBe("number");
+  });
+
+  it("com missão ativa: passa parâmetros da missão para computeCompatibility", async () => {
+    const { computeCompatibility } = await import("@/lib/matchmaking");
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockBuscarDecisoes.mockResolvedValue([]);
+    mockBuscarVacas.mockResolvedValue([VACA_PADRAO]);
+    mockMissaoAtiva.mockResolvedValue({
+      mooPreference: 9,
+      maxCargoKg: 600,
+      abductionStyle: "stealth",
+      temperamento: "curioso",
+      signoGalactico: "Pulsar Bovino",
+      objetivoDaMissao: "pesquisa",
+    });
+
+    await GET(makeRequest());
+
+    expect(vi.mocked(computeCompatibility)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mooPreference: 9,
+        abductionStyle: "stealth",
+        signoGalactico: "Pulsar Bovino",
+      }),
+      expect.any(Object)
+    );
+  });
+
+  it("vacas são ordenadas por matchScore decrescente quando há missão ativa", async () => {
+    const { computeCompatibility } = await import("@/lib/matchmaking");
+    const vaca2 = { ...VACA_PADRAO, id: "geraldina", name: "Geraldina" };
+    vi.mocked(computeCompatibility)
+      .mockReturnValueOnce(42)  // mimosa → score 42
+      .mockReturnValueOnce(88); // geraldina → score 88
+
+    mockAutET.mockResolvedValue(SESSAO_ET);
+    mockBuscarDecisoes.mockResolvedValue([]);
+    mockBuscarVacas.mockResolvedValue([VACA_PADRAO, vaca2]);
+
+    const res = await GET(makeRequest());
+    const data = await res.json();
+
+    expect(data.cows[0].id).toBe("geraldina"); // maior score primeiro
+    expect(data.cows[1].id).toBe("mimosa");
   });
 
   // SKIP: a rota não possui try/catch global, portanto uma exceção lançada por auth()

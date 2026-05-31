@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 const mockPush = vi.fn();
@@ -31,10 +31,10 @@ const mockFetchOk = () =>
   });
 
 async function fillStep1() {
-  await userEvent.type(screen.getByPlaceholderText("Zork das Nebulosas"), STEP1.name);
-  await userEvent.type(screen.getByPlaceholderText("zork@nebulosa.ufo"), STEP1.email);
-  await userEvent.type(screen.getByPlaceholderText("••••••••"), STEP1.password);
-  await userEvent.type(screen.getByPlaceholderText("Capitão Mugido"), STEP1.callsign);
+  fireEvent.change(screen.getByPlaceholderText("Zork das Nebulosas"), { target: { value: STEP1.name } });
+  fireEvent.change(screen.getByPlaceholderText("zork@nebulosa.ufo"), { target: { value: STEP1.email } });
+  fireEvent.change(screen.getByPlaceholderText("••••••••"), { target: { value: STEP1.password } });
+  fireEvent.change(screen.getByPlaceholderText("Capitão Mugido"), { target: { value: STEP1.callsign } });
 }
 
 async function advanceToStep2() {

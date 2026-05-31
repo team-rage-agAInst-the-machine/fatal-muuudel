@@ -20,6 +20,19 @@ export const CowCard = forwardRef<HTMLDivElement, Props>(function CowCard(
   const [imgError, setImgError] = useState(false);
   const showPhoto = !!cow.photoUrl && !imgError;
 
+  const matchScore = cow.matchScore;
+  const matchBadgeClass =
+    matchScore == null ? null :
+    matchScore >= 80 ? "high" :
+    matchScore >= 60 ? "mid" : "low";
+
+  const level = cow.protectionLevel;
+  const protectionBadge =
+    level === "DIVINA"    ? { label: "✨🔒 Divina",   cls: "divina"    } :
+    level === "SAGRADA"   ? { label: "🔒 Sagrada",    cls: "sagrada"   } :
+    level === "EXTRAVIADA"? { label: "🔓 Livre",      cls: "extraviada"} :
+    null;
+
   return (
     <div className={"fm-card" + (isTop ? " top" : "")} style={style} ref={isTop ? ref : null}>
       <div className="fm-card-photo" style={showPhoto ? undefined : stripedBg(cow.hue)}>
@@ -32,6 +45,18 @@ export const CowCard = forwardRef<HTMLDivElement, Props>(function CowCard(
           </>
         )}
         <div className="fm-card-scrim"></div>
+
+        {matchBadgeClass && (
+          <div className={`fm-match-badge ${matchBadgeClass}`}>
+            🛸 {matchScore}%
+          </div>
+        )}
+
+        {protectionBadge && (
+          <div className={`fm-protection-badge ${protectionBadge.cls}`}>
+            {protectionBadge.label}
+          </div>
+        )}
       </div>
 
       {isTop && (
@@ -74,8 +99,19 @@ export const CowCard = forwardRef<HTMLDivElement, Props>(function CowCard(
             <span className="v">{cow.mooLevel}/10</span>
             <span className="l">mugido</span>
           </div>
+          {cow.flightRisk != null && (
+            <div className="fm-stat">
+              <span className="v">{cow.flightRisk}/10</span>
+              <span className="l">fuga</span>
+            </div>
+          )}
         </div>
         <div className="fm-tags">
+          {cow.signoGalactico && (
+            <span className="fm-chip" style={{ color: "var(--violet)" }}>
+              ✦ {cow.signoGalactico}
+            </span>
+          )}
           {cow.tags.map((t, i) => (
             <span className="fm-chip" key={i}>
               {t}

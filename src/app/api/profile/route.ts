@@ -10,6 +10,7 @@ const updateSchema = z.object({
   callsign: z.string().min(2).max(30).optional(),
   homePlanet: z.string().min(2).max(50).optional(),
   shipModel: z.string().min(2).max(50).optional(),
+  towelStatus: z.string().nullable().optional(),
 });
 
 export async function PATCH(request: Request) {
@@ -32,7 +33,10 @@ export async function PATCH(request: Request) {
   const user = await prisma.user.update({
     where: { id: session.user.id },
     data: parsed.data,
-    select: { id: true, name: true, image: true, callsign: true, homePlanet: true, shipModel: true },
+    select: {
+      id: true, name: true, image: true, callsign: true, homePlanet: true, shipModel: true,
+      towelStatus: true,
+    },
   });
 
   return NextResponse.json({ ok: true, user });
