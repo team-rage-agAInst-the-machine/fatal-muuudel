@@ -21,16 +21,18 @@ resource "aws_instance" "app" {
   key_name               = var.key_pair_name
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh", {
-    db_url      = "postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.address}:5432/fatal_muuudel?schema=public"
-    db_host     = aws_db_instance.postgres.address
-    db_username = var.db_username
-    db_password = var.db_password
-    auth_secret = var.auth_secret
-    s3_bucket   = aws_s3_bucket.uploads.bucket
-    aws_region  = var.aws_region
-    app_url     = var.app_url
-    github_repo = var.github_repo
-    domain      = var.domain
+    db_url         = "postgresql://fatal_app:${var.db_password}@${aws_db_instance.postgres.address}:5432/fatal_muuudel?schema=public"
+    db_migrate_url = "postgresql://fatal_migrator:${var.db_migrator_password}@${aws_db_instance.postgres.address}:5432/fatal_muuudel?schema=public"
+    db_host            = aws_db_instance.postgres.address
+    db_admin_username  = var.db_username
+    db_admin_password  = var.db_password
+    db_migrator_password = var.db_migrator_password
+    auth_secret    = var.auth_secret
+    s3_bucket      = aws_s3_bucket.uploads.bucket
+    aws_region     = var.aws_region
+    app_url        = var.app_url
+    github_repo    = var.github_repo
+    domain         = var.domain
   }))
 
   tags = { Name = "fatal-muuudel-app" }

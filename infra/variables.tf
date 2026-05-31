@@ -16,7 +16,13 @@ variable "db_username" {
 }
 
 variable "db_password" {
-  description = "Senha do banco RDS"
+  description = "Senha do banco RDS (usuário fatal_app — só DML)"
+  type        = string
+  sensitive   = true
+}
+
+variable "db_migrator_password" {
+  description = "Senha do usuário fatal_migrator — DDL, usado só pelo prisma migrate"
   type        = string
   sensitive   = true
 }
