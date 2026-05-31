@@ -43,9 +43,8 @@ mugido — e tudo banhado em neon ciano sobre fundo de nave.
 |---|---|
 | **DEIXA PASTAR** ❌ | passou batido, segue o baile |
 | **ABDUZIR** 💖 | beam me up — vira abdução agendada |
-| **ABDUÇÃO VIP** 💜 | super-like, a vaca dos sonhos |
 
-> **Regra de ouro:** todo `LIKE` ou `SUPER` cria automaticamente uma **Abdução** com status `PLANNED`. A nave já reserva o porão.
+> **Regra de ouro:** todo `LIKE` cria automaticamente uma **Abdução** com status `PLANNED`. A nave já reserva o porão.
 
 ---
 
@@ -156,7 +155,7 @@ Paleta fechada — **nunca** use cor fora dela. Toda classe do projeto leva o pr
 |---|---|---|
 | `--cyan` | `#00f0ff` | ação primária, glow |
 | `--magenta` | `#ff3ea5` | like, match, destaque |
-| `--violet` | `#b06bff` | super-like, VIP |
+| `--violet` | `#b06bff` | destaques especiais |
 | `--lime` | `#5dff8f` | sucesso |
 | `--bg` | `#02121a` | fundo da nave |
 
@@ -168,8 +167,8 @@ Títulos/botões em **Orbitron** (`--fm-display`), corpo em **Chakra Petch** (`-
 
 - **🛸 User (ET)** — pilota uma nave (`shipModel`) vinda de um `homePlanet`, com `callsign` próprio.
 - **🐄 Cow** — catálogo de bovinos com raça, vibe, `mooLevel`, bio e foto.
-- **👆 Swipe** — `LIKE` (beam me up), `SUPER` (abdução VIP) ou `PASS` (deixa pastar).
-- **🎯 Abduction** — criada automaticamente no `LIKE`/`SUPER`. Estados: `PLANNED → IN_PROGRESS → COMPLETED / ABORTED`.
+- **👆 Swipe** — `LIKE` (beam me up) ou `PASS` (deixa pastar).
+- **🎯 Abduction** — criada automaticamente no `LIKE`. Estados: `PLANNED → IN_PROGRESS → COMPLETED / ABORTED`.
 
 ---
 
