@@ -6,8 +6,8 @@ exec > /var/log/user-data.log 2>&1
 dnf update -y
 dnf install -y git nginx python3-certbot-nginx
 
-# Node.js 20
-curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
+# Node.js 22
+curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -
 dnf install -y nodejs
 
 # PM2
@@ -18,25 +18,35 @@ APP_DIR="/opt/fatal-muuudel"
 git clone "${github_repo}" "$APP_DIR"
 chown -R ec2-user:ec2-user "$APP_DIR"
 
-# Variáveis de ambiente
+# Variáveis de ambiente (sem indentação para evitar espaços extras)
 cat > /etc/fatal-muuudel.env <<EOF
-DATABASE_URL="${db_url}"
-AUTH_SECRET="${auth_secret}"
-AUTH_URL="https://${domain}"
-AWS_REGION="${aws_region}"
-AWS_S3_BUCKET="${s3_bucket}"
+DATABASE_URL=${db_url}
+AUTH_SECRET=${auth_secret}
+AUTH_URL=https://${domain}
+AWS_REGION=${aws_region}
+AWS_S3_BUCKET=${s3_bucket}
 NODE_ENV=production
 PORT=3000
 EOF
-chmod 644 /etc/fatal-muuudel.env
+chmod 640 /etc/fatal-muuudel.env
+chown root:ec2-user /etc/fatal-muuudel.env
 
-# Instala dependências e builda como ec2-user
+# ── Banco: grants para o usuário da aplicação ─────────────────────────────────
+# Necessário para que o Prisma consiga criar/alterar tabelas no schema public
+dnf install -y postgresql17
+PGPASSWORD="${db_password}" psql -h "${db_host}" -U "${db_username}" -d fatal_muuudel <<SQL
+GRANT ALL ON SCHEMA public TO ${db_username};
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO ${db_username};
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO ${db_username};
+SQL
+
+# ── Build como ec2-user ───────────────────────────────────────────────────────
 sudo -u ec2-user bash -c "
   set -euo pipefail
   export HOME=/home/ec2-user
   export PATH=\$PATH:/usr/bin:/usr/local/bin
   cd $APP_DIR
-  export \$(cat /etc/fatal-muuudel.env | xargs)
+  set -a; source /etc/fatal-muuudel.env; set +a
   npm ci
   ./node_modules/.bin/prisma generate
   ./node_modules/.bin/prisma migrate deploy
@@ -46,12 +56,14 @@ sudo -u ec2-user bash -c "
 # ── PM2 ───────────────────────────────────────────────────────────────────────
 sudo -u ec2-user bash -c "
   set -euo pipefail
+  export HOME=/home/ec2-user
+  export PATH=\$PATH:/usr/bin:/usr/local/bin
   cd $APP_DIR
-  export \$(cat /etc/fatal-muuudel.env | xargs)
-  pm2 start npm --name fatal-muuudel -- start
+  set -a; source /etc/fatal-muuudel.env; set +a
+  pm2 start $APP_DIR/node_modules/.bin/next --name fatal-muuudel -- start
   pm2 save
 "
-env PATH=\$PATH:/usr/bin pm2 startup systemd -u ec2-user --hp /home/ec2-user | tail -1 | bash
+env PATH=\$PATH:/usr/bin /usr/bin/pm2 startup systemd -u ec2-user --hp /home/ec2-user | tail -1 | bash
 
 # ── Nginx ─────────────────────────────────────────────────────────────────────
 cat > /etc/nginx/conf.d/fatal-muuudel.conf <<EOF

@@ -22,6 +22,9 @@ resource "aws_instance" "app" {
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh", {
     db_url      = "postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.address}:5432/fatal_muuudel?schema=public"
+    db_host     = aws_db_instance.postgres.address
+    db_username = var.db_username
+    db_password = var.db_password
     auth_secret = var.auth_secret
     s3_bucket   = aws_s3_bucket.uploads.bucket
     aws_region  = var.aws_region

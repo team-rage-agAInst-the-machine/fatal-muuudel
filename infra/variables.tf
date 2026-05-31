@@ -28,9 +28,9 @@ variable "auth_secret" {
 }
 
 variable "app_url" {
-  description = "URL pública da app (ex: http://1.2.3.4). Usado como AUTH_URL."
+  description = "URL pública da app. Usado como AUTH_URL."
   type        = string
-  default     = "" # será preenchido depois com o Elastic IP
+  default     = "https://fatalmuuudel.com"
 }
 
 variable "github_repo" {
