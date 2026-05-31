@@ -1500,3 +1500,51 @@ html, body {
   background: rgba(255, 62, 165, 0.1);
   box-shadow: 0 0 16px rgba(255, 62, 165, 0.3);
 }
+
+/* ---------- Farmer ---------- */
+.fm-admin {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px 22px 40px;
+}
+.fm-admin-photo-drop {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 16px;
+  border: 2px dashed var(--cyan-dim);
+  background: var(--bg-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: border-color .2s;
+  overflow: hidden;
+  position: relative;
+}
+.fm-admin-photo-drop:hover {
+  border-color: var(--cyan);
+}
+.fm-admin-photo-drop img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.fm-admin-photo-label {
+  font-family: var(--fm-display), sans-serif;
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: var(--cyan);
+  opacity: .65;
+}
+.fm-admin-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}

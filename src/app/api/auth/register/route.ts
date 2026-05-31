@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { Prisma } from "@/generated/prisma/client";
@@ -12,7 +14,7 @@ const registerSchema = z.object({
   homePlanet: z.string().min(2),
   shipModel: z.string().min(2),
   // perfil biológico — todos opcionais
-  image: z.string().optional(),
+  image: z.string().url().optional(),
   species: z.string().optional(),
   locomotion: z.string().optional(),
   skinColor: z.string().optional(),

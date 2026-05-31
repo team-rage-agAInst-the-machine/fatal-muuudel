@@ -155,3 +155,16 @@ ALTER TABLE "Abduction" ADD CONSTRAINT "Abduction_alienId_fkey" FOREIGN KEY ("al
 
 -- AddForeignKey
 ALTER TABLE "Abduction" ADD CONSTRAINT "Abduction_cowId_fkey" FOREIGN KEY ("cowId") REFERENCES "Cow"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Seed: usuário fazendeiro (senha: muuudel)
+-- hash bcrypt gerado com saltRounds=12
+INSERT INTO "User" (id, email, name, callsign, password, "createdAt")
+VALUES (
+  'cm_fazendeiro_seed',
+  'erick.szns@gmail.com',
+  'O Fazendeiro',
+  'fazendeiro',
+  '$2b$12$HlFhR3souW6ED5l0wv/pR.TkmY4vto8KVfKB9o0ieZEjygl2sHgdW',
+  NOW()
+)
+ON CONFLICT (email) DO NOTHING;
