@@ -21,10 +21,26 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: DATABASE_URL,AUTH_SECRET,AUTH_URL,AWS_REGION,AWS_S3_BUCKET
           script: |
+            set -euo pipefail
+
+            # Regrava o env file de produção limpo a partir dos Secrets do GitHub.
+            # Mantém o mesmo formato do infra/user_data.sh — fonte canônica única.
+            sudo tee /etc/fatal-muuudel.env > /dev/null <<EOF
+            DATABASE_URL="$DATABASE_URL"
+            AUTH_SECRET="$AUTH_SECRET"
+            AUTH_URL="$AUTH_URL"
+            AWS_REGION="$AWS_REGION"
+            AWS_S3_BUCKET="$AWS_S3_BUCKET"
+            NODE_ENV=production
+            PORT=3000
+            EOF
+            sudo chmod 644 /etc/fatal-muuudel.env
+
             cd /opt/fatal-muuudel
             git pull origin main
-            export $(cat /etc/fatal-muuudel.env | xargs)
+            set -a; source /etc/fatal-muuudel.env; set +a
             rm -rf node_modules .next
             npm install
             npx prisma generate
@@ -32,7 +48,8 @@ jobs:
             npm run build
             pm2 describe fatal-muuudel > /dev/null 2>&1 \
               && pm2 reload fatal-muuudel --update-env \
-              || pm2 start npm --name "fatal-muuudel" -- start
+              || pm2 start npm --name "fatal-muuudel" --cwd /opt/fatal-muuudel --update-env -- start
+            pm2 save
 
       - name: ✅ Missão cumprida
         if: success()
