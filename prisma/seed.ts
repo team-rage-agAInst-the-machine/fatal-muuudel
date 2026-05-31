@@ -340,7 +340,7 @@ async function buscarFotosDoRebanho(): Promise<string[]> {
   if (fs.existsSync(CACHE_FOTOS)) {
     const cached: string[] = JSON.parse(fs.readFileSync(CACHE_FOTOS, "utf-8"));
     if (cached.length >= TAMANHO_REBANHO) {
-      console.log(`📸 Usando ${cached.length} fotos em cache (prisma/cow-photos.json).`);
+      console.log(`📡 [seed] banco de imagens bovinas carregado do cache — ${cached.length} vacas fotogênicas prontas pra abdução.`);
       return cached;
     }
   }
@@ -348,7 +348,7 @@ async function buscarFotosDoRebanho(): Promise<string[]> {
   const apiKey = process.env.PEXELS_API_KEY;
   if (!apiKey) return [];
 
-  console.log("🔍 Buscando fotos de vacas na Pexels API...");
+  console.log("🔭 [seed] escaneando galáxia Pexels em busca de bovinos fotogênicos...");
   try {
     const queries = ["cow farm", "dairy cow", "cattle field", "cow close up"];
     const urls: string[] = [];
@@ -367,12 +367,12 @@ async function buscarFotosDoRebanho(): Promise<string[]> {
 
     if (urls.length > 0) {
       fs.writeFileSync(PHOTOS_CACHE, JSON.stringify(urls, null, 2));
-      console.log(`📸 ${urls.length} fotos salvas em cache (prisma/cow-photos.json).`);
+      console.log(`📡 [seed] ${urls.length} selfies bovinas capturadas e armazenadas no banco de dados interestelar.`);
     }
 
     return urls;
   } catch {
-    console.warn("⚠️  Pexels API falhou, usando fotos de fallback.");
+    console.warn("🌩️ [seed] interferência cósmica detectada — Pexels fora do ar, ativando banco de fotos de reserva.");
     return [];
   }
 }
@@ -381,7 +381,7 @@ async function main() {
   const fotasDoPasto = await buscarFotosDoRebanho();
 
   if (fotasDoPasto.length === 0 && !process.env.PEXELS_API_KEY) {
-    console.log("ℹ️  PEXELS_API_KEY não configurada — usando fotos de fallback do Pexels.");
+    console.log("🛸 [seed] PEXELS_API_KEY ausente — rebanho será populado com fotos do arquivo histórico de abdução.");
   }
 
   const rebanhoComFotos = cows.map((cow, i) => {
@@ -397,11 +397,11 @@ async function main() {
       create: cow,
     });
   }
-  console.log(`Seeded ${cows.length} cows. 🛸🐄`);
+  console.log(`🐄 [seed] ${cows.length} bovinos catalogados e prontos para abdução. O pasto interestelar está aberto, capitão.`);
 
   const farmerPassword = process.env.FARMER_PASSWORD;
   if (!farmerPassword) {
-    console.warn("FARMER_PASSWORD não definido — usuário fazendeiro não foi criado.");
+    console.warn("🧑‍🌾 [seed] FARMER_PASSWORD não definido — fazendeiro ficou no pasto, sem acesso ao sistema.");
   } else {
     const hashedPassword = await bcrypt.hash(farmerPassword, 12);
     await prisma.user.upsert({
@@ -414,13 +414,13 @@ async function main() {
         password: hashedPassword,
       },
     });
-    console.log("Fazendeiro upsertado. 🧑‍🌾");
+    console.log("🧑‍🌾 [seed] fazendeiro infiltrado com sucesso — ele pensa que tá entre as vacas, mas a gente sabe.");
   }
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error("💥 [seed] nave explodiu antes de decolar — erro catastrófico no seed:", e);
     process.exit(1);
   })
   .finally(() => prisma.$disconnect());

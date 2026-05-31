@@ -20,10 +20,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   logger: {
     error(err) {
       if (err.name === "CredentialsSignin") {
-        console.warn("[auth] login failed")
+        console.warn("🛸 [auth] sinal de identificação ET inválido — acesso negado ao disco")
         return
       }
-      console.error(err)
+      console.error("💥 [auth] falha crítica no sistema de autenticação interestelar:", err)
     },
   },
   providers: [

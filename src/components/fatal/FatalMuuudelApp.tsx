@@ -51,7 +51,7 @@ export function FatalMuuudelApp() {
       .then((data) => {
         if (data) setAbducted(data.abductions ?? []);
       })
-      .catch((err) => console.error("Falha ao buscar abduções:", err));
+      .catch((err) => console.error("🛸 [abductions] porão da nave corrompido — lista de abduzidas inacessível:", err));
   };
 
   useEffect(() => {
@@ -78,7 +78,7 @@ export function FatalMuuudelApp() {
         body: JSON.stringify({ cowId: cow.id, direction: dir }),
       });
     } catch (err) {
-      console.error("Falha ao registrar swipe:", err);
+      console.error("🐄 [swipe] raio trator falhou — vaca escapou sem ser registrada:", err);
       return;
     }
     setCurrent((c) => c + 1);
