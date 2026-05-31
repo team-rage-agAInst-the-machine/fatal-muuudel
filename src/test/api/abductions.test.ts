@@ -8,9 +8,9 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
-const { auth } = await import("@/auth");
-const { prisma } = await import("@/lib/prisma");
-const { GET } = await import("@/app/api/abductions/route");
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { GET } from "@/app/api/abductions/route";
 
 const mockAuth = vi.mocked(auth);
 const mockAbductionFindMany = vi.mocked(prisma.abduction.findMany);
@@ -99,6 +99,12 @@ describe("GET /api/abductions", () => {
     expect(mockAbductionFindMany).toHaveBeenCalledWith(
       expect.objectContaining({ orderBy: { createdAt: "desc" } })
     );
+
+    expect(mockSwipeFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ alienId: expect.any(String) }),
+      })
+    );
   });
 
   it("vip: true quando o swipe correspondente foi SUPER", async () => {
@@ -125,6 +131,19 @@ describe("GET /api/abductions", () => {
     ] as never);
 
     const res = await GET();
+    const data = await res.json();
+    expect(data.abductions[0].vip).toBe(false);
+  });
+
+  it("vip: false quando nao ha swipe correspondente para a vaca", async () => {
+    mockAuth.mockResolvedValue(SESSION);
+    mockAbductionFindMany.mockResolvedValue([
+      { cowId: "cow-1", cow: mockCow, createdAt: new Date("2025-01-01") },
+    ] as never);
+    mockSwipeFindMany.mockResolvedValue([] as never);
+
+    const res = await GET();
+    expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.abductions[0].vip).toBe(false);
   });
