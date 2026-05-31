@@ -86,6 +86,12 @@ jobs:
 
       - name: 🔍 Verificando rota estelar (terraform plan)
         if: steps.check.outputs.should_run == 'true'
+        env:
+          # allowed_ssh_cidrs é list(string). Passar via -var no shell é frágil
+          # (as aspas/colchetes se perdem → "Invalid number literal"). Montamos a
+          # lista JSON aqui e entregamos via TF_VAR_, que o Terraform parseia como HCL.
+          # A Secret guarda só o CIDR puro, ex: 0.0.0.0/0
+          TF_VAR_allowed_ssh_cidrs: '["${{ secrets.TF_VAR_ALLOWED_SSH_CIDRS }}"]'
         run: |
           terraform plan \
             -var="db_password=${{ secrets.TF_VAR_DB_PASSWORD }}" \
@@ -94,7 +100,6 @@ jobs:
             -var="key_pair_name=${{ secrets.TF_VAR_KEY_PAIR_NAME }}" \
             -var="github_repo=${{ secrets.TF_VAR_GITHUB_REPO }}" \
             -var="app_url=${{ secrets.TF_VAR_APP_URL }}" \
-            -var="allowed_ssh_cidrs=${{ secrets.TF_VAR_ALLOWED_SSH_CIDRS }}" \
             -out=tfplan
 
       - name: 🚀 Aplicando missão (terraform apply)
