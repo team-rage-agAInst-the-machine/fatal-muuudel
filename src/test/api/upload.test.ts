@@ -29,14 +29,24 @@ const { POST } = await import("@/app/api/upload/route");
 const SESSION = { user: { id: "et-001", email: "zork@ufo.com" } };
 const MAX_SIZE = 5 * 1024 * 1024;
 
-function makeFile(type = "image/jpeg", name = "photo.jpg") {
-  return new File(["x"], name, { type });
+const JPEG_MAGIC = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01])
+const PNG_MAGIC = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d])
+const WEBP_MAGIC = new Uint8Array([0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50])
+
+function makeFile(type = "image/jpeg", name = "photo.jpg", content: Uint8Array | string = JPEG_MAGIC) {
+  return new File([content], name, { type });
 }
 
-function makeRequest(file: File) {
-  const fd = new FormData();
-  fd.append("file", file);
-  return new Request("http://localhost/api/upload", { method: "POST", body: fd });
+/**
+ * jsdom's Request.formData() hangs when the body contains a File with binary content.
+ * We stub formData() on the request instance to bypass this jsdom limitation.
+ */
+function makeRequest(file: File | null): Request {
+  const req = new Request("http://localhost/api/upload", { method: "POST", body: new FormData() });
+  vi.spyOn(req, "formData").mockResolvedValue({
+    get: () => file,
+  } as unknown as FormData);
+  return req;
 }
 
 describe("POST /api/upload", () => {
@@ -66,46 +76,41 @@ describe("POST /api/upload", () => {
 
   it("retorna 400 quando nenhum arquivo enviado", async () => {
     mockAuth.mockResolvedValue(SESSION);
-    const req = new Request("http://localhost/api/upload", { method: "POST", body: new FormData() });
-    const res = await POST(req);
+    const res = await POST(makeRequest(null));
     expect(res.status).toBe(400);
     expect((await res.json()).error).toMatch(/nenhum arquivo/i);
   });
 
   it("retorna 400 para MIME type inválido (PDF)", async () => {
     mockAuth.mockResolvedValue(SESSION);
-    const res = await POST(makeRequest(makeFile("application/pdf", "doc.pdf")));
+    const res = await POST(makeRequest(new File(["x"], "doc.pdf", { type: "application/pdf" })));
     expect(res.status).toBe(400);
     expect((await res.json()).error).toMatch(/tipo de arquivo não suportado/i);
   });
 
   it("retorna 400 para image/gif (não está nos tipos aceitos)", async () => {
     mockAuth.mockResolvedValue(SESSION);
-    const res = await POST(makeRequest(makeFile("image/gif", "anim.gif")));
+    const res = await POST(makeRequest(new File(["x"], "anim.gif", { type: "image/gif" })));
     expect(res.status).toBe(400);
   });
 
   it("retorna 400 quando arquivo é maior que 5MB (via file.size)", async () => {
     mockAuth.mockResolvedValue(SESSION);
-    // jsdom não preserva conteúdo grande no ciclo FormData→Request→formData.
-    // Injetamos um File-like com size acima do limite para testar a checagem da rota.
-    const mockFile = { type: "image/jpeg", size: MAX_SIZE + 1 };
-    const spy = vi.spyOn(Request.prototype, "formData").mockResolvedValueOnce({
-      get: () => mockFile,
-    } as unknown as FormData);
-    try {
-      const res = await POST(makeRequest(makeFile()));
-      expect(res.status).toBe(400);
-      expect((await res.json()).error).toMatch(/muito grande/i);
-    } finally {
-      spy.mockRestore();
-    }
+    const mockFile = { type: "image/jpeg", size: MAX_SIZE + 1 } as File;
+    const res = await POST(makeRequest(mockFile));
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toMatch(/muito grande/i);
   });
 
   it("aceita JPEG, PNG e WebP", async () => {
     mockAuth.mockResolvedValue(SESSION);
-    for (const [type, ext] of [["image/jpeg", "jpg"], ["image/png", "png"], ["image/webp", "webp"]]) {
-      const res = await POST(makeRequest(makeFile(type, `photo.${ext}`)));
+    const cases = [
+      ["image/jpeg", "jpg", JPEG_MAGIC],
+      ["image/png", "png", PNG_MAGIC],
+      ["image/webp", "webp", WEBP_MAGIC],
+    ] as const;
+    for (const [type, ext, magic] of cases) {
+      const res = await POST(makeRequest(makeFile(type, `photo.${ext}`, magic)));
       expect(res.status).toBe(200);
     }
   });
@@ -113,7 +118,7 @@ describe("POST /api/upload", () => {
   it("salva localmente em dev e atualiza User.image", async () => {
     mockAuth.mockResolvedValue(SESSION);
 
-    const res = await POST(makeRequest(makeFile("image/jpeg")));
+    const res = await POST(makeRequest(makeFile("image/jpeg", "photo.jpg", JPEG_MAGIC)));
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.url).toMatch(/^\/uploads\/.+\.jpg$/);
@@ -123,12 +128,14 @@ describe("POST /api/upload", () => {
     );
   });
 
-  it("deriva extensão do MIME type, não do nome do arquivo", async () => {
+  it("deriva extensão dos magic bytes, não do MIME declarado", async () => {
     mockAuth.mockResolvedValue(SESSION);
-    const file = makeFile("image/png", "malicious.exe");
+    // Arquivo com magic bytes JPEG mas MIME declarado como PNG
+    // detectImageType detecta JPEG → ext deve ser .jpg
+    const file = makeFile("image/png", "malicious.exe", JPEG_MAGIC);
     const res = await POST(makeRequest(file));
     const data = await res.json();
-    expect(data.url).toMatch(/\.png$/);
+    expect(data.url).toMatch(/\.jpg$/);
   });
 
   it("faz upload para S3 e atualiza User.image quando AWS_S3_BUCKET está configurado", async () => {
@@ -138,7 +145,7 @@ describe("POST /api/upload", () => {
     process.env.AWS_REGION = "us-east-1";
     process.env.AWS_S3_BUCKET = "fatal-muuudel";
 
-    const res = await POST(makeRequest(makeFile()));
+    const res = await POST(makeRequest(makeFile("image/jpeg", "photo.jpg", JPEG_MAGIC)));
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.url).toMatch(/amazonaws\.com/);
@@ -153,9 +160,44 @@ describe("POST /api/upload", () => {
     mockAuth.mockResolvedValue(SESSION);
     // AWS_S3_BUCKET ausente → rota ignora S3 e salva localmente
 
-    const res = await POST(makeRequest(makeFile()));
+    const res = await POST(makeRequest(makeFile("image/jpeg", "photo.jpg", JPEG_MAGIC)));
     expect(res.status).toBe(200);
     expect(mockSend).not.toHaveBeenCalled();
     expect(mockWriteFile).toHaveBeenCalledOnce();
+  });
+
+  it("retorna 400 quando magic bytes não correspondem (MIME spoofing com conteúdo PDF)", async () => {
+    mockAuth.mockResolvedValue(SESSION);
+    // Magic bytes de PDF (0x25 0x50 0x44 0x46 = %PDF) com MIME jpeg → detectImageType retorna null
+    const evilFile = makeFile("image/jpeg", "evil.jpg", new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]));
+    const res = await POST(makeRequest(evilFile));
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toMatch(/não reconhecido como imagem válida/i);
+  });
+
+  it("ContentType enviado ao S3 usa tipo detectado pelos magic bytes, não o MIME do cliente", async () => {
+    mockAuth.mockResolvedValue(SESSION);
+    mockSend.mockResolvedValue({});
+
+    process.env.AWS_REGION = "us-east-1";
+    process.env.AWS_S3_BUCKET = "fatal-muuudel";
+
+    // Magic bytes JPEG mas MIME declarado como PNG
+    const file = makeFile("image/png", "photo.png", JPEG_MAGIC);
+    const res = await POST(makeRequest(file));
+    expect(res.status).toBe(200);
+
+    const callArg = mockSend.mock.calls[0][0];
+    expect(callArg.input.ContentType).toBe("image/jpeg");
+  });
+
+  it("retorna 503 em produção sem AWS_S3_BUCKET", async () => {
+    mockAuth.mockResolvedValue(SESSION);
+    vi.stubEnv("NODE_ENV", "production");
+    delete process.env.AWS_S3_BUCKET;
+
+    const res = await POST(makeRequest(makeFile("image/jpeg", "photo.jpg", JPEG_MAGIC)));
+    expect(res.status).toBe(503);
+    expect((await res.json()).error).toMatch(/storage não configurado/i);
   });
 });
