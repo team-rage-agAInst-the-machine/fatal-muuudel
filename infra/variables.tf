@@ -49,3 +49,8 @@ variable "domain" {
   type        = string
   default     = "fatalmuuudel.com"
 }
+
+variable "allowed_ssh_cidrs" {
+  description = "CIDRs permitidos para acesso SSH à EC2. Use o IP da equipe ou range da VPN. NÃO use 0.0.0.0/0 em produção."
+  type        = list(string)
+}

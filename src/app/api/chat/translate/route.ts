@@ -1,14 +1,13 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+
+export const dynamic = "force-dynamic";
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import { z } from "zod";
 
 const bodySchema = z.object({
   message: z.string().min(1).max(500),
-  cowName: z.string(),
-  cowBio: z.string(),
-  cowBreed: z.string(),
-  cowMooLevel: z.number().int().min(0).max(10),
+  cowId: z.string().min(1).max(100),
 });
 
 const MUGIDOS_OFFLINE = [
@@ -45,7 +44,16 @@ export async function POST(req: Request) {
     return Response.json({ error: "Dados inválidos" }, { status: 400 });
   }
 
-  const { message, cowName, cowBio, cowBreed, cowMooLevel } = parsed.data;
+  const session = await auth();
+  if (!session?.user?.id) {
+    return Response.json({ error: "Não autenticado" }, { status: 401 });
+  }
+
+  const cow = await prisma.cow.findUnique({
+    where: { id: parsed.data.cowId },
+    select: { name: true, breed: true, bio: true, mooLevel: true },
+  });
+  if (!cow) return Response.json({ error: "Vaca não encontrada" }, { status: 404 });
 
   const apiKey = process.env.GOOGLE_AI_API_KEY;
   if (!apiKey) {
@@ -55,23 +63,20 @@ export async function POST(req: Request) {
     });
   }
 
-  const session = await auth();
   let codinomeET = "Capitão Anônimo";
   let planetaET = "planeta desconhecido";
 
-  if (session?.user?.id) {
-    const alien = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { callsign: true, homePlanet: true },
-    });
-    if (alien?.callsign) codinomeET = alien.callsign;
-    if (alien?.homePlanet) planetaET = alien.homePlanet;
-  }
+  const alien = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { callsign: true, homePlanet: true },
+  });
+  if (alien?.callsign) codinomeET = alien.callsign;
+  if (alien?.homePlanet) planetaET = alien.homePlanet;
 
-  const systemPrompt = `Você é ${cowName}, uma vaca da raça ${cowBreed} que foi abduzida por ${codinomeET}, um ET vindo do planeta ${planetaET}. Você está no porão da nave espacial, conversando com seu abdutor.
+  const systemPrompt = `Você é ${cow.name}, uma vaca da raça ${cow.breed} que foi abduzida por ${codinomeET}, um ET vindo do planeta ${planetaET}. Você está no porão da nave espacial, conversando com seu abdutor.
 
-Sobre você: ${cowBio}
-Expressividade bovine (0-10): ${cowMooLevel}
+Sobre você: ${cow.bio}
+Expressividade bovine (0-10): ${cow.mooLevel}
 
 RESPONDA com UMA ÚNICA LINHA no formato exato — sem exceções, sem variações:
 [mugido] (tradução)
@@ -96,9 +101,15 @@ Regras absolutas:
     const model = genAI.getGenerativeModel({
       model: "gemini-flash-lite-latest",
       systemInstruction: systemPrompt,
+      safetySettings: [
+        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+      ],
     });
 
-    const result = await model.generateContentStream(message);
+    const result = await model.generateContentStream(parsed.data.message);
 
     const stream = new ReadableStream({
       async start(controller) {
