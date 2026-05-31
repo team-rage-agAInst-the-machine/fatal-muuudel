@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { Cow } from "./data";
 import { stripedBg } from "./data";
 
@@ -12,8 +13,25 @@ type Props = {
 };
 
 export function CowProfileModal({ cow, vip, onClose, onChat, onRelease }: Props) {
+  const [liberando, setLiberando] = useState(false);
+
+  const handleRelease = () => {
+    if (!onRelease) return;
+    setLiberando(true);
+    setTimeout(() => onRelease(cow.id), 2200);
+  };
+
   return (
     <div className="fm-profile">
+      {/* Overlay de liberação — aparece sobre tudo quando devolve ao pasto */}
+      {liberando && (
+        <div className="fm-liberdade">
+          <div className="fm-liberdade-vaca">🐄💨</div>
+          <div className="fm-liberdade-texto fm-display">MUUUU!</div>
+          <div className="fm-liberdade-sub">De volta ao pasto, {cow.name}!</div>
+        </div>
+      )}
+
       <div className="fm-profile-header">
         <button className="fm-profile-back" onClick={onClose} aria-label="Voltar">
           ←
@@ -92,7 +110,8 @@ export function CowProfileModal({ cow, vip, onClose, onChat, onRelease }: Props)
         {onRelease && (
           <button
             className="fm-btn fm-display fm-btn-release"
-            onClick={() => onRelease(cow.id)}
+            onClick={handleRelease}
+            disabled={liberando}
           >
             DEVOLVER AO PASTO 🐄
           </button>

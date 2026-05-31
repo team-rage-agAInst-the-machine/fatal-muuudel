@@ -1287,6 +1287,61 @@ html, body {
   background: rgba(93, 255, 143, 0.1);
   box-shadow: 0 0 16px rgba(93, 255, 143, 0.3);
 }
+.fm-btn-release:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---------- Animação de liberdade — devolver ao pasto ---------- */
+@keyframes fm-pasto-sobe {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes fm-vaca-corre {
+  0%   { transform: translateX(120px); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateX(calc(-100vw - 120px)); opacity: 0; }
+}
+@keyframes fm-liberdade-texto {
+  0%   { opacity: 0; transform: scale(0.6) translateY(10px); }
+  30%  { opacity: 1; transform: scale(1.1) translateY(0); }
+  70%  { opacity: 1; transform: scale(1) translateY(0); }
+  100% { opacity: 0; transform: scale(0.9) translateY(-10px); }
+}
+
+.fm-liberdade {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: rgba(2, 18, 26, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  animation: fm-pasto-sobe 0.2s ease both;
+  overflow: hidden;
+}
+.fm-liberdade-vaca {
+  font-size: 72px;
+  animation: fm-vaca-corre 2.2s ease-in-out 0.2s both;
+  filter: drop-shadow(0 0 20px rgba(93,255,143,0.8));
+}
+.fm-liberdade-texto {
+  font-size: 36px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 30px rgba(93,255,143,1), 0 2px 8px rgba(0,0,0,0.5);
+  animation: fm-liberdade-texto 2.2s ease 0.15s both;
+}
+.fm-liberdade-sub {
+  font-family: var(--fm-body), sans-serif;
+  font-size: 14px;
+  color: rgba(255,255,255,0.8);
+  animation: fm-liberdade-texto 2.2s ease 0.3s both;
+}
 
 /* Grid items — clicáveis */
 .fm-grid-item { cursor: pointer; }
