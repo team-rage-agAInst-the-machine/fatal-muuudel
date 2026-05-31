@@ -74,7 +74,7 @@ sudo -u ec2-user bash -c "
   export PATH=\$PATH:/usr/bin:/usr/local/bin
   cd $APP_DIR
   set -a; source /etc/fatal-muuudel.env; set +a
-  pm2 start $APP_DIR/node_modules/.bin/next --name fatal-muuudel -- start
+  pm2 start npm --name fatal-muuudel --cwd $APP_DIR -- start
   pm2 save
 "
 env PATH=\$PATH:/usr/bin /usr/bin/pm2 startup systemd -u ec2-user --hp /home/ec2-user | tail -1 | bash
