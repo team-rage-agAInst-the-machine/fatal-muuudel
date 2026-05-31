@@ -7,12 +7,12 @@ import { Prisma } from "@/generated/prisma/client";
 const registerSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
-  password: z.string().min(6),
+  password: z.string().min(12),
   callsign: z.string().min(2).max(20),
   homePlanet: z.string().min(2),
   shipModel: z.string().min(2),
   // perfil biológico — todos opcionais
-  image: z.string().optional(),
+  image: z.string().url().optional(),
   species: z.string().optional(),
   locomotion: z.string().optional(),
   skinColor: z.string().optional(),
