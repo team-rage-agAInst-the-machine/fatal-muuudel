@@ -52,20 +52,15 @@ const mockCow = {
 // Cria um mock de stream que retorna texto chunk a chunk
 function makeStreamResponse(text: string) {
   const encoder = new TextEncoder();
-  let done = false;
   return {
     ok: true,
-    body: {
-      getReader() {
-        return {
-          read(): Promise<{ done: boolean; value?: Uint8Array }> {
-            if (done) return Promise.resolve({ done: true });
-            done = true;
-            return Promise.resolve({ done: false, value: encoder.encode(text) });
-          },
-        };
+    headers: new Headers({ "Content-Type": "text/plain; charset=utf-8" }),
+    body: new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode(text));
+        controller.close();
       },
-    },
+    }),
   };
 }
 

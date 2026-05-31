@@ -111,6 +111,7 @@ describe("POST /api/chat/translate", () => {
   });
 
   it("sem GOOGLE_AI_API_KEY: retorna text/plain com uma resposta mock", async () => {
+    vi.mocked(auth).mockResolvedValue(null);
     // GOOGLE_AI_API_KEY não definido
     const res = await POST(makeRequest(VALID_BODY));
 
@@ -122,6 +123,7 @@ describe("POST /api/chat/translate", () => {
   });
 
   it("sem GOOGLE_AI_API_KEY: não chama GoogleGenerativeAI", async () => {
+    vi.mocked(auth).mockResolvedValue(null);
     await POST(makeRequest(VALID_BODY));
     // getGenerativeModel nunca é chamado quando não há API key
     expect(mockGetGenerativeModel).not.toHaveBeenCalled();
@@ -165,14 +167,15 @@ describe("POST /api/chat/translate", () => {
     expect(MOCK_REPLIES).toContain(text);
   });
 
-  it("body malformado (JSON inválido): requisição rejeita com erro (req.json() não está protegido)", async () => {
-    // A rota não tem try/catch em torno de req.json(), então um JSON malformado
-    // faz o handler rejeitar em vez de retornar 400.
+  it("body malformado retorna 400 com mensagem de erro", async () => {
     const req = new Request("http://localhost/api/chat/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: "{ malformed json !!!",
+      body: "{ json malformado !!!",
     });
-    await expect(POST(req)).rejects.toThrow();
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+    const data = await res.json();
+    expect(data.error).toBeDefined();
   });
 });

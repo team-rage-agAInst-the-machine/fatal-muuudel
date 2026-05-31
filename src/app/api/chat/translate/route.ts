@@ -34,7 +34,12 @@ function mockStream(text: string): ReadableStream {
 }
 
 export async function POST(req: Request) {
-  const body = await req.json();
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return Response.json({ error: "Payload invalido" }, { status: 400 });
+  }
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {
     return Response.json({ error: "Dados inválidos" }, { status: 400 });
