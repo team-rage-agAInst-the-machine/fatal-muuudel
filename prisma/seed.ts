@@ -446,7 +446,7 @@ async function main() {
       create: cow,
     });
   }
-  console.log(`Seeded ${cowsWithPhotos.length} cows. 🛸🐄`);
+  console.log(`Seeded ${rebanhoComFotos.length} cows. 🛸🐄`);
 }
 
 main()
