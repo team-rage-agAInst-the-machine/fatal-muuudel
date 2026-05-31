@@ -1,4 +1,5 @@
 import "dotenv/config";
+import bcrypt from "bcryptjs";
 import fs from "fs";
 import path from "path";
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -396,7 +397,25 @@ async function main() {
       create: cow,
     });
   }
-  console.log(`Seeded ${rebanhoComFotos.length} cows. 🛸🐄`);
+  console.log(`Seeded ${cows.length} cows. 🛸🐄`);
+
+  const farmerPassword = process.env.FARMER_PASSWORD;
+  if (!farmerPassword) {
+    console.warn("FARMER_PASSWORD não definido — usuário fazendeiro não foi criado.");
+  } else {
+    const hashedPassword = await bcrypt.hash(farmerPassword, 12);
+    await prisma.user.upsert({
+      where: { email: "erick.szns@gmail.com" },
+      update: {},
+      create: {
+        email: "erick.szns@gmail.com",
+        name: "O Fazendeiro",
+        callsign: "fazendeiro",
+        password: hashedPassword,
+      },
+    });
+    console.log("Fazendeiro upsertado. 🧑‍🌾");
+  }
 }
 
 main()

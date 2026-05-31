@@ -21,6 +21,7 @@ jobs:
           script: |
             set -euo pipefail
             cd /opt/fatal-muuudel
+            git checkout -- .
             git pull origin main
             set -a; source /etc/fatal-muuudel.env; set +a
             rm -rf node_modules .next

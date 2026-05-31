@@ -35,7 +35,7 @@ function makePrismaUniqueError(field: string) {
 const validBody = {
   name: "Zork",
   email: "zork@nebulosa.ufo",
-  password: "senha123",
+  password: "senha123segura",
   callsign: "Cap Mugido",
   homePlanet: "Zargon-7",
   shipModel: "Disco Mk IV",
