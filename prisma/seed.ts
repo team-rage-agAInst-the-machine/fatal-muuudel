@@ -1,4 +1,6 @@
 import "dotenv/config";
+import fs from "fs";
+import path from "path";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 
@@ -36,7 +38,7 @@ const cows: CowSeed[] = [
     hue: 188,
     tags: ["Capim premium", "Rumina à noite", "Já viu OVNI antes"],
     bio: "Topo abdução de primeira, mas só se rolar sal mineral no after. 🐄✨",
-    photoUrl: "https://picsum.photos/seed/mimosa/400/500",
+    photoUrl: "https://images.pexels.com/photos/422218/pexels-photo-422218.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
   },
   {
     id: "geraldina",
@@ -51,7 +53,7 @@ const cows: CowSeed[] = [
     hue: 168,
     tags: ["Leite premiado", "Anti-carrapato", "Não muge no after"],
     bio: "Sou a fábrica de leite da fazenda. Cabe na nave? Porque eu não passo na portinhola. 😎",
-    photoUrl: "https://picsum.photos/seed/geraldina/400/500",
+    photoUrl: "https://images.pexels.com/photos/3662868/pexels-photo-3662868.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
   },
   {
     id: "estrela",
@@ -66,7 +68,7 @@ const cows: CowSeed[] = [
     hue: 200,
     tags: ["Berra alto", "Fã de cerca elétrica", "Vibe pasto orgânico"],
     bio: "Mugido nível show de rock 🤘 Se quiser silêncio na nave, passa pra próxima.",
-    photoUrl: "https://picsum.photos/seed/estrela/400/500",
+    photoUrl: "https://images.pexels.com/photos/2255459/pexels-photo-2255459.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
   },
   {
     id: "margarida",
@@ -81,7 +83,7 @@ const cows: CowSeed[] = [
     hue: 152,
     tags: ["Compacta", "Curte sal mineral", "Soneca no pasto"],
     bio: "Pequena, dócil e cabe em qualquer disco voador. Praticamente plug and play. 🛸",
-    photoUrl: "https://picsum.photos/seed/margarida/400/500",
+    photoUrl: "https://images.pexels.com/photos/735968/pexels-photo-735968.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
   },
   {
     id: "bartira",
@@ -96,7 +98,7 @@ const cows: CowSeed[] = [
     hue: 210,
     tags: ["Marrenta", "Pula cerca", "Líder do rebanho"],
     bio: "Já fugi de 3 fazendas, duvido essa navezinha me segurar. Vem com tudo. 💪",
-    photoUrl: "https://picsum.photos/seed/bartira/400/500",
+    photoUrl: "https://images.pexels.com/photos/3640086/pexels-photo-3640086.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
   },
   {
     id: "penelope",
@@ -111,7 +113,7 @@ const cows: CowSeed[] = [
     hue: 176,
     tags: ["Romântica", "Olha pra lua", "Leite cremoso"],
     bio: "Vivo olhando pro céu esperando uma nave. Demorou, hein? 🌙👽",
-    photoUrl: "https://picsum.photos/seed/penelope/400/500",
+    photoUrl: "https://images.pexels.com/photos/1550648/pexels-photo-1550648.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
   },
   {
     id: "zelia",
@@ -122,12 +124,11 @@ const cows: CowSeed[] = [
     weightKg: 612,
     milkPct: 71,
     mooLevel: 3,
-    
     distance: "6,4 anos-luz",
     hue: 164,
     tags: ["Sábia", "Conta histórias", "Anti-stress"],
     bio: "Sou a coroa do pasto, tenho causos de abdução pra te contar a viagem toda. 👵",
-    photoUrl: "https://picsum.photos/seed/zelia/400/500",
+    photoUrl: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
   },
   {
     id: "carminha",
@@ -142,7 +143,7 @@ const cows: CowSeed[] = [
     hue: 192,
     tags: ["Dramática", "Diva do curral", "Pose pra foto"],
     bio: "Se for me abduzir, que seja com raio trator de qualidade. Tenho padrão. 💅",
-    photoUrl: "https://picsum.photos/seed/carminha/400/500",
+    photoUrl: "https://images.pexels.com/photos/2318991/pexels-photo-2318991.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
   },
   // ⚠️ Intrusos — humanos disfarçados de vaca
   {
@@ -179,15 +180,72 @@ const cows: CowSeed[] = [
   },
 ];
 
+const PHOTOS_CACHE = path.join(__dirname, "cow-photos.json");
+const COW_COUNT = 8; // vacas reais (sem os humanos infiltrados)
+
+async function fetchCowPhotos(): Promise<string[]> {
+  // Usa cache se já tiver fotos suficientes
+  if (fs.existsSync(PHOTOS_CACHE)) {
+    const cached: string[] = JSON.parse(fs.readFileSync(PHOTOS_CACHE, "utf-8"));
+    if (cached.length >= COW_COUNT) {
+      console.log(`📸 Usando ${cached.length} fotos em cache (prisma/cow-photos.json).`);
+      return cached;
+    }
+  }
+
+  const apiKey = process.env.PEXELS_API_KEY;
+  if (!apiKey) return [];
+
+  console.log("🔍 Buscando fotos de vacas na Pexels API...");
+  try {
+    const queries = ["cow farm", "dairy cow", "cattle field", "cow close up"];
+    const urls: string[] = [];
+
+    for (const query of queries) {
+      const res = await fetch(
+        `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=3&orientation=portrait`,
+        { headers: { Authorization: apiKey } }
+      );
+      if (!res.ok) continue;
+      const data = await res.json() as { photos: { src: { large: string } }[] };
+      for (const photo of data.photos) {
+        if (photo.src?.large) urls.push(photo.src.large);
+      }
+    }
+
+    if (urls.length > 0) {
+      fs.writeFileSync(PHOTOS_CACHE, JSON.stringify(urls, null, 2));
+      console.log(`📸 ${urls.length} fotos salvas em cache (prisma/cow-photos.json).`);
+    }
+
+    return urls;
+  } catch {
+    console.warn("⚠️  Pexels API falhou, usando fotos de fallback.");
+    return [];
+  }
+}
+
 async function main() {
-  for (const cow of cows) {
+  const pexelsPhotos = await fetchCowPhotos();
+
+  if (pexelsPhotos.length === 0 && !process.env.PEXELS_API_KEY) {
+    console.log("ℹ️  PEXELS_API_KEY não configurada — usando fotos de fallback do Pexels.");
+  }
+
+  const cowsWithPhotos = cows.map((cow, i) => {
+    if (cow.isHuman) return cow;
+    const photo = pexelsPhotos[i];
+    return photo ? { ...cow, photoUrl: photo } : cow;
+  });
+
+  for (const cow of cowsWithPhotos) {
     await prisma.cow.upsert({
       where: { id: cow.id },
       update: cow,
       create: cow,
     });
   }
-  console.log(`Seeded ${cows.length} cows. 🛸🐄`);
+  console.log(`Seeded ${cowsWithPhotos.length} cows. 🛸🐄`);
 }
 
 main()
