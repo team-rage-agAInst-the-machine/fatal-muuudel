@@ -136,7 +136,21 @@ export function ChatModal({ cow, vip, onClose }: Props) {
         >
           ←
         </button>
-        <div className="fm-chat-avatar">🐄</div>
+        <div className="fm-chat-avatar">
+          {cow.photoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={cow.photoUrl}
+              alt={cow.name}
+              className="fm-chat-avatar-img"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = "none";
+                (e.currentTarget.nextSibling as HTMLElement).style.display = "block";
+              }}
+            />
+          ) : null}
+          <span style={{ display: cow.photoUrl ? "none" : "block" }}>🐄</span>
+        </div>
         <div className="fm-chat-header-info">
           <div className="fm-chat-header-name fm-display">{cow.name}</div>
           <div className="fm-chat-header-sub">
