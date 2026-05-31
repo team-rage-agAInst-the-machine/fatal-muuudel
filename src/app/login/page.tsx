@@ -105,7 +105,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="fm-btn fm-btn-cta fm-display"
+            className="fm-btn fm-cta fm-display"
             style={{ width: "100%", padding: "14px", fontSize: 15, letterSpacing: "0.1em", marginTop: 4 }}
           >
             {loading ? "ATIVANDO RAIO TRATOR..." : "ENTRAR NA NAVE"}
