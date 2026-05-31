@@ -103,7 +103,8 @@ describe("POST /api/swipes", () => {
     );
   });
 
-  it("PASS cria Swipe mas NÃO cria Abduction", async () => {
+  it("PASS: frontend envia nope, API normaliza e persiste direction PASS", async () => {
+    // A UI envia "nope" como alias para PASS — a API normaliza internamente
     mockAuth.mockResolvedValue(SESSION);
     const res = await POST(makePostRequest({ cowId: "mimosa", direction: "nope" }));
     expect(res.status).toBe(200);
@@ -121,6 +122,15 @@ describe("POST /api/swipes", () => {
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.ok).toBe(true);
+  });
+
+  // A rota não possui try/catch em torno das chamadas ao banco — erros de DB propagam
+  // como exceção não tratada em vez de retornar 500. Habilitar após adicionar tratamento de erro.
+  it.skip("retorna 500 quando o banco falha ao registrar swipe", async () => {
+    mockAuth.mockResolvedValue(SESSION);
+    mockSwipeUpsert.mockRejectedValue(new Error("DB explodiu"));
+    const res = await POST(makePostRequest({ cowId: "mimosa", direction: "like" }));
+    expect(res.status).toBe(500);
   });
 });
 

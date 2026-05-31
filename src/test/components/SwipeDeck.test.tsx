@@ -74,9 +74,11 @@ describe("SwipeDeck", () => {
     render(
       <SwipeDeck cows={mockCows} current={0} copy={mockCopy} onDecide={onDecide} />
     );
-    // Cada CowCard renderiza o nome em um <h2>; com 4 vacas e current=0, exibe 3
-    const headings = screen.getAllByRole("heading", { level: 2 });
-    expect(headings).toHaveLength(3);
+    // Com 4 vacas e current=0, apenas os 3 primeiros são renderizados no deck
+    expect(screen.getByText("Mimosa")).toBeInTheDocument();
+    expect(screen.getByText("Rosinha")).toBeInTheDocument();
+    expect(screen.getByText("Branquinha")).toBeInTheDocument();
+    expect(screen.queryByText("Moreninha")).not.toBeInTheDocument();
   });
 
   it("botão PASS/nope chama onDecide com 'nope'", async () => {
