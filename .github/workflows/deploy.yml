@@ -5,11 +5,16 @@ on:
     branches: [main]
     paths-ignore:
       - 'infra/**'
+  workflow_run:
+    workflows: ["🪐 Provisionamento Galáctico"]
+    types: [completed]
+    branches: [main]
 
 jobs:
   deploy:
     name: 🛸 Enviando tripulação para a nave
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: 🛸 Abduzindo o código...
