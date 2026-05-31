@@ -38,7 +38,7 @@ const cows: CowSeed[] = [
     hue: 188,
     tags: ["Capim premium", "Rumina à noite", "Já viu OVNI antes"],
     bio: "Topo abdução de primeira, mas só se rolar sal mineral no after. 🐄✨",
-    photoUrl: "https://images.pexels.com/photos/422218/pexels-photo-422218.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    photoUrl: "https://images.pexels.com/photos/29468422/pexels-photo-29468422.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
   },
   {
     id: "geraldina",
@@ -53,7 +53,7 @@ const cows: CowSeed[] = [
     hue: 168,
     tags: ["Leite premiado", "Anti-carrapato", "Não muge no after"],
     bio: "Sou a fábrica de leite da fazenda. Cabe na nave? Porque eu não passo na portinhola. 😎",
-    photoUrl: "https://images.pexels.com/photos/3662868/pexels-photo-3662868.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    photoUrl: "https://images.pexels.com/photos/12381458/pexels-photo-12381458.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
   },
   {
     id: "estrela",
@@ -68,7 +68,7 @@ const cows: CowSeed[] = [
     hue: 200,
     tags: ["Berra alto", "Fã de cerca elétrica", "Vibe pasto orgânico"],
     bio: "Mugido nível show de rock 🤘 Se quiser silêncio na nave, passa pra próxima.",
-    photoUrl: "https://images.pexels.com/photos/2255459/pexels-photo-2255459.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    photoUrl: "https://images.pexels.com/photos/19855902/pexels-photo-19855902.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
   },
   {
     id: "margarida",
@@ -83,7 +83,7 @@ const cows: CowSeed[] = [
     hue: 152,
     tags: ["Compacta", "Curte sal mineral", "Soneca no pasto"],
     bio: "Pequena, dócil e cabe em qualquer disco voador. Praticamente plug and play. 🛸",
-    photoUrl: "https://images.pexels.com/photos/735968/pexels-photo-735968.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    photoUrl: "https://images.pexels.com/photos/31458840/pexels-photo-31458840.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
   },
   {
     id: "bartira",
@@ -98,7 +98,7 @@ const cows: CowSeed[] = [
     hue: 210,
     tags: ["Marrenta", "Pula cerca", "Líder do rebanho"],
     bio: "Já fugi de 3 fazendas, duvido essa navezinha me segurar. Vem com tudo. 💪",
-    photoUrl: "https://images.pexels.com/photos/3640086/pexels-photo-3640086.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    photoUrl: "https://images.pexels.com/photos/13910867/pexels-photo-13910867.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
   },
   {
     id: "penelope",
@@ -113,7 +113,7 @@ const cows: CowSeed[] = [
     hue: 176,
     tags: ["Romântica", "Olha pra lua", "Leite cremoso"],
     bio: "Vivo olhando pro céu esperando uma nave. Demorou, hein? 🌙👽",
-    photoUrl: "https://images.pexels.com/photos/1550648/pexels-photo-1550648.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    photoUrl: "https://images.pexels.com/photos/7626240/pexels-photo-7626240.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
   },
   {
     id: "zelia",
@@ -128,7 +128,7 @@ const cows: CowSeed[] = [
     hue: 164,
     tags: ["Sábia", "Conta histórias", "Anti-stress"],
     bio: "Sou a coroa do pasto, tenho causos de abdução pra te contar a viagem toda. 👵",
-    photoUrl: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    photoUrl: "https://images.pexels.com/photos/14748148/pexels-photo-14748148.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
   },
   {
     id: "carminha",
@@ -143,7 +143,7 @@ const cows: CowSeed[] = [
     hue: 192,
     tags: ["Dramática", "Diva do curral", "Pose pra foto"],
     bio: "Se for me abduzir, que seja com raio trator de qualidade. Tenho padrão. 💅",
-    photoUrl: "https://images.pexels.com/photos/2318991/pexels-photo-2318991.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
+    photoUrl: "https://images.pexels.com/photos/30121945/pexels-photo-30121945.jpeg?auto=compress&cs=tinysrgb&w=400&h=500&fit=crop",
   },
   // ⚠️ Intrusos — humanos disfarçados de vaca
   {
