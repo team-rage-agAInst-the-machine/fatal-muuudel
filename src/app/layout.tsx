@@ -4,7 +4,7 @@ import { Orbitron, Chakra_Petch } from "next/font/google";
 import SessionProvider from "@/components/SessionProvider";
 import "./globals.css";
 
-const cyberAliens = localFont({
+const cyberAliens = localFont({ 
   src: "./fonts/cyber-aliens.ttf",
   variable: "--font-cyber-aliens",
   display: "swap",
