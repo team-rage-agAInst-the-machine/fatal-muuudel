@@ -11,8 +11,8 @@ const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   callsign: z.string().min(2).max(20),
-  homePlanet: z.string().min(2),
-  shipModel: z.string().min(2),
+  homePlanet: z.string().min(2).optional(),
+  shipModel: z.string().min(2).optional(),
   // perfil biológico — todos opcionais
   image: z.string().url().optional(),
   species: z.string().optional(),
